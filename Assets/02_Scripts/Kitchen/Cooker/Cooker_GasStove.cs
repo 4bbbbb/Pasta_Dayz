@@ -9,6 +9,8 @@ public class Cooker_GasStove: MonoBehaviour, IInteractable
     public GameObject fryingPan;
     private bool isFireOn = false;
 
+    public bool CanBeSelected => false;
+
 
     void Start()
     {        

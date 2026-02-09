@@ -8,6 +8,8 @@ public class Sauces : MonoBehaviour, IInteractable
     private SpriteRenderer sr;
     public bool isSelected { get; private set; }
 
+    public bool CanBeSelected => true;
+
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();

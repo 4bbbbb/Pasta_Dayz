@@ -120,6 +120,68 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &45051435
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 45051436}
+  m_Layer: 0
+  m_Name: cookedNoodleSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: -5487077368411116049, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &45051436
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 45051435}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.14, y: 1.36, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 648086248}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &61556821
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 61556822}
+  m_Layer: 0
+  m_Name: toppingSpawnPoint (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &61556822
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 61556821}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.78, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1112150583}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &155739039
 GameObject:
   m_ObjectHideFlags: 0
@@ -408,16 +470,6 @@ Transform:
   - {fileID: 331358127}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &588648391 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7492044799998688880, guid: b92f826f3892b98488deb9eac6b81eae, type: 3}
-  m_PrefabInstance: {fileID: 2616146554830746360}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &588648392 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5114385083528168375, guid: b92f826f3892b98488deb9eac6b81eae, type: 3}
-  m_PrefabInstance: {fileID: 2616146554830746360}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &648086246
 GameObject:
   m_ObjectHideFlags: 0
@@ -501,7 +553,8 @@ Transform:
   m_LocalPosition: {x: 1.5899997, y: -10.75, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 45051436}
   m_Father: {fileID: 1630821045}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &648086249
@@ -537,6 +590,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bba4ecc397082e84fae254f5e6d99edf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cookedNoodleSpawnPoint: {fileID: 45051436}
+  cookedNoodlePrefab: {fileID: 7492044799998688880, guid: b92f826f3892b98488deb9eac6b81eae, type: 3}
 --- !u!1 &727739965
 GameObject:
   m_ObjectHideFlags: 0
@@ -782,8 +837,38 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1166727141}
-  - {fileID: 588648392}
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1103852041
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1103852042}
+  m_Layer: 0
+  m_Name: toppingSpawnPoint (2)
+  m_TagString: Untagged
+  m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1103852042
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1103852041}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.16, y: -2.12, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1112150583}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1112150581
 GameObject:
@@ -866,11 +951,16 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 10.58, y: -10.78, z: 0}
-  m_LocalScale: {x: 0.9, y: 0.9, z: 1}
+  m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 177454576}
+  - {fileID: 1476820431}
   - {fileID: 1364417231}
+  - {fileID: 61556822}
+  - {fileID: 1103852042}
+  - {fileID: 1521749850}
+  - {fileID: 1878180225}
   m_Father: {fileID: 1630821045}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &1112150584
@@ -907,8 +997,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gasStove: {fileID: 1405678074}
-  toppingSpawnPoint: {fileID: 1364417231}
+  toppingSpawnPoints:
+  - {fileID: 1364417231}
+  - {fileID: 61556822}
+  - {fileID: 1103852042}
+  - {fileID: 1521749850}
+  - {fileID: 1878180225}
   noodleSpawnPoint: {fileID: 177454576}
+  oliveoilSpawnPoint: {fileID: 1476820431}
+  finishedPastaPrefab: {fileID: 4694056737463563437, guid: 7a501c55c3ff5c6478407a5b5447908b, type: 3}
 --- !u!1 &1166727138
 GameObject:
   m_ObjectHideFlags: 0
@@ -1007,7 +1104,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 782b1b1768420b847b64c5e4401a0eee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cookedNoodle: {fileID: 588648391}
+  cookedNoodlePrefab: {fileID: 7492044799998688880, guid: b92f826f3892b98488deb9eac6b81eae, type: 3}
 --- !u!65 &1166727143
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1041,6 +1138,7 @@ GameObject:
   - component: {fileID: 1183929344}
   - component: {fileID: 1183929346}
   - component: {fileID: 1183929347}
+  - component: {fileID: 1183929348}
   m_Layer: 0
   m_Name: Topping_Garlic
   m_TagString: Topping
@@ -1088,7 +1186,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 1f3b2ca046e299048aebc4befccdb20c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1151,6 +1249,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 4.5799994, y: 4.8999996, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1183929348
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1183929343}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e738a5887aed8348be50220b7a58fdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  toppingType: 1
+  isOliveOil: 0
+  toppingPrefab: {fileID: 0}
 --- !u!1 &1364417230
 GameObject:
   m_ObjectHideFlags: 0
@@ -1163,7 +1276,7 @@ GameObject:
   m_Layer: 0
   m_Name: toppingSpawnPoint
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -1302,6 +1415,68 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 4.58, y: 4.9, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &1476820430
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1476820431}
+  m_Layer: 0
+  m_Name: oliveoilSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1476820431
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1476820430}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1112150583}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1521749849
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1521749850}
+  m_Layer: 0
+  m_Name: toppingSpawnPoint (3)
+  m_TagString: Untagged
+  m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1521749850
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1521749849}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.52, y: 2.08, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1112150583}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1620257664
 GameObject:
   m_ObjectHideFlags: 0
@@ -1689,6 +1864,7 @@ GameObject:
   - component: {fileID: 1877054754}
   - component: {fileID: 1877054753}
   - component: {fileID: 1877054755}
+  - component: {fileID: 1877054756}
   m_Layer: 0
   m_Name: Topping_Tomato
   m_TagString: Topping
@@ -1736,7 +1912,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 1d7b90fca52ef6f4ea9802da870a7425, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1784,6 +1960,52 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 4.5799994, y: 4.8999996, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1877054756
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1877054752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e738a5887aed8348be50220b7a58fdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  toppingType: 0
+  isOliveOil: 0
+  toppingPrefab: {fileID: 0}
+--- !u!1 &1878180224
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1878180225}
+  m_Layer: 0
+  m_Name: toppingSpawnPoint (4)
+  m_TagString: Untagged
+  m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1878180225
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1878180224}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.4, y: 2.08, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1112150583}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2002817759
 GameObject:
   m_ObjectHideFlags: 0
@@ -1979,63 +2201,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2429436546529640918, guid: ed5cc244ba27d25478a2acc9d55b72c7, type: 3}
   m_PrefabInstance: {fileID: 6294145141543201814}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &2616146554830746360
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 980589933}
-    m_Modifications:
-    - target: {fileID: 5114385083528168375, guid: b92f826f3892b98488deb9eac6b81eae, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 2.61
-      objectReference: {fileID: 0}
-    - target: {fileID: 5114385083528168375, guid: b92f826f3892b98488deb9eac6b81eae, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -9.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 5114385083528168375, guid: b92f826f3892b98488deb9eac6b81eae, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5114385083528168375, guid: b92f826f3892b98488deb9eac6b81eae, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5114385083528168375, guid: b92f826f3892b98488deb9eac6b81eae, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5114385083528168375, guid: b92f826f3892b98488deb9eac6b81eae, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5114385083528168375, guid: b92f826f3892b98488deb9eac6b81eae, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5114385083528168375, guid: b92f826f3892b98488deb9eac6b81eae, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5114385083528168375, guid: b92f826f3892b98488deb9eac6b81eae, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5114385083528168375, guid: b92f826f3892b98488deb9eac6b81eae, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7492044799998688880, guid: b92f826f3892b98488deb9eac6b81eae, type: 3}
-      propertyPath: m_Name
-      value: Noodle_CookedNoodle
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: b92f826f3892b98488deb9eac6b81eae, type: 3}
 --- !u!1001 &6294145141543201814
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2044,6 +2209,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 727739966}
     m_Modifications:
+    - target: {fileID: 1726208183122957871, guid: ed5cc244ba27d25478a2acc9d55b72c7, type: 3}
+      propertyPath: m_SortingOrder
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 2429436546529640918, guid: ed5cc244ba27d25478a2acc9d55b72c7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 6.49

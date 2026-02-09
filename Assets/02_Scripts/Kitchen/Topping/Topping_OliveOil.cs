@@ -10,11 +10,14 @@ public class Topping_OliveOil : MonoBehaviour, IInteractable
 
     public bool isOliveOil = true;
 
-    public GameObject toppingPrefab;
+    public bool CanBeSelected => true;
+
+    public GameObject oliveOilPrefab;
 
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
+        oliveOilPrefab = gameObject;
         isSelected = false;
     }
 
@@ -33,7 +36,7 @@ public class Topping_OliveOil : MonoBehaviour, IInteractable
     void Select()
     {
         isSelected = true;
-        sr.color = Color.red;
+        sr.color = Color.yellow;
     }
 
     public void Cancel()

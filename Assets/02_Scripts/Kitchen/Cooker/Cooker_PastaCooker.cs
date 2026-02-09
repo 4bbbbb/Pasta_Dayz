@@ -1,4 +1,4 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -6,27 +6,62 @@ using static IInteractableScript;
 
 public class Cooker_PastaCooker : MonoBehaviour, IInteractable
 {
-    private SpriteRenderer sr;
-   
+    [SerializeField] private Transform cookedNoodleSpawnPoint;
+    [SerializeField] public GameObject cookedNoodlePrefab;
+
+    private SpriteRenderer sr;   
+       
+
+    public bool CanBeSelected => false;
+
     void Start()
     {
-        sr = GetComponent<SpriteRenderer>();
+        sr = GetComponent<SpriteRenderer>();        
     }
 
     public bool Interact(IInteractable target)
     {
-        if (target == null)
-        {
-            Debug.Log("∏È¿ª º±≈√«ÿ¡÷ººø‰");            
-            return false;
+        if (target is Noodles noodles)
+        {           
+            StartBowling(noodles);
+            return true; 
         }
 
+        if (target == null)
+        {
+            Debug.Log("Î©¥ÏùÑ ÏÑ†ÌÉùÌï¥Ï£ºÏÑ∏Ïöî");
+            return false;
+        }
         return false;
        
     }    
     public void Cancel()
     {
 
+    }
+    public void StartBowling(Noodles noodles)
+    {
+        OnBowling();
+        StartCoroutine(BowlingRoutine(noodles));
+    }
+
+    IEnumerator BowlingRoutine(Noodles noodles)
+    {       
+
+        for (int i = 1; i <= 7; i++)
+        {
+            yield return new WaitForSeconds(1f);
+            Debug.Log($"{i}Ï¥à...");
+        }
+
+        Instantiate(
+            cookedNoodlePrefab,
+            transform.position,
+            Quaternion.identity,
+            cookedNoodleSpawnPoint
+        );
+
+        StopBowling();
     }
 
     public void OnBowling()
@@ -37,7 +72,7 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
     public void StopBowling()
     {
         sr.color = Color.white;
-        Debug.Log("∏È¿Ã ¥Ÿ ¿Õæ˙Ω¿¥œ¥Ÿ !");
+        Debug.Log("Î©¥Ïù¥ Îã§ ÏùµÏóàÏäµÎãàÎã§ !");
     }
 
 }

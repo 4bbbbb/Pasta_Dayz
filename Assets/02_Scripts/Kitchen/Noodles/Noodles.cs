@@ -7,8 +7,9 @@ public class Noodles : MonoBehaviour, IInteractable
 {
     private SpriteRenderer sr;
     public bool isSelected {  get; private set; }
-    public GameObject cookedNoodle;
+    public GameObject cookedNoodlePrefab;
 
+    public bool CanBeSelected => true;
 
     void Start()
     {
@@ -28,35 +29,13 @@ public class Noodles : MonoBehaviour, IInteractable
         if (target is Cooker_PastaCooker pastaCooker)
         {
             Debug.Log("면이 삶아지고 있습니다. 보글보글 oOoOO ....");
-            pastaCooker.OnBowling();
-            StartBowling(pastaCooker);
+            pastaCooker.StartBowling(this);
             Cancel();
             return true;
         }
 
         return false;
-    }    
-
-    void StartBowling(Cooker_PastaCooker pastaCooker)
-    {
-        StartCoroutine(BowlingRoutine(pastaCooker));
-    }
-
-    IEnumerator BowlingRoutine(Cooker_PastaCooker pastaCooker)
-    {
-        int count = 0;
-
-        while(count < 7)
-        {
-            yield return new WaitForSeconds(1);
-            count++;
-            Debug.Log($"{count}초...");
-        }
-        
-        cookedNoodle.SetActive(true);
-        pastaCooker.StopBowling();
-
-    }
+    }        
 
     void Select()
     {

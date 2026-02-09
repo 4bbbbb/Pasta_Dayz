@@ -6,9 +6,10 @@ using static IInteractableScript;
 public class Noodles_CookedNoodle : MonoBehaviour, IInteractable
 {
     private SpriteRenderer sr;
-
-    public GameObject cookedNoodlePrefab;
+        
     public bool isSelected { get; private set; }
+
+    public bool CanBeSelected => true;
 
     void Start()
     {
@@ -23,7 +24,6 @@ public class Noodles_CookedNoodle : MonoBehaviour, IInteractable
             sr.color = Color.red;
             return true;
         }
-
         return false;
     }
 

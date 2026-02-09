@@ -5,15 +5,24 @@ using static IInteractableScript;
 
 public class Topping : MonoBehaviour, IInteractable
 {
+    public ToppingType toppingType;
     public bool isOliveOil;
     public GameObject toppingPrefab;
 
     private SpriteRenderer sr;
-    public bool isSelected { get; private set; } 
+    public bool isSelected { get; private set; }
+    public bool CanBeSelected => true;
+
+    public enum ToppingType
+    {
+        Tomato,
+        Garlic,
+    }
 
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
+        toppingPrefab = gameObject;
         isSelected = false;
     }
 

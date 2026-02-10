@@ -241,7 +241,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 105df93c876f9aa4e814582f12d8f434, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -280,6 +280,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9d4bea22a86b784aa45e464b48e292a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  saucePrefab: {fileID: 0}
+  sauceType: 0
 --- !u!65 &155739043
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -324,6 +326,68 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 177454575}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1112150583}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &188670354
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 188670355}
+  m_Layer: 0
+  m_Name: sauceSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &188670355
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 188670354}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1112150583}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &234810098
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 234810099}
+  m_Layer: 0
+  m_Name: finishedPastaSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &234810099
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 234810098}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -955,6 +1019,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 177454576}
+  - {fileID: 188670355}
+  - {fileID: 234810099}
   - {fileID: 1476820431}
   - {fileID: 1364417231}
   - {fileID: 61556822}
@@ -1003,6 +1069,8 @@ MonoBehaviour:
   - {fileID: 1103852042}
   - {fileID: 1521749850}
   - {fileID: 1878180225}
+  sauceSpawnPoint: {fileID: 188670355}
+  finishedPastaSpawnPoint: {fileID: 234810099}
   noodleSpawnPoint: {fileID: 177454576}
   oliveoilSpawnPoint: {fileID: 1476820431}
   finishedPastaPrefab: {fileID: 4694056737463563437, guid: 7a501c55c3ff5c6478407a5b5447908b, type: 3}
@@ -1018,6 +1086,7 @@ GameObject:
   - component: {fileID: 1166727140}
   - component: {fileID: 1166727142}
   - component: {fileID: 1166727143}
+  - component: {fileID: 1166727144}
   m_Layer: 0
   m_Name: Noodle_Spaghetti
   m_TagString: Noodle
@@ -1104,7 +1173,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 782b1b1768420b847b64c5e4401a0eee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cookedNoodlePrefab: {fileID: 7492044799998688880, guid: b92f826f3892b98488deb9eac6b81eae, type: 3}
 --- !u!65 &1166727143
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1126,6 +1194,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 4, y: 4, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1166727144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1166727138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 173d3c9e193c30a42a561f239828c32b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cookedNoodlePrefab: {fileID: 0}
 --- !u!1 &1183929343
 GameObject:
   m_ObjectHideFlags: 0

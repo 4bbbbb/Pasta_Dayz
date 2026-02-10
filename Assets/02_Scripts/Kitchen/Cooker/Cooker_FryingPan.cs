@@ -7,16 +7,34 @@ using static Topping;
 
 public class Cooker_FryingPan : MonoBehaviour, IInteractable
 {
-    [Header("<<가스스토브>>")] [SerializeField] private Cooker_GasStove gasStove;
-    [Header("<<토핑스폰위치>>")] [SerializeField] private Transform[] toppingSpawnPoints;
-    [Header("<<소스스폰위치>>")] [SerializeField] private Transform sauceSpawnPoint;
-    [Header("<<완성된파스타스폰위치>>")][SerializeField] private Transform finishedPastaSpawnPoint;
-    [Header("<<익은면스폰위치>>")] [SerializeField] private Transform noodleSpawnPoint;
-    [Header("<<올리브오일스폰위치>>")] [SerializeField] private Transform oliveoilSpawnPoint;
-    [Header("<<완성된파스타>>")][SerializeField] private GameObject finishedPastaPrefab;
+    [Header("<<가스스토브>>")] 
+    [SerializeField] private Cooker_GasStove gasStove;
+
+    [Header("<<스폰위치>>")] 
+    [SerializeField] private Transform[] toppingSpawnPoints;
+    [SerializeField] private Transform sauceSpawnPoint;
+    [SerializeField] private Transform finishedPastaSpawnPoint;
+    [SerializeField] private Transform noodleSpawnPoint;
+    [SerializeField] private Transform oliveoilSpawnPoint;   
+
+    [Header("<<익은면 프리팹>>")]
+    [SerializeField] private GameObject cookedNoodlePrefab;
+   
+
+    [Header("<<소스 프리팹>>")]
+    [SerializeField] private GameObject oliveOilPrefab;
+    [SerializeField] private GameObject saucePrefab;
+
+    [Header("<<토핑 프리팹>>")]
+    [SerializeField] private GameObject tomatoPrefab;
+    [SerializeField] private GameObject garlicPrefab;
+
+
+    [Header("<<완성된 파스타 프리팹>>")][SerializeField] private GameObject finishedPastaPrefab;
 
     private SpriteRenderer sr;
-    
+    private Collider fryingPanCollider;
+
     private bool hasOil = false;
     private bool isCooking = false;
 
@@ -29,10 +47,12 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
+        fryingPanCollider = GetComponent<Collider>();
     }
 
     public bool Interact(IInteractable target)
     {
+        // 프라이팬이 조리중이므로 아무런 상호작용 X
         if (isCooking) return false;
 
 
@@ -43,7 +63,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             gasStove.TurnOn();
 
             Instantiate(
-                oil.oliveOilPrefab,
+                oliveOilPrefab,
                 oliveoilSpawnPoint.position,
                 Quaternion.identity,
                 oliveoilSpawnPoint
@@ -55,22 +75,38 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         // 일반 토핑
         if (target is Topping topping)
         {
+            // 이미 추가한 토핑이라면 추가 X
             if (addedToppings.Contains(topping.toppingType))
                 return false;
 
             Transform spawnPoint = GetRandomEmptyToppingPoint();
             if (spawnPoint == null) return false;
+                       
+            GameObject toppingPrefab = topping.toppingType switch
+            {
+                Topping.ToppingType.Tomato => tomatoPrefab,
+                Topping.ToppingType.Garlic => garlicPrefab,
+                _ => null
+            //    if (topping.toppingType == Topping.ToppingType.Tomato)
+            //{
+            //    prefabToSpawn = tomatoPrefab;
+            //}
+            //else if (topping.toppingType == Topping.ToppingType.Garlic)
+            //{
+            //    prefabToSpawn = garlicPrefab;
+            //}
+            //else
+            //{
+            //    prefabToSpawn = null; // 다른 토핑 타입이면 null 처리
+            //}
+            };
 
-            GameObject obj = Instantiate(
-                topping.toppingPrefab,
-                spawnPoint.position,
-                Quaternion.identity,
-                spawnPoint
-            );
+            // 프리팹 생성
+            Instantiate(toppingPrefab, spawnPoint.position, Quaternion.identity, spawnPoint);
 
-            obj.transform.localScale *= 0.5f;
-
+            // 추가 기록
             addedToppings.Add(topping.toppingType);
+
             return true;
         }
 
@@ -83,7 +119,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
             // 소스 스폰
             Instantiate(
-                sauces.saucePrefab,
+                saucePrefab,
                 sauceSpawnPoint.position,
                 Quaternion.identity,
                 sauceSpawnPoint
@@ -128,8 +164,12 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
                 return false;
             }
 
-            cookedNoodle.transform.SetParent(noodleSpawnPoint);
-            cookedNoodle.transform.position = noodleSpawnPoint.position;
+            Instantiate(
+                cookedNoodlePrefab,  // prefab으로 만들어둔 익은 면
+                noodleSpawnPoint.position,
+                Quaternion.identity,
+                noodleSpawnPoint
+            );
 
             StartCoroutine(CookRoutine());
             return true;
@@ -171,8 +211,10 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             finishedPastaPrefab,
             finishedPastaSpawnPoint.position,
             Quaternion.identity,
-            noodleSpawnPoint
+            finishedPastaSpawnPoint
         );
+
+        fryingPanCollider.enabled = false;
 
         isCooking = false;
         sr.color = Color.white;
@@ -194,12 +236,16 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         {
             Destroy(oliveoilSpawnPoint.GetChild(0).gameObject);
         }
-            
+
+        if (sauceSpawnPoint.childCount > 0)
+        {
+            Destroy(sauceSpawnPoint.GetChild(0).gameObject);
+        }
 
         if (noodleSpawnPoint.childCount > 0)
         {
             Destroy(noodleSpawnPoint.GetChild(0).gameObject);
-        }            
+        }        
 
         addedToppings.Clear();
         hasOil = false;

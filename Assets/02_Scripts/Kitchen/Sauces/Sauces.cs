@@ -6,8 +6,7 @@ using static IInteractableScript;
 public class Sauces : MonoBehaviour, IInteractable
 {
     private SpriteRenderer sr;
-    public bool isSelected { get; private set; }
-    public GameObject saucePrefab;
+    public bool isSelected { get; private set; }    
     public SauceType sauceType;
 
     public bool CanBeSelected => true;
@@ -23,8 +22,7 @@ public class Sauces : MonoBehaviour, IInteractable
 
     void Start()
     {
-        sr = GetComponent<SpriteRenderer>();
-        saucePrefab = gameObject;
+        sr = GetComponent<SpriteRenderer>();        
     }
 
     public bool Interact(IInteractable target)
@@ -42,7 +40,7 @@ public class Sauces : MonoBehaviour, IInteractable
     void Select()
     {
         isSelected = true;
-        sr.color = Color.yellow;
+        sr.color = Color.red;
     }
 
     public void Cancel()

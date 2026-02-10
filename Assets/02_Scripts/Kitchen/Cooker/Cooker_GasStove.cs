@@ -7,6 +7,7 @@ public class Cooker_GasStove: MonoBehaviour, IInteractable
 {
     private SpriteRenderer sr;
     public GameObject fryingPan;
+    private Collider stoveCollider;
     private bool isFireOn = false;
 
     public bool CanBeSelected => false;
@@ -15,6 +16,7 @@ public class Cooker_GasStove: MonoBehaviour, IInteractable
     void Start()
     {        
         sr = GetComponent<SpriteRenderer>();
+        stoveCollider = GetComponent<Collider>();
         fryingPan.SetActive(false);
         isFireOn = false;
     }
@@ -23,6 +25,7 @@ public class Cooker_GasStove: MonoBehaviour, IInteractable
         if (target == null)
         {
             Debug.Log("후라이팬이 준비 되었습니다 !");
+            stoveCollider.enabled = false;
             fryingPan.SetActive(true);
             return false;
         }
@@ -40,7 +43,7 @@ public class Cooker_GasStove: MonoBehaviour, IInteractable
     {
         Debug.Log("조리 완료! 가스가 꺼집니다.");
         isFireOn = false;
-        sr.color = Color.white;
+        sr.color = Color.white;        
     }
 
     public void Cancel()

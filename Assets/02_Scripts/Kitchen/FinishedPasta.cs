@@ -3,36 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using static IInteractableScript;
 
-public class Topping : MonoBehaviour, IInteractable
+public class FinishedPasta : MonoBehaviour, IInteractable
 {
-    public bool isOliveOil;    
-
     private SpriteRenderer sr;
     public bool isSelected { get; private set; }
+
     public bool CanBeSelected => true;
-
-    public ToppingType toppingType;
-
-    public enum ToppingType
-    {
-        Tomato,
-        Garlic,
-    }
 
     void Start()
     {
-        sr = GetComponent<SpriteRenderer>();        
-        isSelected = false;
+        sr = GetComponent<SpriteRenderer>();
     }
 
     public bool Interact(IInteractable target)
     {
         if (target == null)
         {
-            Debug.Log($"{name} 선택!");
+            Debug.Log("완성된 파스타 선택!");
             Select();
             return true;
-        }        
+        }
 
         return false;
     }
@@ -41,6 +31,7 @@ public class Topping : MonoBehaviour, IInteractable
         isSelected = true;
         sr.color = Color.red;
     }
+
     public void Cancel()
     {
         isSelected = false;

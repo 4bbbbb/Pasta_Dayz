@@ -2,40 +2,37 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static IInteractableScript;
+using static Topping;
 
-public class Topping : MonoBehaviour, IInteractable
-{
-    public bool isOliveOil;    
-
+public class Plate : MonoBehaviour, IInteractable
+{    
     private SpriteRenderer sr;
     public bool isSelected { get; private set; }
     public bool CanBeSelected => true;
 
-    public ToppingType toppingType;
-
-    public enum ToppingType
+    public PlateType plateType;
+    public enum PlateType
     {
-        Tomato,
-        Garlic,
+        BasicPlate,
+        OvenPlate,
     }
 
     void Start()
     {
-        sr = GetComponent<SpriteRenderer>();        
+        sr = GetComponent<SpriteRenderer>();
         isSelected = false;
     }
-
     public bool Interact(IInteractable target)
     {
         if (target == null)
         {
-            Debug.Log($"{name} 선택!");
+            Debug.Log("기본 그릇 선택!");
             Select();
             return true;
-        }        
-
+        }
         return false;
     }
+
     void Select()
     {
         isSelected = true;

@@ -9,6 +9,8 @@ public class IInteractableScript
         bool Interact(IInteractable target);
         // target == null : 선택 시도
         // target != null : 사용 시도 (재료 → 기기)
+        // return true : 입력이 처리됨
+        // return false : 처리할 상황X
 
         void Cancel();
         // 선택 취소

@@ -5,9 +5,6 @@ using static IInteractableScript;
 
 public class Plates_BasicPlate : MonoBehaviour, IInteractable
 {
-    [Header("<<후라이팬>>")]
-    [SerializeField] private GameObject fryingPan;
-
     [Header("<<완성된 파스타 스폰위치>>")]
     [SerializeField] private Transform pastaSpawnPoint;
 
@@ -18,8 +15,7 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
     public bool CanBeSelected => true;
 
     void Start()
-    {
-        fryingPan = transform.Find("Cooker_FryingPan").gameObject;
+    {        
         isSelected = false;
     }
     public bool Interact(IInteractable target)
@@ -33,15 +29,14 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
         if (target is FinishedPasta finishedPasta)
         {
             Debug.Log("완성된 파스타를 그릇에 담았어요 !!");
+            finishedPasta.OnMovedToPlate();
             Destroy(finishedPasta.gameObject);
             Instantiate(
-                finishedPasta,
+                finishedPastaPrefab,
                 pastaSpawnPoint.position,
                 Quaternion.identity,
                 pastaSpawnPoint
                 );
-
-            fryingPan.SetActive(false);
 
             return true;
         }

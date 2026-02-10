@@ -133,7 +133,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -151,6 +151,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a9d1153fb29f8e499e398fa73a05952, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fryingPan: {fileID: 0}
   pastaSpawnPoint: {fileID: 1077283570314798845}
   finishedPastaPrefab: {fileID: 4694056737463563437, guid: 7a501c55c3ff5c6478407a5b5447908b, type: 3}

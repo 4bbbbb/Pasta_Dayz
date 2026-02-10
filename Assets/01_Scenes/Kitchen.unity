@@ -120,6 +120,38 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &22726929
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 22726930}
+  m_Layer: 0
+  m_Name: Cheese
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &22726930
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 22726929}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 11.050919, y: -8.033211, z: -5.427906}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1784594221}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &45051435
 GameObject:
   m_ObjectHideFlags: 0
@@ -408,7 +440,7 @@ GameObject:
   - component: {fileID: 331358128}
   - component: {fileID: 331358129}
   m_Layer: 0
-  m_Name: Plate_BasicPlate
+  m_Name: Plate
   m_TagString: Plate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -668,7 +700,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cookedNoodleSpawnPoint: {fileID: 45051436}
-  cookedNoodlePrefab: {fileID: 7492044799998688880, guid: b92f826f3892b98488deb9eac6b81eae, type: 3}
+  cookedNoodlePrefab: {fileID: 7492044799998688880, guid: ab0312be9e408bd478a6f9faecd772b1, type: 3}
 --- !u!1 &727739965
 GameObject:
   m_ObjectHideFlags: 0
@@ -1847,6 +1879,7 @@ Transform:
   - {fileID: 1759043338}
   - {fileID: 2056364503}
   - {fileID: 648086248}
+  - {fileID: 2002817761}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1759043336
@@ -2012,8 +2045,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1784594221}
   - component: {fileID: 1784594220}
+  - component: {fileID: 1784594223}
+  - component: {fileID: 1784594222}
   m_Layer: 0
-  m_Name: pamasanCheese
+  m_Name: Cheese_ParmesanCheese
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2079,13 +2114,46 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1784594219}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 21.51, y: -5.35, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 10.459082, y: 2.6832108, z: 5.427906}
   m_LocalScale: {x: 0.6, y: 0.6, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 22726930}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1784594222
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1784594219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c2b6d743b3be2d458cdd0b667563109, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!65 &1784594223
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1784594219}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 4.5799994, y: 4.8999996, z: 0.2}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1856572039
 GameObject:
   m_ObjectHideFlags: 0
@@ -2281,7 +2349,7 @@ GameObject:
   - component: {fileID: 2002817761}
   - component: {fileID: 2002817760}
   m_Layer: 0
-  m_Name: Oven
+  m_Name: Cooker_Oven
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2347,12 +2415,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2002817759}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 24.96, y: 0.61, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1630821045}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2056364501
 GameObject:
@@ -2466,11 +2534,10 @@ SceneRoots:
   m_Roots:
   - {fileID: 940029358}
   - {fileID: 1620257666}
-  - {fileID: 2002817761}
-  - {fileID: 1784594221}
   - {fileID: 1630821045}
   - {fileID: 727739966}
   - {fileID: 980589933}
   - {fileID: 1856572040}
   - {fileID: 507778477}
+  - {fileID: 22726930}
   - {fileID: 751656349}

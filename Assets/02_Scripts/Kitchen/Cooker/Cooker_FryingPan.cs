@@ -170,6 +170,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
                 Quaternion.identity,
                 noodleSpawnPoint
             );
+            Destroy(cookedNoodle.gameObject);
 
             StartCoroutine(CookRoutine());
             return true;

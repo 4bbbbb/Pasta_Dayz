@@ -9,14 +9,15 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
     [SerializeField] private Transform cookedNoodleSpawnPoint;
     [SerializeField] public GameObject cookedNoodlePrefab;
 
-    private SpriteRenderer sr;   
-       
+    private SpriteRenderer sr;
+    private Collider cookerCollider;
 
     public bool CanBeSelected => false;
 
     void Start()
     {
-        sr = GetComponent<SpriteRenderer>();        
+        sr = GetComponent<SpriteRenderer>();
+        cookerCollider = GetComponent<Collider>();
     }
 
     public bool Interact(IInteractable target)
@@ -72,6 +73,7 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
     public void StopBowling()
     {
         sr.color = Color.white;
+        cookerCollider.enabled = false;
         Debug.Log("면이 다 익었습니다 !");
     }
 

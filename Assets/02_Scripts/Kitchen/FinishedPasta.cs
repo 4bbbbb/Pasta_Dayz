@@ -39,6 +39,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             return true;
         }
 
+        // 치즈
         if (target is Cheese cheese)
         {
             if (!isOnPlate)
@@ -86,6 +87,23 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         if (isOnPlate && target is Plates_OvenPlate)
         {
             return false;
+        }
+
+        if (target is Topping_Parsley parsley)
+        {
+            if (!isOnPlate)
+            {
+                Debug.Log("그릇 위에 올려진 파스타에만 파슬리를 추가할 수 있어요!");
+                return false;
+            }
+
+            if (!hasCheese)
+            {
+                Debug.Log("치즈를 먼저 뿌려주세요!");
+                return false;
+            }
+
+            //Instantiate
         }
 
         return false;

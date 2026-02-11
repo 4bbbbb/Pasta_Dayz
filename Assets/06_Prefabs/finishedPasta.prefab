@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 1562819927925818475}
   - component: {fileID: 878978329335162085}
   m_Layer: 0
-  m_Name: finishedPasta
+  m_Name: FinishedPasta
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -64,6 +64,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 905166858084659127}
+  - {fileID: 1589834203138197831}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &5706193447137694690
@@ -154,4 +155,37 @@ MonoBehaviour:
   fryingPan: {fileID: 0}
   parmesanCheesePrefab: {fileID: 2549163354370598925, guid: 1bf7c548bba527f4badc8bcdc9054d35, type: 3}
   mozzarellaCheesePrefab: {fileID: 2126654881342353006, guid: 6e1ea736a3ade7744b41b6747802f552, type: 3}
+  parsleyPrefab: {fileID: 4456431008458272939, guid: fbb71ae443d45644b9f8aef2c4b6aafd, type: 3}
   cheeseSpawnPoint: {fileID: 905166858084659127}
+  parsleySpawnPoint: {fileID: 1589834203138197831}
+--- !u!1 &8878154433793611343
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1589834203138197831}
+  m_Layer: 0
+  m_Name: parsleySpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1589834203138197831
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8878154433793611343}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.07, y: -0.06, z: 0}
+  m_LocalScale: {x: 0.64287996, y: 0.64287996, z: 0.64287996}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6518147389686890248}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

@@ -12,8 +12,14 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     [SerializeField] private GameObject parmesanCheesePrefab;
     [SerializeField] private GameObject mozzarellaCheesePrefab;
 
-    [Header("<<치즈 스폰 위치>>")]
+    [Header("<<파슬리 프리팹>>")]
+    [SerializeField] private GameObject parsleyPrefab;
+
+    [Header("<<치즈, 파슬리 스폰 위치>>")]
     [SerializeField] Transform cheeseSpawnPoint;
+    [SerializeField] Transform parsleySpawnPoint;
+
+
 
     private SpriteRenderer sr;
     public bool isSelected { get; private set; }
@@ -103,7 +109,13 @@ public class FinishedPasta : MonoBehaviour, IInteractable
                 return false;
             }
 
-            //Instantiate
+            Debug.Log("파슬리를 뿌렸어요");
+            Instantiate(
+                parsleyPrefab,
+                parsleySpawnPoint.position,
+                Quaternion.identity,
+                parsleySpawnPoint
+                );            
         }
 
         return false;

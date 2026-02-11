@@ -7,19 +7,16 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
 {
     [Header("<<그릇 프리팹>>")]
     [SerializeField] private GameObject basicPlatePrefab;
-    [SerializeField] private GameObject ovenPlatePrefab;
-    // 빠네 
+    [SerializeField] private GameObject ovenPlatePrefab;     
 
     [Header("<<스폰위치>>")]
     [SerializeField] private Transform plateSpawnPoint;
 
     public bool CanBeSelected => false;
 
-    private Collider tableCollider;
 
     void Start()
     {
-        tableCollider = GetComponent<Collider>();
     }
 
     public bool Interact(IInteractable target)
@@ -40,13 +37,21 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
             };
 
             Debug.Log("그릇이 준비되었어요 !");
-            tableCollider.enabled = false;
+            //tableCollider.enabled = false;
             Instantiate(
                 platePrefab,
                 plateSpawnPoint.position,
                 Quaternion.identity,
                 plateSpawnPoint
             );
+            return true;
+        }
+
+        if (target is BakedPasta bakedPasta)
+        {
+            bakedPasta.transform.SetParent(plateSpawnPoint);
+            bakedPasta.transform.position = plateSpawnPoint.position;
+
             return true;
         }
 

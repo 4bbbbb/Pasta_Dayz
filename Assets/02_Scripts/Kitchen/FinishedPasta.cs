@@ -10,15 +10,19 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
     [Header("<<치즈 프리팹>>")]
     [SerializeField] private GameObject parmesanCheesePrefab;
+    [SerializeField] private GameObject mozzarellaCheesePrefab;
 
     [Header("<<치즈 스폰 위치>>")]
     [SerializeField] Transform cheeseSpawnPoint;
 
     private SpriteRenderer sr;
     public bool isSelected { get; private set; }
-
     public bool CanBeSelected => true;
+
     private bool isOnPlate = false;
+    private bool hasCheese = false;
+
+    private Cheese.CheeseType? addedCheeseType = null;
 
     void Start()
     {
@@ -35,7 +39,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             return true;
         }
 
-        if (target is Cheese_ParmesanCheese cheese)
+        if (target is Cheese cheese)
         {
             if (!isOnPlate)
             {
@@ -43,16 +47,45 @@ public class FinishedPasta : MonoBehaviour, IInteractable
                 return false;
             }
 
-            // 치즈 프리팹 생성
+            if (hasCheese)
+            {
+                Debug.Log("이미 치즈가 추가되어 있어요!");
+                return false;
+            }
+
+            GameObject cheesePrefab = cheese.cheeseType switch
+            {
+                Cheese.CheeseType.Parmesan => parmesanCheesePrefab,
+                Cheese.CheeseType.Mozzarella => mozzarellaCheesePrefab,
+                _ => null
+            };
+
+            if (cheesePrefab == null)
+            {
+                return false;
+            }
+
             Instantiate(
-                parmesanCheesePrefab,
+                cheesePrefab,
                 cheeseSpawnPoint.position,
                 Quaternion.identity,
-                transform
+                cheeseSpawnPoint
             );
 
-            Destroy(cheese.gameObject); // 치즈 소비
+            hasCheese = true;
+            addedCheeseType = cheese.cheeseType;
+
             return true;
+        }
+
+        if (isOnPlate && target is Plates_BasicPlate)
+        {
+            return false;
+        }
+
+        if (isOnPlate && target is Plates_OvenPlate)
+        {
+            return false;
         }
 
         return false;
@@ -65,15 +98,17 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     public void OnMovedToPlate()
     {
         fryingPan.gameObject.SetActive(false);
+        isOnPlate = true;
+        Debug.Log("완성된 파스타를 그릇에 담았어요 !!");
+    }
+    public bool IsOnOvenPlate()
+    {
+        return isOnPlate && GetComponentInParent<Plates_OvenPlate>() != null;
     }
 
-    void OnTriggerEnter(Collider other)
+    public bool HasMozzarella()
     {
-        if (other.GetComponent<Plates_BasicPlate>() != null)
-        {
-            isOnPlate = true;
-            Debug.Log("파스타&그릇 TriggerEnter");
-        }
+        return addedCheeseType == Cheese.CheeseType.Mozzarella;
     }
 
     public void Cancel()

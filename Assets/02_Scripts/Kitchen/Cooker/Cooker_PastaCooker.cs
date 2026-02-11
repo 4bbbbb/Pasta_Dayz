@@ -36,10 +36,7 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
         return false;
        
     }    
-    public void Cancel()
-    {
-
-    }
+    
     public void StartBowling(Noodles noodles)
     {
         OnBowling();
@@ -57,7 +54,7 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
 
         Instantiate(
             cookedNoodlePrefab,
-            transform.position,
+            cookedNoodleSpawnPoint.position,
             Quaternion.identity,
             cookedNoodleSpawnPoint
         );
@@ -67,6 +64,7 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
 
     public void OnBowling()
     {
+        Debug.Log("면이 삶아지고 있습니다. 보글보글 oOoOO ....");
         sr.color = Color.cyan;
     }
 
@@ -77,4 +75,8 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
         Debug.Log("면이 다 익었습니다 !");
     }
 
+    public void Cancel()
+    {
+
+    }
 }

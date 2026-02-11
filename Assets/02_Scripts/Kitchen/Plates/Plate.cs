@@ -26,7 +26,7 @@ public class Plate : MonoBehaviour, IInteractable
     {
         if (target == null)
         {
-            Debug.Log("기본 그릇 선택!");
+            Debug.Log($"{name} 선택!");
             Select();
             return true;
         }

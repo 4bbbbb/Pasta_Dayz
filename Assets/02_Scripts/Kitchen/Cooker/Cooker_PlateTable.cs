@@ -7,7 +7,7 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
 {
     [Header("<<그릇 프리팹>>")]
     [SerializeField] private GameObject basicPlatePrefab;
-    //[SerializeField] private GameObject ovenPlatePrefab;
+    [SerializeField] private GameObject ovenPlatePrefab;
     // 빠네 
 
     [Header("<<스폰위치>>")]
@@ -35,7 +35,7 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
             GameObject platePrefab = plate.plateType switch
             {
                 Plate.PlateType.BasicPlate => basicPlatePrefab,
-                //Plate.PlateType.BasicPlate => ovenPlatePrefab,
+                Plate.PlateType.OvenPlate => ovenPlatePrefab,
                 _ => null
             };
 

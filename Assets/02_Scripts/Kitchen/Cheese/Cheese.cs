@@ -1,33 +1,38 @@
-Ôªøusing System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static IInteractableScript;
 
-public class Noodles : MonoBehaviour, IInteractable
+public class Cheese: MonoBehaviour, IInteractable
 {
     private SpriteRenderer sr;
-    public bool isSelected {  get; private set; }
-    public GameObject cookedNoodlePrefab;
+    public bool isSelected { get; private set; }
 
     public bool CanBeSelected => true;
+
+    public CheeseType cheeseType;
+    public enum CheeseType
+    {
+        Parmesan,
+        Mozzarella,
+    }
 
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
-        isSelected = false;       
     }
 
     public bool Interact(IInteractable target)
     {
         if (target == null)
         {
-            Debug.Log("Î©¥ ÏÑ†ÌÉù!");
+            Debug.Log($"{name} º±≈√!");
             Select();
             return true;
-        }                
+        }
 
         return false;
-    }        
+    }
 
     void Select()
     {
@@ -40,5 +45,4 @@ public class Noodles : MonoBehaviour, IInteractable
         isSelected = false;
         sr.color = Color.white;
     }
-
 }

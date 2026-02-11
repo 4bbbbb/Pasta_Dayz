@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 3436255396886255952}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 18.16, y: -10.87, z: 0}
+  m_LocalPosition: {x: 0.07, y: -0.06, z: 0}
   m_LocalScale: {x: 0.64287996, y: 0.64287996, z: 0.64287996}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -106,7 +106,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: 62ed4b4b5f3561944a1da17a0ce348b6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -153,4 +153,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fryingPan: {fileID: 0}
   parmesanCheesePrefab: {fileID: 2549163354370598925, guid: 1bf7c548bba527f4badc8bcdc9054d35, type: 3}
+  mozzarellaCheesePrefab: {fileID: 2126654881342353006, guid: 6e1ea736a3ade7744b41b6747802f552, type: 3}
   cheeseSpawnPoint: {fileID: 905166858084659127}

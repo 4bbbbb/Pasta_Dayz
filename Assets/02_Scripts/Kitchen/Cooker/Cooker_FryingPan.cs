@@ -33,7 +33,6 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     [Header("<<완성된 파스타 프리팹>>")][SerializeField] private GameObject finishedPastaPrefab;
 
     private SpriteRenderer sr;
-    private Collider fryingPanCollider;
 
     private bool hasOil = false;
     private bool isCooking = false;
@@ -47,7 +46,6 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
-        fryingPanCollider = GetComponent<Collider>();
     }
 
     public bool Interact(IInteractable target)
@@ -208,14 +206,15 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
         ClearPanIngredients();
 
-        Instantiate(
+        GameObject finishedPasta = Instantiate(
             finishedPastaPrefab,
             finishedPastaSpawnPoint.position,
             Quaternion.identity,
             finishedPastaSpawnPoint
         );
 
-        fryingPanCollider.enabled = false;
+        FinishedPasta pasta = finishedPasta.GetComponent<FinishedPasta>();
+        pasta.Init(gasStove);
 
         isCooking = false;
         sr.color = Color.white;
@@ -246,13 +245,17 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         if (noodleSpawnPoint.childCount > 0)
         {
             Destroy(noodleSpawnPoint.GetChild(0).gameObject);
-        }        
+        }
 
-        addedToppings.Clear();
-        hasOil = false;
+        ResetPanState();
     }
 
-
+    void ResetPanState()
+    {
+        addedToppings.Clear();
+        addedSauces.Clear();
+        hasOil = false;
+    }
 
     public void Cancel()
     {

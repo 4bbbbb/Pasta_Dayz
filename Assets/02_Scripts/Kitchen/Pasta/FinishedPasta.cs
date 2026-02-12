@@ -8,6 +8,10 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     [Header("<<후라이팬>>")]
     [SerializeField] private Cooker_FryingPan fryingPan;
 
+    [Header("<<가스 스토브>>")]
+    [SerializeField] private Cooker_GasStove gasStove;
+
+
     [Header("<<치즈 프리팹>>")]
     [SerializeField] private GameObject parmesanCheesePrefab;
     [SerializeField] private GameObject mozzarellaCheesePrefab;
@@ -17,23 +21,23 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
     [Header("<<치즈, 파슬리 스폰 위치>>")]
     [SerializeField] Transform cheeseSpawnPoint;
-    [SerializeField] Transform parsleySpawnPoint;
-
+    [SerializeField] Transform parsleySpawnPoint;     
 
 
     private SpriteRenderer sr;
     public bool isSelected { get; private set; }
     public bool CanBeSelected => true;
 
-    private bool isOnPlate = false;
+    public bool isOnPlate { get; private set; }
     private bool hasCheese = false;
+
+
 
     private Cheese.CheeseType? addedCheeseType = null;
 
     void Start()
     {
-        fryingPan = FindObjectOfType<Cooker_FryingPan>();
-        sr = GetComponent<SpriteRenderer>();
+        sr = GetComponent<SpriteRenderer>();       
     }
 
     public bool Interact(IInteractable target)
@@ -125,9 +129,14 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         isSelected = true;
         sr.color = Color.red;
     }
+    public void Init(Cooker_GasStove stove)
+    {
+        gasStove = stove;
+    }
+
     public void OnMovedToPlate()
     {
-        fryingPan.gameObject.SetActive(false);
+        gasStove.DestroyFryingPan();
         isOnPlate = true;
         Debug.Log("완성된 파스타를 그릇에 담았어요 !!");
     }

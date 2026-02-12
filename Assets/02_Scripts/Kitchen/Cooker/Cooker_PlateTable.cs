@@ -11,16 +11,18 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
 
     [Header("<<스폰위치>>")]
     [SerializeField] private Transform plateSpawnPoint;
-
+    
     public bool CanBeSelected => false;
 
 
-    void Start()
-    {
-    }
-
     public bool Interact(IInteractable target)
     {
+        if (plateSpawnPoint.childCount > 0)
+        {
+            Debug.Log("이미 그릇이 있습니다!");
+            return false;
+        }
+
         if (target == null)
         {
             Debug.Log("그릇을 선택해주세요 !!");   
@@ -37,7 +39,6 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
             };
 
             Debug.Log("그릇이 준비되었어요 !");
-            //tableCollider.enabled = false;
             Instantiate(
                 platePrefab,
                 plateSpawnPoint.position,
@@ -49,6 +50,12 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
 
         if (target is BakedPasta bakedPasta)
         {
+            if (plateSpawnPoint.childCount > 0)
+            {
+                Debug.Log("이미 그릇이 있습니다!");
+                return false;
+            }
+
             bakedPasta.transform.SetParent(plateSpawnPoint);
             bakedPasta.transform.position = plateSpawnPoint.position;
 

@@ -863,7 +863,7 @@ GameObject:
   - component: {fileID: 648086247}
   - component: {fileID: 648086249}
   - component: {fileID: 648086250}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cooker_PastaCooker
   m_TagString: Cooker
   m_Icon: {fileID: 0}
@@ -1052,6 +1052,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b0a95675bd263748b6bdb2d4be48591, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  interactableMask:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &940029355
 GameObject:
   m_ObjectHideFlags: 0
@@ -1113,8 +1116,8 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
-  orthographic size: 5
+  orthographic: 1
+  orthographic size: 9
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1139,7 +1142,7 @@ Transform:
   m_GameObject: {fileID: 940029355}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 13.4, y: -5.3, z: -16.3}
+  m_LocalPosition: {x: 14.2, y: -5.3, z: -16.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1264,7 +1267,7 @@ GameObject:
   - component: {fileID: 1112150582}
   - component: {fileID: 1112150585}
   - component: {fileID: 1112150584}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cooker_FryingPan
   m_TagString: Cooker
   m_Icon: {fileID: 0}
@@ -1332,7 +1335,7 @@ Transform:
   m_GameObject: {fileID: 1112150581}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10.58, y: -10.78, z: 0}
+  m_LocalPosition: {x: 10.58, y: -10.78, z: -0.5}
   m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1366,7 +1369,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4.58, y: 4.9, z: 0.2}
+  m_Size: {x: 4.58, y: 4.9, z: 0.02}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &1112150585
 MonoBehaviour:
@@ -1667,6 +1670,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isOliveOil: 0
   toppingType: 1
+--- !u!1 &1195443702
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1195443703}
+  m_Layer: 6
+  m_Name: plateSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1195443703
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195443702}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2056364503}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1305335764
 GameObject:
   m_ObjectHideFlags: 0
@@ -1949,7 +1983,7 @@ GameObject:
   - component: {fileID: 1405678072}
   - component: {fileID: 1405678074}
   - component: {fileID: 1405678075}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cooker_GasStove
   m_TagString: Cooker
   m_Icon: {fileID: 0}
@@ -2055,7 +2089,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4.58, y: 4.9, z: 0.2}
+  m_Size: {x: 4.58, y: 4.9, z: 0.01}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1476820430
 GameObject:
@@ -2406,7 +2440,7 @@ GameObject:
   - component: {fileID: 1759043337}
   - component: {fileID: 1759043339}
   - component: {fileID: 1759043340}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cooker_PlateTable
   m_TagString: Cooker
   m_Icon: {fileID: 0}
@@ -2500,7 +2534,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4.58, y: 4.9, z: 0.2}
+  m_Size: {x: 4.58, y: 4.9, z: 0.01}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &1759043340
 MonoBehaviour:
@@ -2864,7 +2898,7 @@ GameObject:
   - component: {fileID: 2002817760}
   - component: {fileID: 2002817762}
   - component: {fileID: 2002817763}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cooker_Oven
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2952,7 +2986,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bakedPanePrefab: {fileID: 614694413020946341, guid: 84036e5f313e7364aaf13893596b83bd, type: 3}
+  burnedPanePrefab: {fileID: 4529244966350777480, guid: c99ddb541f65b124886d90c9be1a1a33, type: 3}
   bakedPastaPrefab: {fileID: 4934322642545547846, guid: d122190525a6e4e42a84800090dcf76e, type: 3}
+  burnedPastaPrefab: {fileID: 4529244966350777480, guid: c99ddb541f65b124886d90c9be1a1a33, type: 3}
   bakedSpawnPoint: {fileID: 24670053}
 --- !u!65 &2002817763
 BoxCollider:
@@ -2973,7 +3009,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4.58, y: 4.9, z: 0.2}
+  m_Size: {x: 4.58, y: 4.9, z: 0.01}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2056364501
 GameObject:
@@ -2986,7 +3022,8 @@ GameObject:
   - component: {fileID: 2056364503}
   - component: {fileID: 2056364502}
   - component: {fileID: 2056364504}
-  m_Layer: 0
+  - component: {fileID: 2056364505}
+  m_Layer: 6
   m_Name: Cooker_PassTable
   m_TagString: Cooker
   m_Icon: {fileID: 0}
@@ -3057,7 +3094,8 @@ Transform:
   m_LocalPosition: {x: 24.98, y: -10.79, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1195443703}
   m_Father: {fileID: 1630821045}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &2056364504
@@ -3079,8 +3117,21 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4.58, y: 4.9, z: 0.2}
+  m_Size: {x: 4.58, y: 4.9, z: 0.01}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2056364505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2056364501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 568c3c18f76c41d408932d4887da63b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  plateSpawnPoint: {fileID: 1195443703}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

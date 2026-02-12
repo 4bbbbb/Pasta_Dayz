@@ -5,6 +5,9 @@ using static IInteractableScript;
 
 public class Kitchen_Manager : MonoBehaviour
 {
+
+    [SerializeField] private LayerMask interactableMask;
+
     public static Kitchen_Manager Instance;
 
     private IInteractable currentSelected;
@@ -31,7 +34,7 @@ public class Kitchen_Manager : MonoBehaviour
         IInteractable clicked = hit.collider.GetComponent<IInteractable>();
         if (clicked == null) return;
 
-        //Debug.Log(hit.collider.gameObject.name);
+        Debug.Log(hit.collider.gameObject.name);
 
         // 1️. 이미 손에 뭔가 들고 있을 때
         if (currentSelected != null)

@@ -10,18 +10,24 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
     [SerializeField] public GameObject cookedNoodlePrefab;
 
     private SpriteRenderer sr;
-    private Collider cookerCollider;
+
+    private bool isCooking = false;
 
     public bool CanBeSelected => false;
 
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
-        cookerCollider = GetComponent<Collider>();
     }
 
     public bool Interact(IInteractable target)
     {
+        if (isCooking)
+        {
+            Debug.Log($"{name}(이)가 이미 작동 중입니다!");
+            return false;
+        }
+
         if (target is Noodles noodles)
         {           
             StartBowling(noodles);
@@ -64,14 +70,15 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
 
     public void OnBowling()
     {
+        isCooking = true;
         Debug.Log("면이 삶아지고 있습니다. 보글보글 oOoOO ....");
         sr.color = Color.cyan;
     }
 
     public void StopBowling()
     {
+        isCooking = false;
         sr.color = Color.white;
-        cookerCollider.enabled = false;
         Debug.Log("면이 다 익었습니다 !");
     }
 

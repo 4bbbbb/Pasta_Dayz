@@ -11,7 +11,6 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
     private Collider plateCollider;
     public bool isSelected { get; private set; }
     public bool CanBeSelected => true;
-    private bool hasPasta = false;
 
     void Start()
     {
@@ -21,25 +20,24 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
 
     public bool Interact(IInteractable target)
     {
+        if (pastaSpawnPoint.childCount > 0)
+        {
+            Debug.Log("이미 파스타가 담겨 있어요!");
+            return false;
+        }
+
         if (target == null)
         {
             Debug.Log("완성된 파스타를 옮겨주세요!");
-            return true;
+            return true;            
         }
 
         if (target is FinishedPasta finishedPasta)
-        {
-            if (hasPasta)
-            {
-                Debug.Log("이미 파스타가 담겨 있어요!");
-                return false;
-            }
-                        
+        {                           
             finishedPasta.OnMovedToPlate();
 
             finishedPasta.transform.SetParent(pastaSpawnPoint);
             finishedPasta.transform.position = pastaSpawnPoint.position;
-            hasPasta = true;
 
             return true;
         }

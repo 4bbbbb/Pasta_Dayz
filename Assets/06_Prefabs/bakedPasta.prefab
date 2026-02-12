@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 8297325999630195915}
   - component: {fileID: -3131851512186932931}
   m_Layer: 0
-  m_Name: BakedPasta
+  m_Name: bakedPasta
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -137,7 +137,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 10.239999, y: 10.239999, z: 0.19999999}
+  m_Size: {x: 10.239999, y: 10.239999, z: 0.1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &-3131851512186932931
 MonoBehaviour:

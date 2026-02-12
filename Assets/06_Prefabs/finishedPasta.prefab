@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 1562819927925818475}
   - component: {fileID: 878978329335162085}
   m_Layer: 0
-  m_Name: FinishedPasta
+  m_Name: finishedPasta
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -138,7 +138,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4, y: 4, z: 0.2}
+  m_Size: {x: 4, y: 4, z: 0.1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &878978329335162085
 MonoBehaviour:
@@ -153,6 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fryingPan: {fileID: 0}
+  gasStove: {fileID: 0}
   parmesanCheesePrefab: {fileID: 2549163354370598925, guid: 1bf7c548bba527f4badc8bcdc9054d35, type: 3}
   mozzarellaCheesePrefab: {fileID: 2126654881342353006, guid: 6e1ea736a3ade7744b41b6747802f552, type: 3}
   parsleyPrefab: {fileID: 4456431008458272939, guid: fbb71ae443d45644b9f8aef2c4b6aafd, type: 3}

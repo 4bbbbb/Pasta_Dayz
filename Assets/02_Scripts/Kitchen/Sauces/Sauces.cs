@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static IInteractableScript;
 
+
 public class Sauces : MonoBehaviour, IInteractable
 {
     private SpriteRenderer sr;

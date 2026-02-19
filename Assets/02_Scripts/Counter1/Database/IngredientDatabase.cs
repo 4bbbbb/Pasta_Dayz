@@ -19,16 +19,17 @@ public class IngredientDatabase : MonoBehaviour
         foreach (var row in data)
         {
             int id = int.Parse(row["ID"].ToString());
-            string category = row["Category"].ToString();
-            string name = row["Name"].ToString();
+            //Trim() 코드로 공백오류 보완
+            string category = row["Category"].ToString().Trim();
+            string name = row["Name"].ToString().Trim();
             float price = float.TryParse(row["Price"]?.ToString(), out var p) ? p : 0f;
             float cost = float.TryParse(row["Ingredient_Cost"]?.ToString(), out var c) ? c : 0f;
             int level = int.TryParse(row["Unlock_Level"]?.ToString(), out var l) ? l : 0;
             float unlockCost = float.TryParse(row["Unlock_Cost"]?.ToString(), out var u) ? u : 0f;
-            bool isUnlocked = row["isUnlocked"]?.ToString() == "1";
+            bool isUnlocked = row["isUnlocked"]?.ToString().Trim() == "1";
 
             ingredientList.Add(new IngredientData(id, category, name, price, cost, level, unlockCost, isUnlocked));
-        }
+        }        
     }
 
 
@@ -42,7 +43,7 @@ public class IngredientDatabase : MonoBehaviour
     public int GetRandomNoodle()
     {
         List<IngredientData> noodles = ingredientList
-           .Where(i => i.category == "Noodle" && i.isUnlocked)
+           .Where(i => i.category.Trim() == "Noodle" && i.isUnlocked)
            .ToList();
 
         if (noodles.Count == 0) return -1;
@@ -55,7 +56,7 @@ public class IngredientDatabase : MonoBehaviour
     public List<int> GetRandomToppings()
     {
         List<int> availableToppings = ingredientList
-            .Where(i => i.category == "Topping" && i.isUnlocked)
+            .Where(i => i.category.Trim() == "Topping" && i.isUnlocked)
             .Select(i => i.id)
             .ToList();
 

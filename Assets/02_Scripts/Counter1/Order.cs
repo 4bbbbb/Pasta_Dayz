@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Order
@@ -33,7 +34,18 @@ public class Order
         noodleTemp = noodleTemp.Replace("{noodle}", noodleName);
         toppingTemp = toppingTemp.Replace("{topping}", toppingText);
 
-        // 4️. 합치기
+        // 4️. 주문하기
         return menuTemp + "\n" + noodleTemp+ " " + toppingTemp;
+    }
+
+    public string GetOrderText(IngredientDatabase ingredientDB)
+    {
+        string noodleName = ingredientDB.GetIngredientByID(noodleID).name;
+
+        List<string> toppingNames = toppingIDs
+            .Select(id => ingredientDB.GetIngredientByID(id).name)
+            .ToList();
+
+        return GenerateOrderMessage(noodleName, toppingNames);
     }
 }

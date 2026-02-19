@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -13,25 +13,23 @@ public class MenuDatabase : MonoBehaviour
 
     void LoadMenuData()
     {
-        var csv = Resources.Load<TextAsset>("Data/MenuData");
-        var lines = csv.text.Split('\n');
+        var data = CSVReader.Read("Data/MenuData");
 
-        for (int i = 1; i < lines.Length; i++)
+        foreach (var row in data)
         {
-            if (string.IsNullOrWhiteSpace(lines[i])) continue;
-            var values = lines[i].Split(',');
+            int id = int.Parse(row["Menu_ID"].ToString());
+            string name = row["Menu"].ToString().Trim();
 
-            int id = int.Parse(values[0]);
-            string name = values[1];
-            var ingredientList = values[2].Replace("\"", "").Split(',').Select(int.Parse).ToList();
-            bool isBaked = false;
-            if (values.Length > 3 && int.TryParse(values[3].Trim(), out int bakedInt))
-            {
-                isBaked = bakedInt == 1;
-            }
+            string ingredientRaw = row["IngredientsID"].ToString().Replace("\"", "");
+            List<int> ingredientList = ingredientRaw
+                .Split(',')
+                .Select(x => int.Parse(x.Trim()))
+                .ToList();
+
+            bool isBaked = row["isBaked"]?.ToString().Trim() == "1";
 
             menuList.Add(new MenuData(id, name, ingredientList, isBaked));
-        }
+        }                
     }  
 
     public MenuData GetMenuByID(int id)

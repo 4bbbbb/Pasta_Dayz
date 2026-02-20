@@ -1,10 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class Dish
+public class Dish : MonoBehaviour, IHasIngredients
 {
-    public MenuData menuData;
-    public int noodleID;
-    public List<int> toppingIDs;
+    private HashSet<int> ingredientSet = new HashSet<int>();
+
+    public void AddIngredient(int id)
+    {
+        ingredientSet.Add(id);
+    }
+
+    public HashSet<int> GetIngredientSet()
+    {
+        return ingredientSet;
+    }
 }

@@ -9,6 +9,7 @@ TagManager:
   - Cooker
   - Noodle
   - Topping
+  - CustomerSpawnPoint
   layers:
   - Default
   - TransparentFX

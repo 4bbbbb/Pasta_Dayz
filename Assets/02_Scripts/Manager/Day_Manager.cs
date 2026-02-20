@@ -36,9 +36,7 @@ public class DayManager : MonoBehaviour
     {
         timer = dayDuration;
         isDayActive = true;
-        isTakingOrder = true;
-
-        orderManager.StartService();
+        isTakingOrder = true;       
     }      
 
     void StopTakingOrders()

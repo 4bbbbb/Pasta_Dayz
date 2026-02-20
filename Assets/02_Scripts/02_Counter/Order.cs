@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class Order
+public class Order : IHasIngredients
 {
     public MenuData menuData;
     public int noodleID;
@@ -47,5 +47,23 @@ public class Order
             .ToList();
 
         return GenerateOrderMessage(noodleName, toppingNames);
+    }
+
+    public HashSet<int> GetIngredientSet()
+    {
+        HashSet<int> result = new HashSet<int>();
+
+        // 1. 메뉴 기본 재료
+        foreach (int id in menuData.IngredientsID)
+            result.Add(id);
+
+        // 2. 면
+        result.Add(noodleID);
+
+        // 3. 토핑
+        foreach (int id in toppingIDs)
+            result.Add(id);
+
+        return result;
     }
 }

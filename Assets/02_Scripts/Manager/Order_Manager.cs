@@ -1,19 +1,19 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class OrderManager : MonoBehaviour
 {
-
-    [SerializeField]
-    public OrderGenerator generator;
+    [SerializeField] public OrderGenerator generator;
     public DayManager dayManager;
-    
-    public GameObject customerPrefab;
-    public Transform counterPoint;
 
-    private Customer currentCustomer;
+    [Header("UI")]
+    public GameObject customerUIPrefab;
+    private Transform canvasTransform;
+
+    private CustomerUI currentCustomer;
 
     public enum ServiceState
     {
@@ -27,43 +27,69 @@ public class OrderManager : MonoBehaviour
     public float nextCustomerDelay = 2f;
 
     private Order currentOrder;
-
     private int totalMoney = 0;
 
-    void Start()
+    void Awake()
+    {        
+        DontDestroyOnLoad(gameObject);
+    }
+
+    void OnEnable()
     {
-        StartService();   
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {     
+        if (scene.name == "02_Counter")
+        {            
+            canvasTransform = FindObjectOfType<Canvas>().transform;
+            StartService();
+        }
     }
 
     public void StartService()
     {
         totalMoney = 0;
-        SpawnCustomer(); 
-    }
-
-    public void EndService()
-    {
-        Debug.Log("ø¿¥√ √— ºˆ¿Õ: " + totalMoney);
+        SpawnCustomer();
     }
 
     void SpawnCustomer()
     {
         if (!dayManager.isTakingOrder)
-            return;
+            return;       
 
         currentState = ServiceState.TakingOrder;
 
-        GameObject obj = Instantiate(
-            customerPrefab,
-            counterPoint.position,
-            Quaternion.identity
-        );
+        GameObject obj = Instantiate(customerUIPrefab, canvasTransform);
+        currentCustomer = obj.GetComponent<CustomerUI>();
+        Debug.Log("canvasTransform: " + canvasTransform);
+        currentCustomer.Appear();
 
-        currentCustomer = obj.GetComponent<Customer>();
-        currentCustomer.Appear(); // ∂ÏøÎ µÓ¿Â
-
-        // ?? 0.2√  µ⁄ ¡÷πÆ ª˝º∫
         StartCoroutine(GenerateOrderAfterDelay(0.2f));
+    }
+
+    IEnumerator GenerateOrderAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (currentCustomer == null)
+            yield break;
+
+        currentOrder = generator.GenerateOrder();
+        DebugIngredientSet(currentOrder, "Ï£ºÎ¨∏");
+        if (currentOrder == null)
+            yield break;
+
+        string message = currentOrder.GetOrderText(generator.ingredientDB);
+
+        if (currentCustomer != null)
+            currentCustomer.ShowOrder(message);
     }
 
     public void SubmitDish(Dish playerDish)
@@ -73,34 +99,35 @@ public class OrderManager : MonoBehaviour
 
         currentState = ServiceState.Cooking;
 
-        bool success = CompareDish(playerDish, currentOrder);
+        bool success = IsCorrect(playerDish, currentOrder);
 
         if (success)
         {
             int reward = CalculateReward(currentOrder);
             totalMoney += reward;
-            Debug.Log("º∫∞¯! +" + reward);
+            Debug.Log("ÏÑ±Í≥µ! +" + reward);
         }
         else
         {
-            Debug.Log("Ω«∆–! »Ø∫“!");
+            Debug.Log("Ïã§Ìå®!");
         }
 
         currentOrder = null;
-
         currentState = ServiceState.WaitingNextCustomer;
 
         currentCustomer.HideOrder();
-        currentCustomer.Disappear();   
+        currentCustomer.Disappear();
 
         StartCoroutine(NextCustomerRoutine());
     }
+
     IEnumerator NextCustomerRoutine()
     {
         yield return new WaitForSeconds(nextCustomerDelay);
 
         if (!dayManager.isTakingOrder)
         {
+            EndService();          // üî• Îã§Ïãú Ï∂îÍ∞Ä
             dayManager.EndDay();
             yield break;
         }
@@ -108,34 +135,29 @@ public class OrderManager : MonoBehaviour
         SpawnCustomer();
     }
 
-    bool CompareDish(Dish dish, Order order)
+    public bool IsCorrect(IHasIngredients a, IHasIngredients b)
     {
-        if (dish.menuData.menuID != order.menuData.menuID)
-            return false;
-
-        if (dish.noodleID != order.noodleID)
-            return false;
-
-        if (!dish.toppingIDs.OrderBy(x => x)
-            .SequenceEqual(order.toppingIDs.OrderBy(x => x)))
-            return false;
-
-        return true;
-    }
-
-    IEnumerator GenerateOrderAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-
-        currentOrder = generator.GenerateOrder();
-
-        string message = currentOrder.GetOrderText(generator.ingredientDB);
-
-        currentCustomer.ShowOrder(message); // ?? ∏ª«≥º± «•Ω√
+        return a.GetIngredientSet()
+                .SetEquals(b.GetIngredientSet());
     }
 
     int CalculateReward(Order order)
     {
-        return 100; // ≥™¡ﬂø° »Æ¿Â
+        return 100;
+    }
+    public void EndService()
+    {
+        Debug.Log("Ïò§Îäò Ï¥ù ÏàòÏùµ: " + totalMoney);
+    }
+
+
+
+    void DebugIngredientSet(IHasIngredients target, string label)
+    {
+        HashSet<int> set = target.GetIngredientSet();
+
+        string result = string.Join(", ", set);
+
+        Debug.Log($"{label} Ïû¨Î£å HashSet: [{result}]");
     }
 }

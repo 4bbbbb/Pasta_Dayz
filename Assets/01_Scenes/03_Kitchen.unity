@@ -258,8 +258,9 @@ GameObject:
   - component: {fileID: 155739040}
   - component: {fileID: 155739042}
   - component: {fileID: 155739043}
+  - component: {fileID: 155739044}
   m_Layer: 0
-  m_Name: Sauce_TomatoSauce
+  m_Name: Sauce_TomatoSauce_202
   m_TagString: Sauce
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -366,6 +367,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 4.58, y: 4.9, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &155739044
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 155739039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79ac290b97ba009438954918551fb805, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ingredientID: 202
 --- !u!1 &177454575
 GameObject:
   m_ObjectHideFlags: 0
@@ -590,8 +604,9 @@ GameObject:
   - component: {fileID: 331358126}
   - component: {fileID: 331358128}
   - component: {fileID: 331358129}
+  - component: {fileID: 331358130}
   m_Layer: 0
-  m_Name: Plate_BasicPlate
+  m_Name: Plate_BasicPlate_501
   m_TagString: Plate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -698,6 +713,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   plateType: 0
+--- !u!114 &331358130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 331358125}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79ac290b97ba009438954918551fb805, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ingredientID: 501
 --- !u!1 &476927713
 GameObject:
   m_ObjectHideFlags: 0
@@ -710,8 +738,9 @@ GameObject:
   - component: {fileID: 476927715}
   - component: {fileID: 476927716}
   - component: {fileID: 476927717}
+  - component: {fileID: 476927718}
   m_Layer: 0
-  m_Name: Cheese_Mozzarella
+  m_Name: Cheese_Mozzarella_402
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -818,6 +847,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cheeseType: 1
+--- !u!114 &476927718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 476927713}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79ac290b97ba009438954918551fb805, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ingredientID: 402
 --- !u!1 &507778476
 GameObject:
   m_ObjectHideFlags: 0
@@ -1004,7 +1046,6 @@ Transform:
   m_Children:
   - {fileID: 1877054754}
   - {fileID: 1183929345}
-  - {fileID: 1367144559}
   - {fileID: 1305335765}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1413,8 +1454,9 @@ GameObject:
   - component: {fileID: 1166727142}
   - component: {fileID: 1166727143}
   - component: {fileID: 1166727144}
+  - component: {fileID: 1166727145}
   m_Layer: 0
-  m_Name: Noodle_Spaghetti
+  m_Name: Noodle_Spaghetti_101
   m_TagString: Noodle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1533,6 +1575,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cookedNoodlePrefab: {fileID: 0}
+--- !u!114 &1166727145
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1166727138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79ac290b97ba009438954918551fb805, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ingredientID: 101
 --- !u!1 &1183929343
 GameObject:
   m_ObjectHideFlags: 0
@@ -1546,8 +1601,9 @@ GameObject:
   - component: {fileID: 1183929346}
   - component: {fileID: 1183929347}
   - component: {fileID: 1183929348}
+  - component: {fileID: 1183929349}
   m_Layer: 0
-  m_Name: Topping_Garlic
+  m_Name: Topping_Garlic_302
   m_TagString: Topping
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1670,6 +1726,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isOliveOil: 0
   toppingType: 1
+--- !u!114 &1183929349
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1183929343}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79ac290b97ba009438954918551fb805, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ingredientID: 302
 --- !u!1 &1195443702
 GameObject:
   m_ObjectHideFlags: 0
@@ -1713,8 +1782,9 @@ GameObject:
   - component: {fileID: 1305335766}
   - component: {fileID: 1305335768}
   - component: {fileID: 1305335767}
+  - component: {fileID: 1305335769}
   m_Layer: 0
-  m_Name: Topping_Parsley
+  m_Name: Topping_Parsley_701
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1820,6 +1890,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b5ac69da637dd74c8b40d31600782cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1305335769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1305335764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79ac290b97ba009438954918551fb805, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ingredientID: 701
 --- !u!1 &1364417230
 GameObject:
   m_ObjectHideFlags: 0
@@ -1863,8 +1946,9 @@ GameObject:
   - component: {fileID: 1367144562}
   - component: {fileID: 1367144561}
   - component: {fileID: 1367144560}
+  - component: {fileID: 1367144563}
   m_Layer: 0
-  m_Name: Topping_OliveOil
+  m_Name: Sauce_OliveOil_201
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1883,7 +1967,7 @@ Transform:
   m_LocalScale: {x: 0.69121313, y: 0.69121313, z: 0.69121313}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 727739966}
+  m_Father: {fileID: 1856572040}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1367144560
 MonoBehaviour:
@@ -1971,6 +2055,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1367144563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1367144558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79ac290b97ba009438954918551fb805, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ingredientID: 201
 --- !u!1 &1405678071
 GameObject:
   m_ObjectHideFlags: 0
@@ -2320,8 +2417,9 @@ GameObject:
   - component: {fileID: 1651584281}
   - component: {fileID: 1651584280}
   - component: {fileID: 1651584282}
+  - component: {fileID: 1651584283}
   m_Layer: 0
-  m_Name: Plate_OvenPlate
+  m_Name: Plate_OvenPlate_502
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2428,6 +2526,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 3.9999998, y: 3.9999998, z: 0.19999999}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1651584283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1651584278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79ac290b97ba009438954918551fb805, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ingredientID: 502
 --- !u!1 &1759043336
 GameObject:
   m_ObjectHideFlags: 0
@@ -2594,8 +2705,9 @@ GameObject:
   - component: {fileID: 1784594220}
   - component: {fileID: 1784594223}
   - component: {fileID: 1784594224}
+  - component: {fileID: 1784594225}
   m_Layer: 0
-  m_Name: Cheese_Parmesan
+  m_Name: Cheese_Parmesan_401
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2702,6 +2814,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cheeseType: 0
+--- !u!114 &1784594225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1784594219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79ac290b97ba009438954918551fb805, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ingredientID: 401
 --- !u!1 &1856572039
 GameObject:
   m_ObjectHideFlags: 0
@@ -2732,6 +2857,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 155739041}
+  - {fileID: 1367144559}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1877054752
@@ -2746,8 +2872,9 @@ GameObject:
   - component: {fileID: 1877054753}
   - component: {fileID: 1877054755}
   - component: {fileID: 1877054756}
+  - component: {fileID: 1877054757}
   m_Layer: 0
-  m_Name: Topping_Tomato
+  m_Name: Topping_Tomato_301
   m_TagString: Topping
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2855,6 +2982,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isOliveOil: 0
   toppingType: 0
+--- !u!114 &1877054757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1877054752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79ac290b97ba009438954918551fb805, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ingredientID: 301
 --- !u!1 &1878180224
 GameObject:
   m_ObjectHideFlags: 0

@@ -16,9 +16,20 @@ public class BakedPasta : MonoBehaviour, IInteractable
     public bool isSelected { get; private set; }
     public bool CanBeSelected => true;
 
+    private HashSet<int> ingredientIDs = new HashSet<int>();
+
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
+    }
+
+    public void SetIngredients(HashSet<int> ids)
+    {
+        ingredientIDs = new HashSet<int>(ids);
+    }
+    public HashSet<int> GetIngredientSet()
+    {
+        return ingredientIDs;
     }
 
     public bool Interact(IInteractable target)
@@ -39,6 +50,13 @@ public class BakedPasta : MonoBehaviour, IInteractable
                 Quaternion.identity,
                 parsleySpawnPoint
                 );
+
+            IngredientIDs id = parsley.GetComponent<IngredientIDs>();
+            if (id != null)
+            {
+                ingredientIDs.Add(id.GetID());   // 파슬리 ID 추가
+            }
+
             return true;
         }
 

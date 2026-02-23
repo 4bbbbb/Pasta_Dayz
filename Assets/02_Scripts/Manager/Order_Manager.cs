@@ -150,8 +150,6 @@ public class OrderManager : MonoBehaviour
         Debug.Log("오늘 총 수익: " + totalMoney);
     }
 
-
-
     void DebugIngredientSet(IHasIngredients target, string label)
     {
         HashSet<int> set = target.GetIngredientSet();

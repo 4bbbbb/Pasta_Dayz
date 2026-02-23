@@ -1,23 +1,23 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static IInteractableScript;
 
 public class Cooker_Oven : MonoBehaviour, IInteractable
 {
-    [Header("<<±¸¿î ºü³× >>")]
+    [Header("<<êµ¬ìš´ ë¹ ë„¤ >>")]
     [SerializeField] public GameObject bakedPanePrefab;
 
-    [Header("<<Åº ºü³× >>")]
+    [Header("<<íƒ„ ë¹ ë„¤ >>")]
     [SerializeField] public GameObject burnedPanePrefab;
 
-    [Header("<<±¸¿î ÆÄ½ºÅ¸ >>")]
+    [Header("<<êµ¬ìš´ íŒŒìŠ¤íƒ€ >>")]
     [SerializeField] public GameObject bakedPastaPrefab;
 
-    [Header("<<Åº ÆÄ½ºÅ¸ >>")]
+    [Header("<<íƒ„ íŒŒìŠ¤íƒ€ >>")]
     [SerializeField] public GameObject burnedPastaPrefab;
 
-    [Header("<< ºü³×,ÆÄ½ºÅ¸ ½ºÆù À§Ä¡>>")]
+    [Header("<< ë¹ ë„¤,íŒŒìŠ¤íƒ€ ìŠ¤í° ìœ„ì¹˜>>")]
     [SerializeField] private Transform bakedSpawnPoint;
 
     private SpriteRenderer sr;
@@ -27,6 +27,8 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
 
     private OvenState ovenState = OvenState.Empty;
     private BakeItemType bakeItem = BakeItemType.None;
+
+    private HashSet<int> savedIngredientIDs;
 
     public bool CanBeSelected => false;
     public enum OvenState
@@ -58,7 +60,7 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
                 return TryInsert(target);
 
             case OvenState.Baking:
-                Debug.Log("¿ÀºìÀÌ ÀÌ¹Ì ÀÛµ¿ ÁßÀÔ´Ï´Ù!");
+                Debug.Log("ì˜¤ë¸ì´ ì´ë¯¸ ì‘ë™ ì¤‘ì…ë‹ˆë‹¤!");
                 return false;
 
             case OvenState.Ready:
@@ -79,7 +81,7 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
     {
         if (target == null)
         {
-            Debug.Log("¾î¶²°É ±¸¿ï°Ç°¡¿ä?");
+            Debug.Log("ì–´ë–¤ê±¸ êµ¬ìš¸ê±´ê°€ìš”?");
             return false;
         }
 
@@ -94,15 +96,17 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
 
                 if (!pasta.IsOnOvenPlate())
                 {
-                    Debug.Log("¿Àºì Àü¿ë ±×¸©¿¡ ´ã°Ü¾ß ÇÕ´Ï´Ù!");
+                    Debug.Log("ì˜¤ë¸ ì „ìš© ê·¸ë¦‡ì— ë‹´ê²¨ì•¼ í•©ë‹ˆë‹¤!");
                     return false;
                 }
 
                 if (!pasta.HasMozzarella())
                 {
-                    Debug.Log("¸ğÂ¥·¼¶ó Ä¡Áî°¡ ÇÊ¿äÇÕ´Ï´Ù!");
+                    Debug.Log("ëª¨ì§œë ë¼ ì¹˜ì¦ˆê°€ í•„ìš”í•©ë‹ˆë‹¤!");
                     return false;
                 }
+
+                savedIngredientIDs = new HashSet<int>(pasta.GetIngredientSet());
 
                 Plates_OvenPlate plate = pasta.GetComponentInParent<Plates_OvenPlate>();
                 Destroy(plate.gameObject);
@@ -127,12 +131,12 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
         for (int i = 1; i <= 8; i++)
         {
             yield return new WaitForSeconds(1f);
-            Debug.Log($"{i}ÃÊ...");
+            Debug.Log($"{i}ì´ˆ...");
         }
 
         ovenState = OvenState.Ready;
         sr.color = Color.red;
-        Debug.Log("¿Ï·á! 3ÃÊ ¾È¿¡ ²¨³»¼¼¿ä!");
+        Debug.Log("ì™„ë£Œ! 3ì´ˆ ì•ˆì— êº¼ë‚´ì„¸ìš”!");
 
         float timer = 0f;
         while (timer < 3f)
@@ -143,7 +147,7 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
 
         ovenState = OvenState.Burned;
         sr.color = Color.black;
-        Debug.Log("Å¸¹ö·È½À´Ï´Ù!");
+        Debug.Log("íƒ€ë²„ë ¸ìŠµë‹ˆë‹¤!");
 
         SpawnBurned();
     }
@@ -163,7 +167,14 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
                 break;
         }
 
-        Instantiate(prefab, bakedSpawnPoint.position, Quaternion.identity, bakedSpawnPoint);
+        GameObject obj = Instantiate(prefab, bakedSpawnPoint.position, Quaternion.identity, bakedSpawnPoint);
+
+        // ğŸ”¥ ì—¬ê¸°ì„œ ë°ì´í„° ì „ë‹¬
+        if (bakeItem == BakeItemType.Pasta)
+        {
+            BakedPasta baked = obj.GetComponent<BakedPasta>();
+            baked.SetIngredients(savedIngredientIDs);
+        }
     }
 
     private void SpawnBurned()
@@ -190,7 +201,7 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
             Destroy(bakedSpawnPoint.GetChild(0).gameObject);
         }
 
-        Debug.Log("Åº À½½ÄÀ» Ä¡¿ü½À´Ï´Ù!");
+        Debug.Log("íƒ„ ìŒì‹ì„ ì¹˜ì› ìŠµë‹ˆë‹¤!");
     }
     private void ResetOven()
     {

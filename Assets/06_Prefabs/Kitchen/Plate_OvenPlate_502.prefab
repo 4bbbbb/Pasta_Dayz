@@ -43,8 +43,9 @@ GameObject:
   - component: {fileID: 1550148265619934728}
   - component: {fileID: 5977760408836306546}
   - component: {fileID: 2776701380325156188}
+  - component: {fileID: -6422816337393270843}
   m_Layer: 0
-  m_Name: Plate_OvenPlate
+  m_Name: Plate_OvenPlate_502
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -152,3 +153,16 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 10.239999, y: 10.239999, z: 0.03}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-6422816337393270843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8175578171079825132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79ac290b97ba009438954918551fb805, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ingredientID: 502

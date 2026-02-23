@@ -1,21 +1,20 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static IInteractableScript;
 
 public class Cooker_PassTable : MonoBehaviour, IInteractable
 {
-    [Header("<<½ºÆùÀ§Ä¡>>")]
+    [Header("<<ìŠ¤í°ìœ„ì¹˜>>")]
     [SerializeField] private Transform plateSpawnPoint;
 
-    public bool CanBeSelected => false;
-     
+    public bool CanBeSelected => false;     
 
     public bool Interact(IInteractable target)
     {
         if (target == null)
         {
-            Debug.Log("¿Å±æ ±×¸©À» ¼±ÅÃÇØÁÖ¼¼¿ä !!");
+            Debug.Log("ì˜®ê¸¸ ê·¸ë¦‡ì„ ì„ íƒí•´ì£¼ì„¸ìš” !!");
             return true;
         }
 
@@ -37,8 +36,36 @@ public class Cooker_PassTable : MonoBehaviour, IInteractable
             }
 
             if (plateTransform != null)
-            {
-                Debug.Log("¿Ï¼ºµÈ ÆÄ½ºÅ¸¸¦ ¼­ºùÇÕ´Ï´Ù!");
+            {               
+                HashSet<int> finalSet = new HashSet<int>(finishedPasta.GetIngredientSet());
+
+                // ğŸ”¥ Plate ID ì¶”ê°€
+                IngredientIDs plateID = plateTransform.GetComponent<IngredientIDs>();
+                if (plateID != null)
+                {
+                    finalSet.Add(plateID.GetID());
+                }
+                else
+                {
+                    plateID = plateTransform.GetComponentInChildren<IngredientIDs>();
+                    if (plateID != null)
+                    {
+                        finalSet.Add(plateID.GetID());
+                    }
+                }
+
+                // ë¹ ë„¤ ID ì¶”ê°€
+                Plates_BasicPlate basicPlateComponent = plateTransform.GetComponent<Plates_BasicPlate>();
+
+                if (basicPlateComponent != null)
+                {
+                    finalSet.UnionWith(basicPlateComponent.GetIngredientSet());
+                }
+
+                // ğŸ”¥ ë””ë²„ê·¸ ì¶œë ¥
+                DebugFinalSet(finalSet, "ìµœì¢… ì œì¶œ ìŒì‹");
+
+                Debug.Log("ì™„ì„±ëœ íŒŒìŠ¤íƒ€ë¥¼ ì„œë¹™í•©ë‹ˆë‹¤!");
 
                 plateTransform.SetParent(plateSpawnPoint);
                 plateTransform.localPosition = Vector3.zero;
@@ -46,7 +73,7 @@ public class Cooker_PassTable : MonoBehaviour, IInteractable
                 return true;
             }
 
-            Debug.Log("Á¢½Ã¿¡ ´ã¾Æ¼­ °¡Á®¿À¼¼¿ä!");
+            Debug.Log("ì ‘ì‹œì— ë‹´ì•„ì„œ ê°€ì ¸ì˜¤ì„¸ìš”!");
             return false;
         }
 
@@ -54,20 +81,30 @@ public class Cooker_PassTable : MonoBehaviour, IInteractable
         {
             if (bakedPasta.GetComponentInParent<Cooker_PlateTable>() != null)
             {
-                Debug.Log("¿Ï¼ºµÈ ÆÄ½ºÅ¸¸¦ ¼­ºùÇÕ´Ï´Ù!");
+                Debug.Log("ì™„ì„±ëœ íŒŒìŠ¤íƒ€ë¥¼ ì„œë¹™í•©ë‹ˆë‹¤!");
 
                 bakedPasta.transform.SetParent(plateSpawnPoint);
                 bakedPasta.transform.position = plateSpawnPoint.position;
 
+                HashSet<int> finalSet = bakedPasta.GetIngredientSet();
+                DebugFinalSet(finalSet, "ìµœì¢… ì„œë¹™ íŒŒìŠ¤íƒ€");
+
                 return true;
             }
 
-            Debug.Log("ÇÃ·¹ÀÌÆ® Å×ÀÌºí À§¿¡ ¿Ã·ÁÁÖ¼¼¿ä!");
+            Debug.Log("í”Œë ˆì´íŠ¸ í…Œì´ë¸” ìœ„ì— ì˜¬ë ¤ì£¼ì„¸ìš”!");
             return false;
         }
 
         return false;
     }
+
+    void DebugFinalSet(HashSet<int> set, string label)
+    {
+        string result = string.Join(", ", set);
+        Debug.Log($"{label} ì¬ë£Œ HashSet: [{result}]");
+    }
+
     public void Cancel()
     {
 

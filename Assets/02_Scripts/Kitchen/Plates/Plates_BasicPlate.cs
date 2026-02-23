@@ -1,14 +1,14 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static IInteractableScript;
 
 public class Plates_BasicPlate : MonoBehaviour, IInteractable
 {
-    [Header("<<¿Ï¼ºµÈ ÆÄ½ºÅ¸ ½ºÆùÀ§Ä¡>>")]
+    [Header("<<ì™„ì„±ëœ íŒŒìŠ¤íƒ€ ìŠ¤í°ìœ„ì¹˜>>")]
     [SerializeField] private Transform pastaSpawnPoint;
 
-    [Header("<<±¸¿öÁø ºü³× ½ºÆùÀ§Ä¡>>")]
+    [Header("<<êµ¬ì›Œì§„ ë¹ ë„¤ ìŠ¤í°ìœ„ì¹˜>>")]
     [SerializeField] private Transform paneSpawnPoint;
 
     public bool isSelected { get; private set; }
@@ -18,16 +18,26 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
     public Collider plateCollider;
 
+    private IngredientIDs ingredientIDs;
+    private HashSet<int> ingredients = new HashSet<int>();
+
     void Start()
     {        
         plateCollider = GetComponent<Collider>();
         isSelected = false;
+
+        ingredientIDs = GetComponent<IngredientIDs>();
+
+        if (ingredientIDs != null)
+        {
+            ingredients.Add(ingredientIDs.GetID());   // ğŸ”¥ Plate ID ì¶”ê°€
+        }
     }
     public bool Interact(IInteractable target)
     {
         if (target == null)
         {
-            Debug.Log("¿Ï¼ºµÈ ÆÄ½ºÅ¸¸¦ ¿Å°ÜÁÖ¼¼¿ä!");            
+            Debug.Log("ì™„ì„±ëœ íŒŒìŠ¤íƒ€ë¥¼ ì˜®ê²¨ì£¼ì„¸ìš”!");            
             return true;
         }             
 
@@ -35,7 +45,7 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
         {
             if (hasPasta)
             {
-                Debug.Log("ÀÌ¹Ì ÆÄ½ºÅ¸°¡ ´ã°Ü ÀÖ¾î¿ä!");
+                Debug.Log("ì´ë¯¸ íŒŒìŠ¤íƒ€ê°€ ë‹´ê²¨ ìˆì–´ìš”!");
                 return false;
             }
                        
@@ -43,6 +53,22 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
             finishedPasta.transform.SetParent(pastaSpawnPoint);
             finishedPasta.transform.position = pastaSpawnPoint.position;
+
+            ingredients = new HashSet<int>(finishedPasta.GetIngredientSet());
+
+            // ğŸ”¥ ê¸°ì¡´ ì¬ë£Œ ì´ˆê¸°í™”
+            ingredients.Clear();
+
+            // ğŸ”¥ Plate ìê¸° ID ë¨¼ì € ì¶”ê°€
+            if (ingredientIDs != null)
+                ingredients.Add(ingredientIDs.GetID());
+
+            // ğŸ”¥ FinishedPasta ì¬ë£Œ í•˜ë‚˜ì”© ë³µì‚¬
+            foreach (int id in finishedPasta.GetIngredientSet())
+            {
+                ingredients.Add(id);
+            }            
+
             hasPasta = true;
 
             return true;
@@ -52,30 +78,57 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
         {
             if(hasPasta)
             {
-                Debug.Log("Áö±İÀº ºü³×¸¦ Ãß°¡ÇÒ ¼ö ¾ø¾î¿ä¤Ğ¤Ì");
+                Debug.Log("ì§€ê¸ˆì€ ë¹ ë„¤ë¥¼ ì¶”ê°€í•  ìˆ˜ ì—†ì–´ìš”ã… ã…œ");
                 return false;
             }
 
             if(hasPane)
             {
-                Debug.Log("ÀÌ¹Ì ºü³×°¡ ÁØºñµÇ¾ú¾î¿ä !");
+                Debug.Log("ì´ë¯¸ ë¹ ë„¤ê°€ ì¤€ë¹„ë˜ì—ˆì–´ìš” !");
                 return false;
             }
 
             bakedPane.transform.SetParent(paneSpawnPoint);
             bakedPane.transform.position = paneSpawnPoint.position;
             plateCollider.enabled = false;
+
+            IngredientIDs id = bakedPane.GetComponent<IngredientIDs>();
+            if (id != null)
+                ingredients.Add(id.GetID());
+
+            PrintIngredients();
+
             hasPane = true;
 
             return true;
-
-
         }
 
         return false;
     }
-    
-    
+
+    public void AddIngredient(int id)
+    {
+        if (!ingredients.Contains(id))
+        {
+            ingredients.Add(id);
+        }
+    }
+
+    // í˜„ì¬ ì¬ë£Œ ì„¸íŠ¸ ë°˜í™˜ (Order ë¹„êµìš©)
+    public HashSet<int> GetIngredientSet()
+    {
+        return ingredients;
+    }
+
+    // í•„ìš”í•˜ë©´ ë””ë²„ê·¸ìš© ì¶œë ¥
+    public void PrintIngredients()
+    {
+        foreach (int id in ingredients)
+        {
+            Debug.Log("Plateì— í¬í•¨ëœ ID: " + id);
+        }
+    }
+
     public void Cancel()
     {
                

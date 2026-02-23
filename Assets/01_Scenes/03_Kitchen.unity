@@ -999,7 +999,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4.58, y: 4.9, z: 0.2}
+  m_Size: {x: 4.58, y: 4.9, z: 0.1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &648086250
 MonoBehaviour:
@@ -1574,7 +1574,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 173d3c9e193c30a42a561f239828c32b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cookedNoodlePrefab: {fileID: 0}
+  cookedNoodlePrefab: {fileID: 7492044799998688880, guid: 8f9d2d91d21e1014d8663ad080f4c2c7, type: 3}
 --- !u!114 &1166727145
 MonoBehaviour:
   m_ObjectHideFlags: 0

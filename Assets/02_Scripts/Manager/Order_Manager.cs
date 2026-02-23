@@ -27,7 +27,6 @@ public class OrderManager : MonoBehaviour
     public float nextCustomerDelay = 2f;
 
     private Order currentOrder;
-    private int totalMoney = 0;
 
     void Awake()
     {        
@@ -55,7 +54,6 @@ public class OrderManager : MonoBehaviour
 
     public void StartService()
     {
-        totalMoney = 0;
         SpawnCustomer();
     }
 
@@ -102,10 +100,8 @@ public class OrderManager : MonoBehaviour
         bool success = IsCorrect(playerDish, currentOrder);
 
         if (success)
-        {
-            int reward = CalculateReward(currentOrder);
-            totalMoney += reward;
-            Debug.Log("성공! +" + reward);
+        {            
+            Debug.Log("성공!");
         }
         else
         {
@@ -127,7 +123,6 @@ public class OrderManager : MonoBehaviour
 
         if (!dayManager.isTakingOrder)
         {
-            EndService();          // 🔥 다시 추가
             dayManager.EndDay();
             yield break;
         }
@@ -139,15 +134,6 @@ public class OrderManager : MonoBehaviour
     {
         return a.GetIngredientSet()
                 .SetEquals(b.GetIngredientSet());
-    }
-
-    int CalculateReward(Order order)
-    {
-        return 100;
-    }
-    public void EndService()
-    {
-        Debug.Log("오늘 총 수익: " + totalMoney);
     }
 
     void DebugIngredientSet(IHasIngredients target, string label)

@@ -5,7 +5,7 @@ using static IInteractableScript;
 
 public class Cooker_PassTable : MonoBehaviour, IInteractable
 {
-    [Header("<<스폰위치>>")]
+    [Header("<< 스폰위치 >>")]
     [SerializeField] private Transform plateSpawnPoint;
 
     public bool CanBeSelected => false;     
@@ -39,7 +39,7 @@ public class Cooker_PassTable : MonoBehaviour, IInteractable
             {               
                 HashSet<int> finalSet = new HashSet<int>(finishedPasta.GetIngredientSet());
 
-                // 🔥 Plate ID 추가
+                // Plate ID 추가
                 IngredientIDs plateID = plateTransform.GetComponent<IngredientIDs>();
                 if (plateID != null)
                 {
@@ -62,7 +62,7 @@ public class Cooker_PassTable : MonoBehaviour, IInteractable
                     finalSet.UnionWith(basicPlateComponent.GetIngredientSet());
                 }
 
-                // 🔥 디버그 출력
+                // 디버그 출력
                 DebugFinalSet(finalSet, "최종 제출 음식");
 
                 Debug.Log("완성된 파스타를 서빙합니다!");

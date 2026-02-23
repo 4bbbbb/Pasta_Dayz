@@ -48,7 +48,6 @@ public class DayManager : MonoBehaviour
     public void EndDay()
     {
         isDayActive = false;
-        orderManager.EndService();
         Debug.Log("하루 종료!");
     }
 }

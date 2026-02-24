@@ -7,6 +7,14 @@ public class CustomerButton : MonoBehaviour
 {
     public void OnClickYesBtn()
     {
-        SceneManager.LoadScene(2);
+        OrderManager manager = FindObjectOfType<OrderManager>();
+        if (manager != null)
+        {
+            manager.GoToKitchen();
+        }
+        else
+        {
+            Debug.LogError("OrderManager를 찾을 수 없음!");
+        }
     }
 }

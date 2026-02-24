@@ -8,11 +8,12 @@ public class CustomerUI : MonoBehaviour
     public Image customerImage;     // 프리팹에 미리 연결된 이미지
     public GameObject bubbleObject; // 말풍선 오브젝트
     public Text orderText;          // 주문 텍스트
+    public GameObject yesButton;    // 네 버튼
 
     void Awake()
     {
-        bubbleObject.SetActive(false); // 시작 시 말풍선 숨김
-        DontDestroyOnLoad(gameObject);
+        bubbleObject.SetActive(false);
+        yesButton.SetActive(false);
     }
 
     // 손님 등장
@@ -20,28 +21,33 @@ public class CustomerUI : MonoBehaviour
     {
         gameObject.SetActive(true);   // 손님 이미지 바로 표시
         bubbleObject.SetActive(false);
-    }
+        yesButton.SetActive(false);
+    }   
 
-    // 주문 표시 (0.2초 뒤 말풍선 등장)
     public void ShowOrder(string message)
     {
         orderText.text = message;
-        StartCoroutine(ShowBubbleDelay());
+        StartCoroutine(ShowBubbleDelay());        
     }
 
     IEnumerator ShowBubbleDelay()
     {
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(1f);
         bubbleObject.SetActive(true);
+        yesButton.SetActive(true);
     }
 
-    public void HideOrder()
+    public void HideBubble()
     {
-        gameObject.SetActive(false);
+        bubbleObject.SetActive(false);
+        yesButton.SetActive(false);
     }
 
-    public void Disappear()
+    public void ShowResult(string result)
     {
-        gameObject.SetActive(false);
+        orderText.text = result;
+
+        bubbleObject.SetActive(true);
+        yesButton.SetActive(false);
     }
 }

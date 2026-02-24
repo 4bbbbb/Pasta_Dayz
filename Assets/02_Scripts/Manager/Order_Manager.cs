@@ -1,9 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class OrderManager : MonoBehaviour
 {
@@ -12,7 +11,7 @@ public class OrderManager : MonoBehaviour
 
     [Header("UI")]
     public GameObject customerUIPrefab;
-    private Transform canvasTransform;
+    private Transform canvasTransform;    
 
     [Header("손님 프리팹")]
     private CustomerUI currentCustomer;
@@ -29,7 +28,6 @@ public class OrderManager : MonoBehaviour
     }
 
     public ServiceState currentState;
-    public float nextCustomerDelay = 2f;
 
     private Order currentOrder;
     private bool? pendingResult = null;
@@ -56,26 +54,17 @@ public class OrderManager : MonoBehaviour
             Canvas canvas = FindObjectOfType<Canvas>();
             canvasTransform = canvas.transform;
 
-            //  이미 존재하는 CustomerUI가 있다면
-            if (currentCustomer != null)
-            {                
-                currentCustomer.transform.SetParent(canvasTransform, false);
-            }
-            else
+            currentCustomer = FindObjectOfType<CustomerUI>();
+            if (currentCustomer == null)
             {
-                currentCustomer = FindObjectOfType<CustomerUI>();
-
-                if (currentCustomer == null)
-                {
-                    GameObject obj = Instantiate(customerUIPrefab, canvasTransform);
-                    currentCustomer = obj.GetComponent<CustomerUI>();
-                    DontDestroyOnLoad(obj);
-                }
+                GameObject obj = Instantiate(customerUIPrefab, canvasTransform);
+                currentCustomer = obj.GetComponent<CustomerUI>();
             }
 
-            //  결과 연출이 있다면 먼저 처리
             if (pendingResult.HasValue)
             {
+                currentCustomer.Appear();
+                currentCustomer.HideBubble();
                 StartCoroutine(ServeDishAndGoToNextCustomer(pendingResult.Value));
                 pendingResult = null;
             }
@@ -99,37 +88,65 @@ public class OrderManager : MonoBehaviour
 
         currentState = ServiceState.TakingOrder;
 
-        // 이미 주문된 손님이 있다면 그 손님은 계속 보여준다.
-        if (currentCustomer != null)
+        // Canvas 찾기
+        if (canvasTransform == null)
         {
-            currentCustomer.Appear();  // 손님 등장
+            Canvas canvas = FindObjectOfType<Canvas>();
+            if (canvas != null)
+            {
+                canvasTransform = canvas.transform;
+            }                
+            else
+            {
+                Debug.LogError("Canvas를 찾을 수 없음!");
+                return;
+            }
         }
 
-        StartCoroutine(GenerateOrderAfterDelay(0.2f));
-    }
-
-    IEnumerator GenerateOrderAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-
+        // CustomerUI 없으면 새로 생성
         if (currentCustomer == null)
-            yield break;
+        {
+            GameObject obj = Instantiate(customerUIPrefab, canvasTransform);
+            currentCustomer = obj.GetComponent<CustomerUI>();
+        }
 
         currentOrder = generator.GenerateOrder();
-        DebugIngredientSet(currentOrder, "주문");
         if (currentOrder == null)
-            yield break;
+        {
+            return;
+        }
+
+        DebugIngredientSet(currentOrder, "손님 주문");
 
         string message = currentOrder.GetOrderText(generator.ingredientDB);
 
+        currentCustomer.Appear();
+        currentCustomer.ShowOrder(message);
+
+        // 버튼은 숨김
+        if (currentCustomer.yesButton != null)
+            currentCustomer.yesButton.SetActive(false);
+    }
+
+    public void GoToKitchen()
+    {
+        // 현재 카운터에 있는 손님 Destroy
         if (currentCustomer != null)
-            currentCustomer.ShowOrder(message);
+        {
+            Destroy(currentCustomer.gameObject);
+            currentCustomer = null;
+        }
+
+        // 씬 전환
+        SceneManager.LoadScene(2);
     }
 
     public void SubmitDish(PastaBox pastaBox)
     {
         if (currentOrder == null)
+        {
             return;
+        }            
 
         bool success = IsCorrect(pastaBox, currentOrder);
 
@@ -142,28 +159,32 @@ public class OrderManager : MonoBehaviour
 
     IEnumerator ServeDishAndGoToNextCustomer(bool success)
     {
-        // 1초 대기 후 PastaBox 생성
         yield return new WaitForSeconds(1f);
 
+        // PastaBox 생성
         GameObject box = Instantiate(serveBoxPrefab, canvasTransform);
 
-        if (currentCustomer != null)
-        {
-            currentCustomer.HideOrder();
+        yield return new WaitForSeconds(1f);
 
-            string resultMessage = success ? "성공!" : "실패!";
-            currentCustomer.orderText.text = resultMessage;
-        }
+        // 결과 연출
+        string resultMessage = success ? "성공!" : "실패!";
+        currentCustomer.ShowResult(resultMessage);                   
 
         yield return new WaitForSeconds(2f);
 
+        // 손님 제거
         if (currentCustomer != null)
         {
-            currentCustomer.Disappear();
+            Destroy(currentCustomer.gameObject);
+            currentCustomer = null;
         }
 
-        yield return new WaitForSeconds(1f);
+        // PastaBox 제거
+        Destroy(box);
 
+        yield return new WaitForSeconds(2f);
+
+        // 새 손님
         SpawnCustomer();
     }
 

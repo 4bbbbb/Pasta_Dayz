@@ -1065,7 +1065,7 @@ MonoBehaviour:
   generator: {fileID: 350797649}
   dayManager: {fileID: 794931592}
   customerUIPrefab: {fileID: 1866242345739606558, guid: 4fa710a3971fae845809e1e8bcc9d9db, type: 3}
-  serveBoxPrefab: {fileID: 6268974576209908252, guid: ceb0ccce2a11e814195849ddd4c3185c, type: 3}
+  serveBoxPrefab: {fileID: 1821780161350151144, guid: af6accac4853383418362358692d7670, type: 3}
   currentState: 0
   nextCustomerDelay: 2
 --- !u!1 &1953686655

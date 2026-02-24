@@ -791,7 +791,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1584618186}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &794931592
 MonoBehaviour:
@@ -1047,6 +1047,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 350797648}
+  - {fileID: 794931591}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1584618187
@@ -1064,6 +1065,7 @@ MonoBehaviour:
   generator: {fileID: 350797649}
   dayManager: {fileID: 794931592}
   customerUIPrefab: {fileID: 1866242345739606558, guid: 4fa710a3971fae845809e1e8bcc9d9db, type: 3}
+  serveBoxPrefab: {fileID: 6268974576209908252, guid: ceb0ccce2a11e814195849ddd4c3185c, type: 3}
   currentState: 0
   nextCustomerDelay: 2
 --- !u!1 &1953686655
@@ -1187,7 +1189,6 @@ SceneRoots:
   - {fileID: 699983684}
   - {fileID: 75825448}
   - {fileID: 1584618186}
-  - {fileID: 794931591}
   - {fileID: 1992546230}
   - {fileID: 210247728}
   - {fileID: 816278097}

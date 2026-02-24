@@ -6,6 +6,7 @@ using static IInteractableScript;
 
 public class Cooker_PastaCooker : MonoBehaviour, IInteractable
 {
+    [Header("<<스폰위치>>")]
     [SerializeField] private Transform cookedNoodleSpawnPoint;
     [SerializeField] public GameObject cookedNoodlePrefab;
 

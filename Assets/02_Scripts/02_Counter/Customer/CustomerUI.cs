@@ -12,16 +12,17 @@ public class CustomerUI : MonoBehaviour
     void Awake()
     {
         bubbleObject.SetActive(false); // 시작 시 말풍선 숨김
+        DontDestroyOnLoad(gameObject);
     }
 
-    // 🔥 손님 등장
+    // 손님 등장
     public void Appear()
     {
         gameObject.SetActive(true);   // 손님 이미지 바로 표시
         bubbleObject.SetActive(false);
     }
 
-    // 🔥 주문 표시 (0.2초 뒤 말풍선 등장)
+    // 주문 표시 (0.2초 뒤 말풍선 등장)
     public void ShowOrder(string message)
     {
         orderText.text = message;
@@ -36,11 +37,11 @@ public class CustomerUI : MonoBehaviour
 
     public void HideOrder()
     {
-        bubbleObject.SetActive(false);
+        gameObject.SetActive(false);
     }
 
     public void Disappear()
     {
-        Destroy(gameObject);
+        gameObject.SetActive(false);
     }
 }

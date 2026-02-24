@@ -109,7 +109,18 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
                 savedIngredientIDs = new HashSet<int>(pasta.GetIngredientSet());
 
                 Plates_OvenPlate plate = pasta.GetComponentInParent<Plates_OvenPlate>();
-                Destroy(plate.gameObject);
+
+                if (plate != null)
+                {
+                    IngredientIDs plateID = plate.GetComponent<IngredientIDs>();
+                    if (plateID != null)
+                    {
+                        savedIngredientIDs.Add(plateID.GetID());
+                    }
+
+                    Destroy(plate.gameObject);
+                }
+
 
                 bakeItem = BakeItemType.Pasta;
                 StartBaking();
@@ -169,7 +180,7 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
 
         GameObject obj = Instantiate(prefab, bakedSpawnPoint.position, Quaternion.identity, bakedSpawnPoint);
 
-        // 🔥 여기서 데이터 전달
+        // 여기서 데이터 전달
         if (bakeItem == BakeItemType.Pasta)
         {
             BakedPasta baked = obj.GetComponent<BakedPasta>();

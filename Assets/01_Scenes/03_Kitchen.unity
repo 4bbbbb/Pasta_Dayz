@@ -3257,7 +3257,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4.58, y: 4.9, z: 0.01}
+  m_Size: {x: 4.58, y: 4.9, z: 0.5}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &2056364505
 MonoBehaviour:
@@ -3272,6 +3272,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   plateSpawnPoint: {fileID: 1195443703}
+  boxPrefab: {fileID: 4616727578313797283, guid: 1a30e47be7ed5f6479f3f79ef5478e05, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

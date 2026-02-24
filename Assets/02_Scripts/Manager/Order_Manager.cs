@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -13,7 +14,11 @@ public class OrderManager : MonoBehaviour
     public GameObject customerUIPrefab;
     private Transform canvasTransform;
 
+    [Header("손님 프리팹")]
     private CustomerUI currentCustomer;
+
+    [Header("연출용 파스타박스 프리팹")]
+    [SerializeField] GameObject serveBoxPrefab;  
 
     public enum ServiceState
     {
@@ -27,6 +32,7 @@ public class OrderManager : MonoBehaviour
     public float nextCustomerDelay = 2f;
 
     private Order currentOrder;
+    private bool? pendingResult = null;
 
     void Awake()
     {        
@@ -44,12 +50,41 @@ public class OrderManager : MonoBehaviour
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {     
+    {
         if (scene.name == "02_Counter")
-        {            
-            canvasTransform = FindObjectOfType<Canvas>().transform;
-            StartService();
+        {
+            Canvas canvas = FindObjectOfType<Canvas>();
+            canvasTransform = canvas.transform;
+
+            //  이미 존재하는 CustomerUI가 있다면
+            if (currentCustomer != null)
+            {                
+                currentCustomer.transform.SetParent(canvasTransform, false);
+            }
+            else
+            {
+                currentCustomer = FindObjectOfType<CustomerUI>();
+
+                if (currentCustomer == null)
+                {
+                    GameObject obj = Instantiate(customerUIPrefab, canvasTransform);
+                    currentCustomer = obj.GetComponent<CustomerUI>();
+                    DontDestroyOnLoad(obj);
+                }
+            }
+
+            //  결과 연출이 있다면 먼저 처리
+            if (pendingResult.HasValue)
+            {
+                StartCoroutine(ServeDishAndGoToNextCustomer(pendingResult.Value));
+                pendingResult = null;
+            }
+            else
+            {
+                StartService();
+            }
         }
+        
     }
 
     public void StartService()
@@ -60,14 +95,15 @@ public class OrderManager : MonoBehaviour
     void SpawnCustomer()
     {
         if (!dayManager.isTakingOrder)
-            return;       
+            return;
 
         currentState = ServiceState.TakingOrder;
 
-        GameObject obj = Instantiate(customerUIPrefab, canvasTransform);
-        currentCustomer = obj.GetComponent<CustomerUI>();
-        Debug.Log("canvasTransform: " + canvasTransform);
-        currentCustomer.Appear();
+        // 이미 주문된 손님이 있다면 그 손님은 계속 보여준다.
+        if (currentCustomer != null)
+        {
+            currentCustomer.Appear();  // 손님 등장
+        }
 
         StartCoroutine(GenerateOrderAfterDelay(0.2f));
     }
@@ -90,42 +126,43 @@ public class OrderManager : MonoBehaviour
             currentCustomer.ShowOrder(message);
     }
 
-    public void SubmitDish(Dish playerDish)
+    public void SubmitDish(PastaBox pastaBox)
     {
         if (currentOrder == null)
             return;
 
-        currentState = ServiceState.Cooking;
+        bool success = IsCorrect(pastaBox, currentOrder);
 
-        bool success = IsCorrect(playerDish, currentOrder);
-
-        if (success)
-        {            
-            Debug.Log("성공!");
-        }
-        else
-        {
-            Debug.Log("실패!");
-        }
+        Debug.Log(success ? "성공!" : "실패!");
 
         currentOrder = null;
-        currentState = ServiceState.WaitingNextCustomer;
 
-        currentCustomer.HideOrder();
-        currentCustomer.Disappear();
-
-        StartCoroutine(NextCustomerRoutine());
+        pendingResult = success;
     }
 
-    IEnumerator NextCustomerRoutine()
+    IEnumerator ServeDishAndGoToNextCustomer(bool success)
     {
-        yield return new WaitForSeconds(nextCustomerDelay);
+        // 1초 대기 후 PastaBox 생성
+        yield return new WaitForSeconds(1f);
 
-        if (!dayManager.isTakingOrder)
+        GameObject box = Instantiate(serveBoxPrefab, canvasTransform);
+
+        if (currentCustomer != null)
         {
-            dayManager.EndDay();
-            yield break;
+            currentCustomer.HideOrder();
+
+            string resultMessage = success ? "성공!" : "실패!";
+            currentCustomer.orderText.text = resultMessage;
         }
+
+        yield return new WaitForSeconds(2f);
+
+        if (currentCustomer != null)
+        {
+            currentCustomer.Disappear();
+        }
+
+        yield return new WaitForSeconds(1f);
 
         SpawnCustomer();
     }

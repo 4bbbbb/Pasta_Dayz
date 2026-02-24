@@ -1,12 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using static Cooker_Oven;
 using static IInteractableScript;
 
 public class Cooker_PassTable : MonoBehaviour, IInteractable
 {
     [Header("<< 스폰위치 >>")]
     [SerializeField] private Transform plateSpawnPoint;
+
+    [Header("<< 박스 프리팹 >>")]
+    [SerializeField] private GameObject boxPrefab;
 
     public bool CanBeSelected => false;     
 
@@ -32,44 +37,11 @@ public class Cooker_PassTable : MonoBehaviour, IInteractable
             else if (ovenPlate != null)
             {
                 plateTransform = ovenPlate.transform;
-
             }
 
             if (plateTransform != null)
-            {               
-                HashSet<int> finalSet = new HashSet<int>(finishedPasta.GetIngredientSet());
-
-                // Plate ID 추가
-                IngredientIDs plateID = plateTransform.GetComponent<IngredientIDs>();
-                if (plateID != null)
-                {
-                    finalSet.Add(plateID.GetID());
-                }
-                else
-                {
-                    plateID = plateTransform.GetComponentInChildren<IngredientIDs>();
-                    if (plateID != null)
-                    {
-                        finalSet.Add(plateID.GetID());
-                    }
-                }
-
-                // 빠네 ID 추가
-                Plates_BasicPlate basicPlateComponent = plateTransform.GetComponent<Plates_BasicPlate>();
-
-                if (basicPlateComponent != null)
-                {
-                    finalSet.UnionWith(basicPlateComponent.GetIngredientSet());
-                }
-
-                // 디버그 출력
-                DebugFinalSet(finalSet, "최종 제출 음식");
-
-                Debug.Log("완성된 파스타를 서빙합니다!");
-
-                plateTransform.SetParent(plateSpawnPoint);
-                plateTransform.localPosition = Vector3.zero;
-
+            {
+                StartCoroutine(ServePastaWithDelay(plateTransform, finishedPasta));
                 return true;
             }
 
@@ -81,14 +53,8 @@ public class Cooker_PassTable : MonoBehaviour, IInteractable
         {
             if (bakedPasta.GetComponentInParent<Cooker_PlateTable>() != null)
             {
-                Debug.Log("완성된 파스타를 서빙합니다!");
-
-                bakedPasta.transform.SetParent(plateSpawnPoint);
-                bakedPasta.transform.position = plateSpawnPoint.position;
-
-                HashSet<int> finalSet = bakedPasta.GetIngredientSet();
-                DebugFinalSet(finalSet, "최종 서빙 파스타");
-
+                // BakedPasta의 경우에도 음식 올리고 1초 뒤에 PastaBox 생성
+                StartCoroutine(ServeBakedPastaWithDelay(bakedPasta));
                 return true;
             }
 
@@ -97,6 +63,90 @@ public class Cooker_PassTable : MonoBehaviour, IInteractable
         }
 
         return false;
+    }
+
+    // PastaBox를 생성하고 1초 뒤에 씬 전환
+    IEnumerator ServePastaWithDelay(Transform plateTransform, FinishedPasta finishedPasta)
+    {
+        // 음식 올리기
+        plateTransform.SetParent(plateSpawnPoint);
+        plateTransform.localPosition = Vector3.zero;
+        Debug.Log("음식을 올렸습니다.");
+
+        // 1초 대기 후 PastaBox 생성
+        yield return new WaitForSeconds(1f);
+
+        HashSet<int> finalSet = new HashSet<int>(finishedPasta.GetIngredientSet());
+
+        // Plate ID 추가
+        IngredientIDs plateID = plateTransform.GetComponent<IngredientIDs>();
+        if (plateID != null)
+        {
+            finalSet.Add(plateID.GetID());
+        }
+        else
+        {
+            plateID = plateTransform.GetComponentInChildren<IngredientIDs>();
+            if (plateID != null)
+            {
+                finalSet.Add(plateID.GetID());
+            }
+        }
+
+        // 빠네 ID 추가
+        Plates_BasicPlate basicPlateComponent = plateTransform.GetComponent<Plates_BasicPlate>();
+
+        if (basicPlateComponent != null)
+        {
+            finalSet.UnionWith(basicPlateComponent.GetIngredientSet());
+        }
+
+        // PastaBox 생성
+        PastaBox box = Instantiate(boxPrefab).GetComponent<PastaBox>();
+        box.SetIngredients(finalSet);
+
+        DebugFinalSet(box.GetIngredientSet(), "PastaBox 재료");
+
+        // OrderManager에 전달
+        OrderManager orderManager = FindObjectOfType<OrderManager>();
+        orderManager.SubmitDish(box);
+
+        Debug.Log("완성된 파스타를 서빙합니다!");
+
+        // 1초 대기 후 씬 전환
+        yield return new WaitForSeconds(1f);
+
+        // 씬 전환 (1번 씬으로 돌아가기)
+        SceneManager.LoadScene(1); 
+    }
+
+    // BakedPasta의 경우 1초 후에 PastaBox 생성하고 씬 전환
+    IEnumerator ServeBakedPastaWithDelay(BakedPasta bakedPasta)
+    {
+        // BakedPasta 올리기
+        bakedPasta.transform.SetParent(plateSpawnPoint);
+        bakedPasta.transform.position = plateSpawnPoint.position;
+
+        Debug.Log("BakedPasta를 올렸습니다.");
+
+        // 1초 대기 후 PastaBox 생성
+        yield return new WaitForSeconds(1f);
+
+        HashSet<int> finalSet = bakedPasta.GetIngredientSet();
+        DebugFinalSet(finalSet, "최종 서빙 파스타");
+
+        // PastaBox 생성 후 OrderManager에 전달
+        PastaBox pastaBox = Instantiate(boxPrefab).GetComponent<PastaBox>();  // 여기서 box로 생성
+        pastaBox.SetIngredients(finalSet);
+
+        OrderManager orderManager = FindObjectOfType<OrderManager>();
+        orderManager.SubmitDish(pastaBox);
+
+        // 1초 대기 후 씬 전환
+        yield return new WaitForSeconds(1f);
+
+        // 씬 전환 (1번 씬으로 돌아가기)
+        SceneManager.LoadScene(1);  // "Scene1"은 1번 씬의 이름
     }
 
     void DebugFinalSet(HashSet<int> set, string label)

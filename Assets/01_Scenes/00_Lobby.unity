@@ -389,6 +389,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b63b297354df75e4ca9be439ab33c35d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  totalGold: 0
+  goldText: {fileID: 0}
 --- !u!4 &210247728
 Transform:
   m_ObjectHideFlags: 0
@@ -1064,10 +1066,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   generator: {fileID: 350797649}
   dayManager: {fileID: 794931592}
+  ingredientDB: {fileID: 326935923}
   customerUIPrefab: {fileID: 1866242345739606558, guid: 4fa710a3971fae845809e1e8bcc9d9db, type: 3}
   serveBoxPrefab: {fileID: 1821780161350151144, guid: af6accac4853383418362358692d7670, type: 3}
   currentState: 0
-  nextCustomerDelay: 2
 --- !u!1 &1953686655
 GameObject:
   m_ObjectHideFlags: 0

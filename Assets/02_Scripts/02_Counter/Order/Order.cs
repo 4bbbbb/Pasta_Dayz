@@ -9,7 +9,7 @@ public class Order : IHasIngredients
     public int noodleID;
     public List<int> toppingIDs;
 
-    OrderTemplateDatabase ordertemplateDB;
+    private OrderTemplateDatabase ordertemplateDB;
 
     public Order(MenuData menu, int noodle, List<int> toppings, OrderTemplateDatabase db)
     {
@@ -65,5 +65,41 @@ public class Order : IHasIngredients
             result.Add(id);
 
         return result;
+    }
+
+    public float Price(IngredientDatabase ingredientDB)
+    {
+        float total = 0f;
+
+        // 메뉴 기본 재료 가격
+        foreach (int id in menuData.IngredientsID)
+            total += ingredientDB.GetIngredientByID(id).price;
+
+        // 면 가격
+        total += ingredientDB.GetIngredientByID(noodleID).price;
+
+        // 토핑 가격
+        foreach (int id in toppingIDs)
+            total += ingredientDB.GetIngredientByID(id).price;
+
+        return total;
+    }
+
+    public float Ingredient_Cost(IngredientDatabase ingredientDB)
+    {
+        float total = 0f;
+
+        // 메뉴 기본 재료 비용
+        foreach (int id in menuData.IngredientsID)
+            total += ingredientDB.GetIngredientByID(id).ingredientCost;
+
+        // 면 비용
+        total += ingredientDB.GetIngredientByID(noodleID).ingredientCost;
+
+        // 토핑 비용
+        foreach (int id in toppingIDs)
+            total += ingredientDB.GetIngredientByID(id).ingredientCost;
+
+        return total;
     }
 }

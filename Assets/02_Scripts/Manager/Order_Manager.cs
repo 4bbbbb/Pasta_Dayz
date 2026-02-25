@@ -206,6 +206,13 @@ public class OrderManager : MonoBehaviour
 
         Debug.Log(success ? "성공!" : "실패!");
 
+        if (success)
+        {
+            float tip = 1f;
+            Gold_Manager.Instance.EarnTip(tip);
+            Debug.Log($"팁 지급: {tip}, 현재 골드: {Gold_Manager.Instance.totalGold}");
+        }
+
         // 메뉴 가격, 재료비
         HashSet<int> usedIngredients = pastaBox.GetIngredientSet(); // 플레이어가 사용한 재료
         HashSet<int> correctIngredients = currentOrder.GetIngredientSet(); // 손님 주문 재료

@@ -84,7 +84,17 @@ public class DayManager : MonoBehaviour
         Debug.Log($"ÃÑ ¼öÀÍ: {Gold_Manager.Instance.dailyRevenue}");
         Debug.Log($"ÃÑ Àç·áºñ: {Gold_Manager.Instance.dailyCost}");
         Debug.Log($"ÃÑ È¯ºÒ: {Gold_Manager.Instance.dailyRefund}");
+        Debug.Log($"ÃÑ ÆÁ: {Gold_Manager.Instance.dailyTip}");
         Debug.Log($"¼ø¼öÀÍ: {Gold_Manager.Instance.DailyNetProfit()}");
         Debug.Log("===================");
+    }
+
+    public void ResetForNextDay()
+    {
+        timer = dayDuration;
+        isDayActive = true;
+        isTakingOrder = true;
+
+        orderManager.SetState(OrderManager.ServiceState.WaitingForOrder);
     }
 }

@@ -6,9 +6,12 @@ using UnityEngine.UI;
 
 public class OrderManager : MonoBehaviour
 {
+    public static OrderManager Instance;
+
     [SerializeField] public OrderGenerator generator;
     [SerializeField] public DayManager dayManager;
     [SerializeField] public IngredientDatabase ingredientDB;
+    [SerializeField] public ServeMessageDatabase serveMessageDB;
 
     [Header("UI")]
     public GameObject customerUIPrefab;
@@ -33,11 +36,21 @@ public class OrderManager : MonoBehaviour
 
     public Order currentOrder;
     private bool? pendingResult = null;
+    private bool pendingSatisfactionZero = false;
 
     void Awake()
-    {        
-        DontDestroyOnLoad(gameObject);
+    {
+        if (Instance == null)
+        {
+            Instance = this;         // Instance 설정
+            DontDestroyOnLoad(gameObject);  // 씬 전환 시 유지
+        }
+        else
+        {
+            Destroy(gameObject);     // 중복 방지
+        }
     }
+
     void Start()
     {
         SetState(ServiceState.WaitingForOrder); // 처음 상태는 주문 대기
@@ -88,6 +101,13 @@ public class OrderManager : MonoBehaviour
             {
                 GameObject obj = Instantiate(customerUIPrefab, canvasTransform);
                 currentCustomer = obj.GetComponent<CustomerUI>();
+            }
+
+            if (pendingSatisfactionZero)
+            {
+                pendingSatisfactionZero = false;
+                StartCoroutine(DontSubmitDish());
+                return;
             }
 
             if (pendingResult.HasValue)
@@ -191,6 +211,11 @@ public class OrderManager : MonoBehaviour
             currentCustomer = null;
         }
 
+        if (CustomerSatisfaction_Manager.Instance != null)
+        {
+            CustomerSatisfaction_Manager.Instance.ResetSatisfaction();
+        }
+
         // 씬 전환
         SceneManager.LoadScene(2);
     }
@@ -202,13 +227,31 @@ public class OrderManager : MonoBehaviour
             return;
         }            
 
-        bool success = IsCorrect(pastaBox, currentOrder);
-
-        Debug.Log(success ? "성공!" : "실패!");
+        bool success = IsCorrect(pastaBox, currentOrder);       
 
         if (success)
         {
-            float tip = 1f;
+            float satisfactionRatio = 0f;
+            if (CustomerSatisfaction_Manager.Instance != null)
+            {
+                satisfactionRatio = CustomerSatisfaction_Manager.Instance.GetSatisfactionRatio();
+            }
+
+            float tip = 0f;
+
+            if (satisfactionRatio >= 0.8f)
+            {
+                tip = 2f;
+            }
+            else if (satisfactionRatio >= 0.6f)
+            {
+                tip = 1f;
+            }
+            else
+            {
+                tip = 0f;
+            }
+
             Gold_Manager.Instance.EarnTip(tip);
             Debug.Log($"팁 지급: {tip}, 현재 골드: {Gold_Manager.Instance.totalGold}");
         }
@@ -266,7 +309,8 @@ public class OrderManager : MonoBehaviour
         yield return new WaitForSeconds(1f);
 
         // 결과 연출
-        string resultMessage = success ? "성공!" : "실패!";
+        string resultMessage = serveMessageDB.GetRandomMessage(success);  
+
         currentCustomer.ShowResult(resultMessage);                   
 
         yield return new WaitForSeconds(2f);
@@ -287,6 +331,57 @@ public class OrderManager : MonoBehaviour
         SpawnCustomer();
 
         CheckDayEndCondition();
+    }
+
+    public void SatisfactionZero()
+    {
+        pendingSatisfactionZero = true;
+        GoToCounterScene();
+    }
+
+    void GoToCounterScene()
+    {
+        SceneManager.LoadScene("01_Counter");
+    }
+
+    IEnumerator DontSubmitDish()
+    {           
+        if (currentCustomer == null)
+        {
+            GameObject obj = Instantiate(customerUIPrefab, canvasTransform);
+            currentCustomer = obj.GetComponent<CustomerUI>();
+            currentCustomer.Appear();
+        }
+
+        string resultMessage = serveMessageDB.GetRandomMessageNothing();
+        currentCustomer.ShowResult(resultMessage);
+
+
+        // 2️. 전체 환불
+        if (currentOrder != null)
+        {
+            float refund = currentOrder.Price(generator.ingredientDB);
+            Gold_Manager.Instance.Refund(refund);
+            Debug.Log($"전체환불 : {refund}");
+        }
+
+        // 3️. 잠시 대기
+        yield return new WaitForSeconds(2f);
+
+        // 4️. 손님 제거
+        if (currentCustomer != null)
+        {
+            Destroy(currentCustomer.gameObject);
+            currentCustomer = null;
+        }
+
+        currentOrder = null;
+
+        yield return new WaitForSeconds(2f);
+
+        // 5️. 다음 손님 등장
+        SpawnCustomer();
+
     }
 
     public bool IsCorrect(IHasIngredients a, IHasIngredients b)

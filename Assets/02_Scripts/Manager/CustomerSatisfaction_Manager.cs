@@ -54,7 +54,7 @@ public class CustomerSatisfaction_Manager : MonoBehaviour
 
             if (currentSatisfaction == 0)
             {
-                // 🟢 만족도 0 시 바로 OrderManager에게 알려주기
+                //  만족도 0 시 바로 OrderManager에게 알려주기
                 if (OrderManager.Instance != null)
                 {
                     OrderManager.Instance.SatisfactionZero();

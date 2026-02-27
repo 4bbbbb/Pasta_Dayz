@@ -4,7 +4,7 @@ using UnityEngine;
 public class CustomerSatisfaction_Manager : MonoBehaviour
 {
     public static CustomerSatisfaction_Manager Instance;
-    public OrderManager orderManager;
+    public Order_Manager orderManager;
 
     [Header("만족도 설정")]
     public float maxSatisfaction = 100f;
@@ -55,9 +55,9 @@ public class CustomerSatisfaction_Manager : MonoBehaviour
             if (currentSatisfaction == 0)
             {
                 //  만족도 0 시 바로 OrderManager에게 알려주기
-                if (OrderManager.Instance != null)
+                if (Order_Manager.Instance != null)
                 {
-                    OrderManager.Instance.SatisfactionZero();
+                    Order_Manager.Instance.SatisfactionZero();
                 }
             }
 

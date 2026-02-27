@@ -5,15 +5,15 @@ using UnityEngine.UI;
 
 public class TimerUI : MonoBehaviour
 {
-    public DayManager dayManager;
+    public Day_Manager dayManager;
     public Image clockImage;    
 
     void Update()
     {
-        if (DayManager.Instance == null) return;
-        if (!DayManager.Instance.isDayActive) return;
+        if (Day_Manager.Instance == null) return;
+        if (!Day_Manager.Instance.isDayActive) return;
 
-        float ratio = DayManager.Instance.GetRemainingTime() / DayManager.Instance.dayDuration;
+        float ratio = Day_Manager.Instance.GetRemainingTime() / Day_Manager.Instance.dayDuration;
 
         clockImage.fillAmount = ratio;
     }

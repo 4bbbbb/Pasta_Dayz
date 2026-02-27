@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class DayManager : MonoBehaviour
+public class Day_Manager : MonoBehaviour
 {
-    public static DayManager Instance;
+    public static Day_Manager Instance;
 
     public float dayDuration = 180f; // 3분
     private float timer;
 
     public bool isDayActive = false;
     public bool isTakingOrder = true;
+    public bool hasEndedDay = false;
 
-    public OrderManager orderManager;
+    public Order_Manager orderManager;
 
     void Awake()
     {
@@ -27,10 +28,23 @@ public class DayManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
-    void Start()
+    void OnEnable()
     {
-        StartDay();
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+       
+        if (scene.name == "01_Counter" && !isDayActive)
+        {
+            StartDay();
+        }
     }
 
     void Update()
@@ -66,18 +80,26 @@ public class DayManager : MonoBehaviour
     {
         timer = dayDuration;
         isDayActive = true;
-        isTakingOrder = true;
-        orderManager.SetState(OrderManager.ServiceState.WaitingForOrder);
+        isTakingOrder = true;        
+        orderManager.SetState(Order_Manager.ServiceState.WaitingForOrder);
     }         
 
     public void EndDay()
     {
+        if (hasEndedDay)
+        {
+            return;
+        }
+
+        hasEndedDay = true;
+
         isDayActive = false;
-        orderManager.SetState(OrderManager.ServiceState.DayEnded);  // 하루 종료 상태로 전환
-        Debug.Log("하루 종료!");
+        orderManager.SetState(Order_Manager.ServiceState.DayEnded);  // 하루 종료 상태로 전환
+        Debug.Log("하루 종료! +20");
 
         // 정산 씬으로 넘어가는 로직
         SceneManager.LoadScene(3);
+        Level_Manager.Instance.EarnXP(20);
 
         // 하루 통계 출력
         Debug.Log($"===== 하루 정산 =====");
@@ -87,6 +109,12 @@ public class DayManager : MonoBehaviour
         Debug.Log($"총 팁: {Gold_Manager.Instance.dailyTip}");
         Debug.Log($"순수익: {Gold_Manager.Instance.DailyNetProfit()}");
         Debug.Log("===================");
+
+        if(Gold_Manager.Instance.DailyNetProfit() > 0)
+        {
+            Level_Manager.Instance.EarnXP(10);
+            Debug.Log("흑자 : +10");
+        }
     }
 
     public void ResetForNextDay()
@@ -94,7 +122,8 @@ public class DayManager : MonoBehaviour
         timer = dayDuration;
         isDayActive = true;
         isTakingOrder = true;
+        hasEndedDay = false;
 
-        orderManager.SetState(OrderManager.ServiceState.WaitingForOrder);
+        orderManager.SetState(Order_Manager.ServiceState.WaitingForOrder);
     }
 }

@@ -7,7 +7,7 @@ public class CustomerButton : MonoBehaviour
 {
     public void OnClickYesBtn()
     {
-        OrderManager manager = FindObjectOfType<OrderManager>();
+        Order_Manager manager = FindObjectOfType<Order_Manager>();
 
         if (manager == null)
         {

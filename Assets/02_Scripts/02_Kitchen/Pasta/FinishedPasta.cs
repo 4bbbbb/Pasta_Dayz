@@ -132,6 +132,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             {
                 ingredientIDs.Add(id.GetID());   // 파슬리 ID 추가
             }
+            return true;
         }
 
         return false;

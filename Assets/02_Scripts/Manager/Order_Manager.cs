@@ -4,12 +4,12 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class OrderManager : MonoBehaviour
+public class Order_Manager : MonoBehaviour
 {
-    public static OrderManager Instance;
+    public static Order_Manager Instance;
 
     [SerializeField] public OrderGenerator generator;
-    [SerializeField] public DayManager dayManager;
+    [SerializeField] public Day_Manager dayManager;    
     [SerializeField] public IngredientDatabase ingredientDB;
     [SerializeField] public ServeMessageDatabase serveMessageDB;
 
@@ -237,15 +237,23 @@ public class OrderManager : MonoBehaviour
                 satisfactionRatio = CustomerSatisfaction_Manager.Instance.GetSatisfactionRatio();
             }
 
-            float tip = 0f;
+            float tip = 0f;            
 
             if (satisfactionRatio >= 0.8f)
             {
                 tip = 2f;
+                Level_Manager.Instance.EarnXP(3);
+                Debug.Log(+3);
+
+
             }
             else if (satisfactionRatio >= 0.6f)
             {
                 tip = 1f;
+                Level_Manager.Instance.EarnXP(3);
+                Debug.Log(+3);
+
+
             }
             else
             {
@@ -253,7 +261,10 @@ public class OrderManager : MonoBehaviour
             }
 
             Gold_Manager.Instance.EarnTip(tip);
+            Level_Manager.Instance.EarnXP(5);
+            Debug.Log("성공 +5");
             Debug.Log($"팁 지급: {tip}, 현재 골드: {Gold_Manager.Instance.totalGold}");
+            Debug.Log($"현재 XP : {Level_Manager.Instance.currentXP}");
         }
 
         // 메뉴 가격, 재료비

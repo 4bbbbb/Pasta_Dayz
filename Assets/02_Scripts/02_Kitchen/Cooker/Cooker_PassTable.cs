@@ -108,7 +108,7 @@ public class Cooker_PassTable : MonoBehaviour, IInteractable
         DebugFinalSet(box.GetIngredientSet(), "PastaBox 재료");
 
         // OrderManager에 전달
-        OrderManager orderManager = FindObjectOfType<OrderManager>();
+        Order_Manager orderManager = FindObjectOfType<Order_Manager>();
         orderManager.SubmitDish(box);
 
         Debug.Log("완성된 파스타를 서빙합니다!");
@@ -139,7 +139,7 @@ public class Cooker_PassTable : MonoBehaviour, IInteractable
         PastaBox pastaBox = Instantiate(boxPrefab).GetComponent<PastaBox>();  // 여기서 box로 생성
         pastaBox.SetIngredients(finalSet);
 
-        OrderManager orderManager = FindObjectOfType<OrderManager>();
+        Order_Manager orderManager = FindObjectOfType<Order_Manager>();
         orderManager.SubmitDish(pastaBox);
 
         // 1초 대기 후 씬 전환

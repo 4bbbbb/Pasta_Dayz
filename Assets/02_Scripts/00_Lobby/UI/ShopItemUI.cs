@@ -2,14 +2,14 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class ShopItemUI : MonoBehaviour
-{
+{  
     public Text nameText;
     public Text priceText;
     public Text statusText;
     public Button purchaseButton;
 
     private IngredientData itemData;
-    private Shop_Manager shopManager;
+    private Shop_Manager shopManager;    
 
     // 데이터를 UI에 연결
     public void SetData(IngredientData data, Shop_Manager manager)
@@ -35,17 +35,17 @@ public class ShopItemUI : MonoBehaviour
 
         if (itemData.isUnlocked)
         {
-            statusText.text = "Owned";
+            statusText.text = "보유중";
             purchaseButton.interactable = false;
         }
         else if (Level_Manager.Instance.currentLevel < itemData.unlockLevel)
         {
-            statusText.text = $"Unlock Lv.{itemData.unlockLevel}";
+            statusText.text = $"Lv.{itemData.unlockLevel}에서 잠금 해제";
             purchaseButton.interactable = false;
         }
         else
         {
-            statusText.text = $"Buy ({itemData.unlockCost}G)";
+            statusText.text = "구매가능";
             purchaseButton.interactable = Gold_Manager.Instance.totalGold >= itemData.unlockCost;
         }
     }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Shop_Manager : MonoBehaviour
@@ -16,7 +17,7 @@ public class Shop_Manager : MonoBehaviour
     public GameObject shopItemPrefab;
 
     // 상점 아이템 UI 리스트
-    //private List<ShopItemUI> shopItemUIs = new List<ShopItemUI>();
+    private List<ShopItemUI> shopItemUIs = new List<ShopItemUI>();
 
     void Awake()
     {
@@ -29,7 +30,8 @@ public class Shop_Manager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-    }
+    }    
+
     void Start()
     {
         PopulateShop();
@@ -42,25 +44,28 @@ public class Shop_Manager : MonoBehaviour
         foreach (var item in ingredientDatabase.ingredientList)
         {
             GameObject go = Instantiate(shopItemPrefab, shopContentParent);
-            //ShopItemUI ui = go.GetComponent<ShopItemUI>();
-            //ui.SetData(item, this); // 데이터 전달
-            //shopItemUIs.Add(ui);
+            ShopItemUI ui = go.GetComponent<ShopItemUI>();
+            ui.SetData(item, this); // 데이터 전달
+            shopItemUIs.Add(ui);
         }
     }
 
     // 전체 UI 갱신 (레벨업/골드 변경 시 호출)
     public void UpdateShopUI()
     {
-        //foreach (var ui in shopItemUIs)
+        foreach (var ui in shopItemUIs)
         {
-            //ui.RefreshUI();
+            ui.RefreshUI();
         }
     }
 
     // 구매 처리
     public void PurchaseItem(IngredientData item)
     {
-        if (!CanPurchase(item)) return;
+        if (!CanPurchase(item))
+        {
+            return;
+        } 
 
         Gold_Manager.Instance.Spend(item.unlockCost); // 골드 차감
         item.isUnlocked = true;
@@ -74,5 +79,21 @@ public class Shop_Manager : MonoBehaviour
         return !item.isUnlocked &&
                Level_Manager.Instance.currentLevel >= item.unlockLevel &&
                Gold_Manager.Instance.totalGold >= item.unlockCost;
+    }
+
+    public void InitializeUI(Transform parent)
+    {
+        shopContentParent = parent;
+
+        shopItemUIs.Clear();
+
+        // 기존 자식 제거 (혹시 남아있으면)
+        foreach (Transform child in shopContentParent)
+        {
+            Destroy(child.gameObject);
+        }
+
+        PopulateShop();
+        UpdateShopUI();
     }
 }

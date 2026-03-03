@@ -8,6 +8,7 @@ public class Shop_Manager : MonoBehaviour
 {
     public static Shop_Manager Instance;
 
+
     // 데이터베이스
     public IngredientDatabase ingredientDatabase;
 
@@ -19,19 +20,10 @@ public class Shop_Manager : MonoBehaviour
 
     // 상점 아이템 UI 리스트
     private List<ShopItemUI> shopItemUIs = new List<ShopItemUI>();
-
     void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }    
+        Instance = this;
+    }
 
     void Start()
     {

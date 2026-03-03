@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class CustomerUI : MonoBehaviour
 {
+    [System.Serializable]
     public class CustomerSpriteSet
     {
         public Sprite happy;

@@ -263,12 +263,7 @@ public class Order_Manager : MonoBehaviour
             return;
         }
 
-        bool success = IsCorrect(pastaBox, currentOrder);
-
-        if (currentCustomer != null)
-        {
-            currentCustomer.SetEmotion(success);
-        }
+        bool success = IsCorrect(pastaBox, currentOrder);        
 
         if (success)
         {
@@ -352,13 +347,17 @@ public class Order_Manager : MonoBehaviour
 
     IEnumerator ServeDishAndGoToNextCustomer(bool success)
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(1f);        
 
         // PastaBox 생성
         GameObject box = Instantiate(serveBoxPrefab, canvasTransform);
 
         yield return new WaitForSeconds(1f);
 
+        if (currentCustomer != null)
+        {
+            currentCustomer.SetEmotion(success);
+        }
         // 결과 연출
         string resultMessage = serveMessageDB.GetRandomMessage(success);  
 

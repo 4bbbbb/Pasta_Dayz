@@ -13,10 +13,10 @@ public class TextUI : MonoBehaviour
 
     void Start()
     {
-        revenueText.text = Gold_Manager.Instance.dailyRevenue.ToString();
-        costText.text = Gold_Manager.Instance.dailyCost.ToString();
-        refundText.text = Gold_Manager.Instance.dailyRefund.ToString();
-        tipText.text = Gold_Manager.Instance.dailyTip.ToString();
-        netProfitText.text = Gold_Manager.Instance.DailyNetProfit().ToString();
+        revenueText.text = $"ÃÑ ¼öÀÍ: {Gold_Manager.Instance.dailyRevenue}";
+        costText.text = $"ÃÑ Àç·áºñ: {Gold_Manager.Instance.dailyCost}";
+        refundText.text = $"ÃÑ È¯ºÒ: {Gold_Manager.Instance.dailyRefund}";
+        tipText.text = $"ÃÑ ÆÁ: {Gold_Manager.Instance.dailyTip}";
+        netProfitText.text = $"¼ø¼öÀÍ: {Gold_Manager.Instance.DailyNetProfit():F1}";
     }
 }

@@ -1625,7 +1625,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f503e50f7d56a4143961758ba32f7ae7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dayDuration: 180
+  dayDuration: 60
   isDayActive: 0
   isTakingOrder: 1
   hasEndedDay: 0

@@ -19,6 +19,8 @@ public class Order_Manager : MonoBehaviour
 
     [Header("손님 프리팹")]
     private CustomerUI currentCustomer;
+    private int currentCustomerSpriteIndex = -1;
+    private int lastCustomerSpriteIndex = -1;
 
     [Header("연출용 파스타박스 프리팹")]
     [SerializeField] GameObject serveBoxPrefab;
@@ -42,8 +44,13 @@ public class Order_Manager : MonoBehaviour
     {
         if (Instance == null)
         {
-            Instance = this;         // Instance 설정
-            DontDestroyOnLoad(gameObject);  // 씬 전환 시 유지
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+
+            // ⭐ 여기서 CustomerUI 미리 생성
+            GameObject obj = Instantiate(customerUIPrefab);
+            currentCustomer = obj.GetComponent<CustomerUI>();
+            DontDestroyOnLoad(obj);
         }
         else
         {
@@ -96,11 +103,15 @@ public class Order_Manager : MonoBehaviour
             Canvas canvas = FindObjectOfType<Canvas>();
             canvasTransform = canvas.transform;
 
-            currentCustomer = FindObjectOfType<CustomerUI>();
-            if (currentCustomer == null)
+            if (!currentCustomer)
             {
                 GameObject obj = Instantiate(customerUIPrefab, canvasTransform);
                 currentCustomer = obj.GetComponent<CustomerUI>();
+            }
+            else // 기존 손님 재사용
+            {               
+                currentCustomer.transform.SetParent(canvasTransform, false);
+                currentCustomer.gameObject.SetActive(true);
             }
 
             if (pendingSatisfactionZero)
@@ -112,14 +123,23 @@ public class Order_Manager : MonoBehaviour
 
             if (pendingResult.HasValue)
             {
-                currentCustomer.Appear();
+                if (currentCustomerSpriteIndex != -1)
+                {
+                    currentCustomer.SetCustomerSprite(currentCustomerSpriteIndex);
+                }
+
+                currentCustomer.gameObject.SetActive(true);
                 currentCustomer.HideBubble();
+
                 StartCoroutine(ServeDishAndGoToNextCustomer(pendingResult.Value));
                 pendingResult = null;
             }
             else
-            {
-                StartService();
+            {               
+                if (currentOrder == null)
+                {
+                    StartService();
+                }
             }
         }        
     }
@@ -161,6 +181,23 @@ public class Order_Manager : MonoBehaviour
             GameObject obj = Instantiate(customerUIPrefab, canvasTransform);
             currentCustomer = obj.GetComponent<CustomerUI>();
         }
+
+        if (currentCustomerSpriteIndex == -1)
+        {
+            int newIndex;
+
+            do
+            {
+                newIndex = Random.Range(0, currentCustomer.customerSprites.Count);
+            }
+            while (newIndex == lastCustomerSpriteIndex
+                   && currentCustomer.customerSprites.Count > 1);
+
+            currentCustomerSpriteIndex = newIndex;
+            lastCustomerSpriteIndex = newIndex;
+        }
+
+        currentCustomer.SetCustomerSprite(currentCustomerSpriteIndex);
 
         currentOrder = generator.GenerateOrder();
 
@@ -207,8 +244,7 @@ public class Order_Manager : MonoBehaviour
         // 현재 카운터에 있는 손님 Destroy
         if (currentCustomer != null)
         {
-            Destroy(currentCustomer.gameObject);
-            currentCustomer = null;
+            currentCustomer.gameObject.SetActive(false);
         }
 
         if (CustomerSatisfaction_Manager.Instance != null)
@@ -225,9 +261,14 @@ public class Order_Manager : MonoBehaviour
         if (currentOrder == null)
         {
             return;
-        }            
+        }
 
-        bool success = IsCorrect(pastaBox, currentOrder);       
+        bool success = IsCorrect(pastaBox, currentOrder);
+
+        if (currentCustomer != null)
+        {
+            currentCustomer.SetEmotion(success);
+        }
 
         if (success)
         {
@@ -252,8 +293,6 @@ public class Order_Manager : MonoBehaviour
                 tip = 1f;
                 Level_Manager.Instance.EarnXP(3);
                 Debug.Log(+3);
-
-
             }
             else
             {
@@ -297,6 +336,7 @@ public class Order_Manager : MonoBehaviour
 
         // 3. Gold 처리
         Gold_Manager.Instance.Spend(totalingredientCost);  // 사용한 재료비 차감
+
         if (refund > 0f)
         {
             Gold_Manager.Instance.Refund(refund);      // 빠진 재료에 대한 환불
@@ -333,7 +373,8 @@ public class Order_Manager : MonoBehaviour
             currentCustomer = null;
         }
 
-        // PastaBox 제거
+        currentCustomerSpriteIndex = -1;
+        
         Destroy(box);
 
         yield return new WaitForSeconds(2f);
@@ -341,11 +382,16 @@ public class Order_Manager : MonoBehaviour
         // 새 손님
         SpawnCustomer();
 
-        CheckDayEndCondition();
+        CheckDayEndCondition();        
     }
 
     public void SatisfactionZero()
     {
+        if (currentCustomer != null)
+        {
+            currentCustomer.SetEmotion(false);
+        }
+
         pendingSatisfactionZero = true;
         GoToCounterScene();
     }
@@ -365,6 +411,12 @@ public class Order_Manager : MonoBehaviour
         }
 
         string resultMessage = serveMessageDB.GetRandomMessageNothing();
+
+        if (currentCustomer != null)
+        {
+            currentCustomer.SetEmotion(false);
+        }
+
         currentCustomer.ShowResult(resultMessage);
 
 
@@ -385,6 +437,8 @@ public class Order_Manager : MonoBehaviour
             Destroy(currentCustomer.gameObject);
             currentCustomer = null;
         }
+
+        currentCustomerSpriteIndex = -1;
 
         currentOrder = null;
 
@@ -411,6 +465,8 @@ public class Order_Manager : MonoBehaviour
             Destroy(currentCustomer.gameObject);
             currentCustomer = null;
             currentOrder = null;
+
+            currentCustomerSpriteIndex = -1;
 
             CheckDayEndCondition();
         }

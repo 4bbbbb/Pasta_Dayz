@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static IngredientData;
 
 public class Shop_Manager : MonoBehaviour
 {
@@ -36,6 +37,7 @@ public class Shop_Manager : MonoBehaviour
     {
         PopulateShop();
         UpdateShopUI();
+        FilterByCategory(CategoryType.Noodle);
     }
 
     // 상점 UI 생성
@@ -55,7 +57,7 @@ public class Shop_Manager : MonoBehaviour
     {
         foreach (var ui in shopItemUIs)
         {
-            ui.RefreshUI();
+            ui.ItemUI();
         }
     }
 
@@ -95,5 +97,46 @@ public class Shop_Manager : MonoBehaviour
 
         PopulateShop();
         UpdateShopUI();
+        FilterByCategory(CategoryType.Noodle);
     }
+
+    public void FilterByCategory(CategoryType type)
+    {
+        foreach (var ui in shopItemUIs)
+        {
+            bool isMatch = ui.GetCategory() == type;
+            ui.gameObject.SetActive(isMatch);
+        }
+    }
+
+    public void OnClickNoodle()
+    {
+        FilterByCategory(CategoryType.Noodle);
+    }
+
+    public void OnClickSauce()
+    {
+        FilterByCategory(CategoryType.Sauce);
+    }
+
+    public void OnClickTopping()
+    {
+        FilterByCategory(CategoryType.Topping);
+    }
+
+    public void OnClickCheese()
+    {
+        FilterByCategory(CategoryType.Cheese);
+    }
+
+    public void OnClickPlate()
+    {
+        FilterByCategory(CategoryType.Plate);
+    }
+
+    public void OnClickPane()
+    {
+        FilterByCategory(CategoryType.Pane);
+    }
+    
 }

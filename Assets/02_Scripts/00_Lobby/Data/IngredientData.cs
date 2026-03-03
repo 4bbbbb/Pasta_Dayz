@@ -6,7 +6,10 @@ using UnityEngine;
 public class IngredientData
 {
     public int id;
-    public string category;      // Noodle, Sauce, Topping, Cheese µî
+    public string category;
+
+    public CategoryType categoryType;
+
     public string name;
     public float price;
     public float ingredientCost;
@@ -32,5 +35,16 @@ public class IngredientData
         this.unlockLevel = unlockLevel;
         this.unlockCost = unlockCost;
         this.isUnlocked = isUnlocked;
+    }
+
+    public enum CategoryType
+    {
+        Noodle,
+        Sauce,
+        Topping,
+        Cheese,
+        Plate,
+        Pane,
+        Parsley
     }
 }

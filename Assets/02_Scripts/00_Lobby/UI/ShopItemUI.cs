@@ -1,5 +1,6 @@
-using UnityEngine;
+Ôªøusing UnityEngine;
 using UnityEngine.UI;
+using static IngredientData;
 
 public class ShopItemUI : MonoBehaviour
 {  
@@ -9,44 +10,57 @@ public class ShopItemUI : MonoBehaviour
     public Button purchaseButton;
 
     private IngredientData itemData;
-    private Shop_Manager shopManager;    
+    private Shop_Manager shopManager;  
+    private Gold_Manager goldManager;
 
-    // µ•¿Ã≈Õ∏¶ UIø° ø¨∞·
+    // Îç∞Ïù¥ÌÑ∞Î•º UIÏóê Ïó∞Í≤∞
     public void SetData(IngredientData data, Shop_Manager manager)
     {
         itemData = data;
         shopManager = manager;
 
+        purchaseButton.onClick.RemoveAllListeners();
         purchaseButton.onClick.AddListener(OnPurchaseButton);
-        RefreshUI();
+        ItemUI();
     }
 
-    // πˆ∆∞ ≈¨∏Ø √≥∏Æ
+    // Î≤ÑÌäº ÌÅ¥Î¶≠ Ï≤òÎ¶¨
     void OnPurchaseButton()
     {
         shopManager.PurchaseItem(itemData);
     }
 
-    // UI ∞ªΩ≈
-    public void RefreshUI()
+    // UI Í∞±Ïã†
+    public void ItemUI()
     {
         nameText.text = itemData.name;
         priceText.text = itemData.unlockCost > 0 ? $"{itemData.unlockCost}G" : "Free";
 
+        // 1. Î≥¥Ïú†Ï§ë
         if (itemData.isUnlocked)
         {
-            statusText.text = "∫∏¿Ø¡ﬂ";
-            purchaseButton.interactable = false;
+            statusText.text = "Î≥¥Ïú†Ï§ë";
+            purchaseButton.gameObject.SetActive(false); 
         }
+        // 2Ô∏è. Î†àÎ≤® Î∂ÄÏ°±
         else if (Level_Manager.Instance.currentLevel < itemData.unlockLevel)
         {
-            statusText.text = $"Lv.{itemData.unlockLevel}ø°º≠ ¿·±› «ÿ¡¶";
-            purchaseButton.interactable = false;
+            statusText.text = $"Lv.{itemData.unlockLevel}ÏóêÏÑú Ïû†Í∏à Ìï¥Ï†ú";
+            purchaseButton.gameObject.SetActive(false);
         }
+        // 3Ô∏è. Íµ¨Îß§ Í∞ÄÎä•
         else
         {
-            statusText.text = "±∏∏≈∞°¥…";
-            purchaseButton.interactable = Gold_Manager.Instance.totalGold >= itemData.unlockCost;
+            statusText.text = ""; 
+            purchaseButton.gameObject.SetActive(true);             
+            purchaseButton.interactable =
+                Gold_Manager.Instance.totalGold >= itemData.unlockCost;
         }
     }
+
+    public CategoryType GetCategory()
+    {
+        return itemData.categoryType;
+    }
+
 }

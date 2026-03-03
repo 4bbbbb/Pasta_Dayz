@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static IngredientData;
 
 public class IngredientDatabase : MonoBehaviour
 {
@@ -28,22 +29,30 @@ public class IngredientDatabase : MonoBehaviour
             float unlockCost = float.TryParse(row["Unlock_Cost"]?.ToString(), out var u) ? u : 0f;
             bool isUnlocked = row["isUnlocked"]?.ToString().Trim() == "1";
 
-            ingredientList.Add(new IngredientData(id, category, name, price, cost, level, unlockCost, isUnlocked));
+            CategoryType categoryType;
+
+            if (!System.Enum.TryParse(category, out categoryType))
+            {
+                throw new System.Exception($"Invalid Category in CSV: {category}");
+            }
+
+            var ingredient = new IngredientData(id, category, name, price, cost, level, unlockCost, isUnlocked);
+
+            ingredient.categoryType = categoryType;
+
+            ingredientList.Add(ingredient);
         }        
     }
 
-
-    // 🔎 ID로 찾기
     public IngredientData GetIngredientByID(int id)
     {
         return ingredientList.Find(i => i.id == id);
     }
-
-    // 🎲 랜덤 면
+   
     public int GetRandomNoodle()
     {
         List<IngredientData> noodles = ingredientList
-           .Where(i => i.category.Trim() == "Noodle" && i.isUnlocked)
+           .Where(i => i.categoryType == CategoryType.Noodle && i.isUnlocked)
            .ToList();
 
         if (noodles.Count == 0) return -1;
@@ -51,12 +60,11 @@ public class IngredientDatabase : MonoBehaviour
         int rand = Random.Range(0, noodles.Count);
         return noodles[rand].id;
     }
-
-    // 🎲 랜덤 토핑 여러 개
+       
     public List<int> GetRandomToppings()
     {
         List<int> availableToppings = ingredientList
-            .Where(i => i.category.Trim() == "Topping" && i.isUnlocked)
+            .Where(i => i.categoryType == CategoryType.Topping && i.isUnlocked)
             .Select(i => i.id)
             .ToList();
 

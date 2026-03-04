@@ -107,10 +107,12 @@ public class Order_Manager : MonoBehaviour
             {
                 GameObject obj = Instantiate(customerUIPrefab, canvasTransform);
                 currentCustomer = obj.GetComponent<CustomerUI>();
+                currentCustomer.transform.SetAsFirstSibling();
             }
             else // 기존 손님 재사용
             {               
                 currentCustomer.transform.SetParent(canvasTransform, false);
+                currentCustomer.transform.SetAsFirstSibling();
                 currentCustomer.gameObject.SetActive(true);
             }
 
@@ -180,6 +182,7 @@ public class Order_Manager : MonoBehaviour
         {
             GameObject obj = Instantiate(customerUIPrefab, canvasTransform);
             currentCustomer = obj.GetComponent<CustomerUI>();
+            currentCustomer.transform.SetAsFirstSibling();
         }
 
         if (currentCustomerSpriteIndex == -1)

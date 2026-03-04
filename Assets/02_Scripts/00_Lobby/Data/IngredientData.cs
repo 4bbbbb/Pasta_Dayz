@@ -7,15 +7,14 @@ public class IngredientData
 {
     public int id;
     public string category;
-
     public CategoryType categoryType;
-
     public string name;
     public float price;
     public float ingredientCost;
     public int unlockLevel;
     public float unlockCost;
     public bool isUnlocked;
+    public Sprite icon;
 
     public IngredientData(
         int id,

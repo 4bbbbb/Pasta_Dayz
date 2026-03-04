@@ -3,7 +3,9 @@ using UnityEngine.UI;
 using static IngredientData;
 
 public class ShopItemUI : MonoBehaviour
-{  
+{
+    public Image iconImage;
+    public Image ownedImage;
     public Text nameText;
     public Text priceText;
     public Text statusText;
@@ -18,6 +20,7 @@ public class ShopItemUI : MonoBehaviour
     {
         itemData = data;
         shopManager = manager;
+        iconImage.sprite = itemData.icon;
 
         purchaseButton.onClick.RemoveAllListeners();
         purchaseButton.onClick.AddListener(OnPurchaseButton);
@@ -34,12 +37,13 @@ public class ShopItemUI : MonoBehaviour
     public void ItemUI()
     {
         nameText.text = itemData.name;
-        priceText.text = itemData.unlockCost > 0 ? $"{itemData.unlockCost}G" : "Free";
+        priceText.text = itemData.unlockCost > 0 ? $"$ {itemData.unlockCost}" : "Free";
 
         // 1. 보유중
         if (itemData.isUnlocked)
         {
-            statusText.text = "보유중";
+            statusText.text = "";
+            ownedImage.gameObject.SetActive(true);
             purchaseButton.gameObject.SetActive(false); 
         }
         // 2️. 레벨 부족

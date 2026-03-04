@@ -81,7 +81,7 @@ public class Gold_Manager : MonoBehaviour
     {
         if (goldText != null)
         {
-            goldText.text = $"Gold: {totalGold:F1}";
+            goldText.text = $"{totalGold:F2}";
 
         }
     }

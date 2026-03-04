@@ -8,6 +8,15 @@ public class IngredientDatabase : MonoBehaviour
 {
     public List<IngredientData> ingredientList = new List<IngredientData>();
 
+    [System.Serializable]
+    public class IngredientIconData
+    {
+        public int id;
+        public Sprite icon;
+    }
+
+    public List<IngredientIconData> iconDataList = new List<IngredientIconData>();
+
     void Awake()
     {
         LoadIngredientData();
@@ -40,8 +49,17 @@ public class IngredientDatabase : MonoBehaviour
 
             ingredient.categoryType = categoryType;
 
-            ingredientList.Add(ingredient);
-        }        
+            ingredientList.Add(ingredient);            
+        }
+
+        foreach (var ingredient in ingredientList)
+        {
+            var iconData = iconDataList.Find(i => i.id == ingredient.id);
+            if (iconData != null)
+            {
+                ingredient.icon = iconData.icon;
+            }
+        }
     }
 
     public IngredientData GetIngredientByID(int id)

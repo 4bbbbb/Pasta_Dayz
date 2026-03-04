@@ -80,8 +80,7 @@ public class Shop_Manager : MonoBehaviour
         shopContentParent = parent;
 
         shopItemUIs.Clear();
-
-        // 기존 자식 제거 (혹시 남아있으면)
+        
         foreach (Transform child in shopContentParent)
         {
             Destroy(child.gameObject);

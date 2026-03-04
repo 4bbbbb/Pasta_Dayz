@@ -110,4 +110,13 @@ public class IngredientDatabase : MonoBehaviour
 
         return result;
     }
+
+    public void UpdateUnlockState(int id, bool state)
+    {
+        var ingredient = ingredientList.Find(i => i.id == id);
+        if (ingredient != null)
+        {
+            ingredient.isUnlocked = state;
+        }
+    }
 }

@@ -62,7 +62,10 @@ public class Shop_Manager : MonoBehaviour
         } 
 
         Gold_Manager.Instance.Spend(item.unlockCost); // °ñµå Â÷°¨
+
         item.isUnlocked = true;
+
+        ingredientDatabase.UpdateUnlockState(item.id, true);
 
         UpdateShopUI();
     }

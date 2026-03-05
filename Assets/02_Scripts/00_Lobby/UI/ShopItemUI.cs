@@ -6,6 +6,7 @@ public class ShopItemUI : MonoBehaviour
 {
     public Image iconImage;
     public Image ownedImage;
+    public Image lockedImage;
     public Text nameText;
     public Text priceText;
     public Text statusText;
@@ -51,6 +52,7 @@ public class ShopItemUI : MonoBehaviour
         {
             statusText.text = $"Lv.{itemData.unlockLevel}에서 잠금 해제";
             purchaseButton.gameObject.SetActive(false);
+            lockedImage.gameObject.SetActive(true);
         }
         // 3️. 구매 가능
         else

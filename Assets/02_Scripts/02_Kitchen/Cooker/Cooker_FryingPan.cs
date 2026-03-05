@@ -27,7 +27,9 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
     [Header("<<토핑 프리팹>>")]
     [SerializeField] private GameObject tomatoPrefab;
-    [SerializeField] private GameObject garlicPrefab;
+    [SerializeField] private GameObject garlicPrefab; 
+    [SerializeField] private GameObject barsilPrefab;
+
 
 
     [Header("<<완성된 파스타 프리팹>>")][SerializeField] private GameObject finishedPastaPrefab;
@@ -90,6 +92,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             {
                 Topping.ToppingType.Tomato => tomatoPrefab,
                 Topping.ToppingType.Garlic => garlicPrefab,
+                Topping.ToppingType.Barsil => barsilPrefab,
                 _ => null
             //    if (topping.toppingType == Topping.ToppingType.Tomato)
             //{

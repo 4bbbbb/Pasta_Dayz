@@ -52,9 +52,14 @@ public class CustomerUI : MonoBehaviour
             return;
 
         if (success)
+        {
             customerImage.sprite = customerSprites[currentIndex].happy;
+        }
         else
+        {
             customerImage.sprite = customerSprites[currentIndex].angry;
+
+        }
     }
 
     public void ShowOrder(string message)

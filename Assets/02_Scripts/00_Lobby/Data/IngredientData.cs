@@ -13,8 +13,7 @@ public class IngredientData
     public float ingredientCost;
     public int unlockLevel;
     public float unlockCost;
-    public bool isUnlocked;
-    public Sprite icon;
+    public bool isUnlocked;   
 
     public IngredientData(
         int id,

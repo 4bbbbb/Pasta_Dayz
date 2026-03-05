@@ -200,6 +200,8 @@ public class Order_Manager : MonoBehaviour
             lastCustomerSpriteIndex = newIndex;
         }
 
+        currentCustomer.Appear();
+
         currentCustomer.SetCustomerSprite(currentCustomerSpriteIndex);
 
         currentOrder = generator.GenerateOrder();
@@ -213,7 +215,6 @@ public class Order_Manager : MonoBehaviour
 
         string message = currentOrder.GetOrderText(generator.ingredientDB);
 
-        currentCustomer.Appear();
         currentCustomer.ShowOrder(message);
 
         // 버튼은 숨김
@@ -314,7 +315,7 @@ public class Order_Manager : MonoBehaviour
         // 1. 실제 사용 재료 확인
         foreach (int id in usedIngredients)
         {
-            var ingredient = ingredientDB.GetIngredientByID(id);
+            var ingredient = ingredientDB.GetIngredient(id);
             if (ingredient == null) continue;
 
             totalingredientCost += ingredient.ingredientCost;  // 실제 사용한 재료비 차감
@@ -325,7 +326,7 @@ public class Order_Manager : MonoBehaviour
         {
             if (!usedIngredients.Contains(id))
             {
-                var ingredient = ingredientDB.GetIngredientByID(id);
+                var ingredient = ingredientDB.GetIngredient(id);
                 if (ingredient == null) continue;
 
                 refund += ingredient.price;  // 손님에게 이미 받은 금액 일부 환불
@@ -412,15 +413,18 @@ public class Order_Manager : MonoBehaviour
             currentCustomer.Appear();
         }
 
-        string resultMessage = serveMessageDB.GetRandomMessageNothing();
-
-        if (currentCustomer != null)
+        if (currentCustomerSpriteIndex == -1)
         {
-            currentCustomer.SetEmotion(false);
+            currentCustomerSpriteIndex = Random.Range(0, currentCustomer.customerSprites.Count);
         }
 
-        currentCustomer.ShowResult(resultMessage);
+        currentCustomer.SetCustomerSprite(currentCustomerSpriteIndex);
 
+        string resultMessage = serveMessageDB.GetRandomMessageNothing();
+
+        currentCustomer.SetEmotion(false);
+
+        currentCustomer.ShowResult(resultMessage);         
 
         // 2️. 전체 환불
         if (currentOrder != null)

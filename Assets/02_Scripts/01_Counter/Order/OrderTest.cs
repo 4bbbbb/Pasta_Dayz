@@ -12,13 +12,13 @@ public class OrderTest : MonoBehaviour
         {
             Order order = generator.GenerateOrder();
 
-            string noodleName = ingredientDB.GetIngredientByID(order.noodleID).name;
+            string noodleName = ingredientDB.GetIngredient(order.noodleID).name;
 
             List<string> toppingNames = new List<string>();
             foreach (int id in order.toppingIDs)
             {
                 toppingNames.Add(
-                    ingredientDB.GetIngredientByID(id).name
+                    ingredientDB.GetIngredient(id).name
                 );
             }
 

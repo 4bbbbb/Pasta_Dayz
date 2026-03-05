@@ -15,7 +15,7 @@ public class OrderGenerator : MonoBehaviour
         var availableMenus = menuDB.menuList
             .Where(menu => menu.IngredientsID.All(id =>
              {
-                var ingredient = ingredientDB.GetIngredientByID(id);
+                var ingredient = ingredientDB.GetIngredient(id);
 
                  if (ingredient == null)
                  {

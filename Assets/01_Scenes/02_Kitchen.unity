@@ -1717,11 +1717,6 @@ MonoBehaviour:
   noodleSpawnPoint: {fileID: 177454576}
   oliveoilSpawnPoint: {fileID: 1476820431}
   cookedNoodlePrefab: {fileID: 6563915820963013364, guid: 87b4b804a8d99fc439306d1dcb0509f8, type: 3}
-  oliveOilPrefab: {fileID: 1982640987095753963, guid: 65cc20e7648f1804c943389e53fd18d0, type: 3}
-  saucePrefab: {fileID: 6031452093276574681, guid: d4ddcc1a5c01a004a8ffeda427e2bbc0, type: 3}
-  tomatoPrefab: {fileID: 3288481715846369938, guid: 47cfc3b5d221e614892bde730f21fe71, type: 3}
-  garlicPrefab: {fileID: 5062902668744613515, guid: 6076390bb621e5a4e8a3a00d107a4634, type: 3}
-  barsilPrefab: {fileID: 5062902668744613515, guid: 6076390bb621e5a4e8a3a00d107a4634, type: 3}
   finishedPastaPrefab: {fileID: 4694056737463563437, guid: 7a501c55c3ff5c6478407a5b5447908b, type: 3}
 --- !u!1 &1166727138
 GameObject:
@@ -4167,7 +4162,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   orderManager: {fileID: 0}
-  maxSatisfaction: 10
+  maxSatisfaction: 60
   decreasePerSecond: 1
 --- !u!4 &2058661722
 Transform:
@@ -4196,8 +4191,8 @@ SceneRoots:
   - {fileID: 1856572040}
   - {fileID: 507778477}
   - {fileID: 22726930}
-  - {fileID: 751656349}
   - {fileID: 301801718}
   - {fileID: 1860955800}
   - {fileID: 1964919257}
+  - {fileID: 751656349}
   - {fileID: 2058661722}

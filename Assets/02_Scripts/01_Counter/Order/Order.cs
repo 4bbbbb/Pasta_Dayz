@@ -40,10 +40,10 @@ public class Order : IHasIngredients
 
     public string GetOrderText(IngredientDatabase ingredientDB)
     {
-        string noodleName = ingredientDB.GetIngredientByID(noodleID).name;
+        string noodleName = ingredientDB.GetIngredient(noodleID).name;
 
         List<string> toppingNames = toppingIDs
-            .Select(id => ingredientDB.GetIngredientByID(id).name)
+            .Select(id => ingredientDB.GetIngredient(id).name)
             .ToList();
 
         return GenerateOrderMessage(noodleName, toppingNames);
@@ -73,14 +73,14 @@ public class Order : IHasIngredients
 
         // 메뉴 기본 재료 가격
         foreach (int id in menuData.IngredientsID)
-            total += ingredientDB.GetIngredientByID(id).price;
+            total += ingredientDB.GetIngredient(id).price;
 
         // 면 가격
-        total += ingredientDB.GetIngredientByID(noodleID).price;
+        total += ingredientDB.GetIngredient(noodleID).price;
 
         // 토핑 가격
         foreach (int id in toppingIDs)
-            total += ingredientDB.GetIngredientByID(id).price;
+            total += ingredientDB.GetIngredient(id).price;
 
         return total;
     }
@@ -91,14 +91,14 @@ public class Order : IHasIngredients
 
         // 메뉴 기본 재료 비용
         foreach (int id in menuData.IngredientsID)
-            total += ingredientDB.GetIngredientByID(id).ingredientCost;
+            total += ingredientDB.GetIngredient(id).ingredientCost;
 
         // 면 비용
-        total += ingredientDB.GetIngredientByID(noodleID).ingredientCost;
+        total += ingredientDB.GetIngredient(noodleID).ingredientCost;
 
         // 토핑 비용
         foreach (int id in toppingIDs)
-            total += ingredientDB.GetIngredientByID(id).ingredientCost;
+            total += ingredientDB.GetIngredient(id).ingredientCost;
 
         return total;
     }

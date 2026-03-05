@@ -19,18 +19,6 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
     [Header("<<익은면 프리팹>>")]
     [SerializeField] private GameObject cookedNoodlePrefab;
-   
-
-    [Header("<<소스 프리팹>>")]
-    [SerializeField] private GameObject oliveOilPrefab;
-    [SerializeField] private GameObject saucePrefab;
-
-    [Header("<<토핑 프리팹>>")]
-    [SerializeField] private GameObject tomatoPrefab;
-    [SerializeField] private GameObject garlicPrefab; 
-    [SerializeField] private GameObject barsilPrefab;
-
-
 
     [Header("<<완성된 파스타 프리팹>>")][SerializeField] private GameObject finishedPastaPrefab;
 
@@ -65,15 +53,11 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             gasStove.TurnOn();
 
             IngredientIDs id = oil.GetComponent<IngredientIDs>();
-            if (id != null)
-                ingredientIDs.Add(id.GetID());
 
-            Instantiate(
-                oliveOilPrefab,
-                oliveoilSpawnPoint.position,
-                Quaternion.identity,
-                oliveoilSpawnPoint
-            );
+            if (id != null)
+            {
+                SpawnIngredientByID(id.GetID(), oliveoilSpawnPoint);
+            }            
 
             return true;
         }
@@ -86,37 +70,19 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
                 return false;
 
             Transform spawnPoint = GetRandomEmptyToppingPoint();
-            if (spawnPoint == null) return false;
-            
-            GameObject toppingPrefab = topping.toppingType switch
+            if (spawnPoint == null)
             {
-                Topping.ToppingType.Tomato => tomatoPrefab,
-                Topping.ToppingType.Garlic => garlicPrefab,
-                Topping.ToppingType.Barsil => barsilPrefab,
-                _ => null
-            //    if (topping.toppingType == Topping.ToppingType.Tomato)
-            //{
-            //    prefabToSpawn = tomatoPrefab;
-            //}
-            //else if (topping.toppingType == Topping.ToppingType.Garlic)
-            //{
-            //    prefabToSpawn = garlicPrefab;
-            //}
-            //else
-            //{
-            //    prefabToSpawn = null; // 다른 토핑 타입이면 null 처리
-            //}
-            };
-
-            // 프리팹 생성
-            Instantiate(toppingPrefab, spawnPoint.position, Quaternion.identity, spawnPoint);
-
-            // 추가 기록
-            addedToppings.Add(topping.toppingType);
+                return false;
+            }
 
             IngredientIDs id = topping.GetComponent<IngredientIDs>();
+
             if (id != null)
-                ingredientIDs.Add(id.GetID());
+            {
+                SpawnIngredientByID(id.GetID(), spawnPoint);
+            }
+
+            addedToppings.Add(topping.toppingType);
 
             return true;
         }
@@ -126,15 +92,14 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         {
             // 이미 같은 소스가 있으면 안 넣음
             if (addedSauces.Contains(sauces.sauceType))
-                return false;
+                return false;     
+            
+           IngredientIDs id = sauces.GetComponent<IngredientIDs>();
 
-            // 소스 스폰
-            Instantiate(
-                saucePrefab,
-                sauceSpawnPoint.position,
-                Quaternion.identity,
-                sauceSpawnPoint
-            );
+            if (id != null)
+            {
+                SpawnIngredientByID(id.GetID(), sauceSpawnPoint);
+            }
 
             // 추가 기록
             addedSauces.Add(sauces.sauceType);
@@ -162,11 +127,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
                 // 로제 추가
                 //addedSauces.Add(SauceType.Rose);
-            }
-
-            IngredientIDs id = sauces.GetComponent<IngredientIDs>();
-            if (id != null)
-                ingredientIDs.Add(id.GetID());
+            }           
 
             return true;
         }
@@ -178,15 +139,12 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             {
                 return false;
             }
-            
-            Instantiate(
-                cookedNoodlePrefab,  // prefab으로 만들어둔 익은 면
-                noodleSpawnPoint.position,
-                Quaternion.identity,
-                noodleSpawnPoint
-            );
 
-            IngredientIDs id = cookedNoodlePrefab.GetComponent<IngredientIDs>();
+            cookedNoodle.transform.SetParent(noodleSpawnPoint);
+            cookedNoodle.transform.position = noodleSpawnPoint.position;
+
+            IngredientIDs id = cookedNoodle.GetComponent<IngredientIDs>();
+            
             if (id == null)
             {
                 Debug.Log("cookedNoodle에 IngredientIDs 없음");
@@ -204,7 +162,26 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         }
 
         return false;
-    }    
+    }
+
+    void SpawnIngredientByID(int ingredientID, Transform spawnPoint)
+    {
+        GameObject prefab = Order_Manager.Instance
+            .ingredientDB
+            .GetPrefab(ingredientID);
+
+        if (prefab == null)
+            return;
+
+        Instantiate(
+            prefab,
+            spawnPoint.position,
+            Quaternion.identity,
+            spawnPoint
+        );
+
+        ingredientIDs.Add(ingredientID);
+    }
 
     // 토핑 랜덤 생성시 겹침 방지
     Transform GetRandomEmptyToppingPoint()
@@ -256,10 +233,10 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     {
         foreach (Transform point in toppingSpawnPoints)
         {
-            if (point.childCount > 0)
+            foreach (Transform child in point)
             {
-                Destroy(point.GetChild(0).gameObject);
-            }                
+                Destroy(child.gameObject);
+            }
         }
 
         if (oliveoilSpawnPoint.childCount > 0)

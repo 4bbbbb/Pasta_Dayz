@@ -12,7 +12,7 @@ public class ShopItemUI : MonoBehaviour
     public Text statusText;
     public Button purchaseButton;
 
-    private IngredientData itemData;
+    private IngredientData itemData;  
     private Shop_Manager shopManager;  
     private Gold_Manager goldManager;
 
@@ -21,7 +21,9 @@ public class ShopItemUI : MonoBehaviour
     {
         itemData = data;
         shopManager = manager;
-        iconImage.sprite = itemData.icon;
+
+
+        iconImage.sprite = shopManager.ingredientDatabase.GetIcon(itemData.id);
 
         purchaseButton.onClick.RemoveAllListeners();
         purchaseButton.onClick.AddListener(OnPurchaseButton);

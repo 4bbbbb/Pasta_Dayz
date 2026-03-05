@@ -48,6 +48,8 @@ public class CustomerUI : MonoBehaviour
     //  감정 변경 (성공/실패에 따라)
     public void SetEmotion(bool success)
     {
+        Debug.Log("currentIndex: " + currentIndex);
+
         if (currentIndex < 0 || currentIndex >= customerSprites.Count)
             return;
 

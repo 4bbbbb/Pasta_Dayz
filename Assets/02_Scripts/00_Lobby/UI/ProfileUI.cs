@@ -1,10 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class XPUI : MonoBehaviour
+public class ProfileUI : MonoBehaviour
 {
     public Text lvText;
     public Text xpText;
+    public Text dayText;
     public Image xpImage;
 
     void OnEnable()
@@ -16,6 +17,12 @@ public class XPUI : MonoBehaviour
             // 켜질 때 현재 값으로 바로 갱신
             Level_Manager.Instance.UpdateUI();
         }
+
+        if(Day_Manager.Instance != null)
+        {
+            Day_Manager.Instance.RegisterDayUI(this);
+            Day_Manager.Instance.UpdateUI();
+        }
     }
 
     void OnDisable()
@@ -24,6 +31,10 @@ public class XPUI : MonoBehaviour
         {
             // UI가 꺼질 때 연결 해제 (옵션)
             Level_Manager.Instance.RegisterXPUI(null);
+        }
+        if(Day_Manager.Instance != null)
+        {
+            Day_Manager.Instance.RegisterDayUI(null); 
         }
     }
 }

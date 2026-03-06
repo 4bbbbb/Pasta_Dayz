@@ -11,7 +11,7 @@ public class Level_Manager : MonoBehaviour
     public Order_Manager orderManager;
     public LevelData levelData;
 
-    public XPUI xpUI;     
+    public ProfileUI profileUI;     
 
     [Header("LV, XP")]
     public int currentLevel = 1;
@@ -44,14 +44,14 @@ public class Level_Manager : MonoBehaviour
         UpdateUI();
     }
 
-    public void RegisterXPUI(XPUI xpui)
+    public void RegisterXPUI(ProfileUI ui)
     {
-        xpUI = xpui;
+        profileUI = ui;
     }
 
     public void UpdateUI()
     {
-        if (xpUI == null || levelData == null || levelData.levelXPRequirements.Count == 0) return;
+        if (profileUI == null || levelData == null || levelData.levelXPRequirements.Count == 0) return;
 
         // 이전 레벨 XP (레벨 1이면 0)
         int prevLevelXP = (currentLevel > 1) ? levelData.levelXPRequirements[currentLevel - 1] : 0;
@@ -61,9 +61,9 @@ public class Level_Manager : MonoBehaviour
                           : prevLevelXP + 1;
 
         // UI 표시
-        xpUI.lvText.text = $"Level {currentLevel}";          // 그대로 출력
-        xpUI.xpText.text = $"XP : {currentXP - prevLevelXP}/{nextLevelXP - prevLevelXP}";
-        xpUI.xpImage.fillAmount = (currentXP - prevLevelXP) / (float)(nextLevelXP - prevLevelXP);
+        profileUI.lvText.text = $"Lv {currentLevel}";          // 그대로 출력
+        profileUI.xpText.text = $"{currentXP - prevLevelXP}/{nextLevelXP - prevLevelXP}";
+        profileUI.xpImage.fillAmount = (currentXP - prevLevelXP) / (float)(nextLevelXP - prevLevelXP);
     }
 
 }

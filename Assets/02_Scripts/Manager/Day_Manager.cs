@@ -5,16 +5,18 @@ using UnityEngine.SceneManagement;
 
 public class Day_Manager : MonoBehaviour
 {
+    public ProfileUI profileUI;
+    public Order_Manager orderManager;
     public static Day_Manager Instance;
 
     public float dayDuration = 180f; // 3분
     private float timer;
 
+    public int day;
+
     public bool isDayActive = false;
     public bool isTakingOrder = true;
-    public bool hasEndedDay = false;
-
-    public Order_Manager orderManager;
+    public bool hasEndedDay = false;   
 
     void Awake()
     {
@@ -49,7 +51,10 @@ public class Day_Manager : MonoBehaviour
 
     void Update()
     {
-        if (!isDayActive) return;
+        if (!isDayActive)
+        {
+            return;
+        }
 
         timer -= Time.deltaTime;
 
@@ -78,7 +83,8 @@ public class Day_Manager : MonoBehaviour
 
     void StartDay()
     {
-        timer = dayDuration;
+        day++;
+        timer = dayDuration;        
         isDayActive = true;
         isTakingOrder = true;        
         orderManager.SetState(Order_Manager.ServiceState.WaitingForOrder);
@@ -99,16 +105,7 @@ public class Day_Manager : MonoBehaviour
 
         // 정산 씬으로 넘어가는 로직
         SceneManager.LoadScene(3);
-        Level_Manager.Instance.EarnXP(20);
-
-        // 하루 통계 출력
-        Debug.Log($"===== 하루 정산 =====");
-        Debug.Log($"총 수익: {Gold_Manager.Instance.dailyRevenue}");
-        Debug.Log($"총 재료비: {Gold_Manager.Instance.dailyCost}");
-        Debug.Log($"총 환불: {Gold_Manager.Instance.dailyRefund}");
-        Debug.Log($"총 팁: {Gold_Manager.Instance.dailyTip}");
-        Debug.Log($"순수익: {Gold_Manager.Instance.DailyNetProfit()}");
-        Debug.Log("===================");
+        Level_Manager.Instance.EarnXP(20);            
 
         if(Gold_Manager.Instance.DailyNetProfit() > 0)
         {
@@ -120,10 +117,23 @@ public class Day_Manager : MonoBehaviour
     public void ResetForNextDay()
     {
         timer = dayDuration;
-        isDayActive = true;
+        isDayActive = false;
         isTakingOrder = true;
         hasEndedDay = false;
 
         orderManager.SetState(Order_Manager.ServiceState.WaitingForOrder);
+    }
+
+    public void RegisterDayUI(ProfileUI ui)
+    {
+        profileUI = ui;
+    }
+
+    public void UpdateUI()
+    {
+        if (profileUI != null)
+        {
+            profileUI.dayText.text = $"{day}일차";
+        }
     }
 }

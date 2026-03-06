@@ -17,7 +17,12 @@ public class Topping : MonoBehaviour, IInteractable
     {
         Tomato,
         Garlic,
-        Barsil
+        Barsil,
+        Onion,
+        Mushroom,
+        Bacon,
+
+
     }
 
     void Start()

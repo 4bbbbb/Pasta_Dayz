@@ -6,7 +6,6 @@ using UnityEngine;
 public class IngredientData
 {
     public int id;
-    public string category;
     public CategoryType categoryType;
     public string name;
     public float price;
@@ -26,7 +25,7 @@ public class IngredientData
         bool isUnlocked = false)
     {
         this.id = id;
-        this.category = category;
+        this.categoryType = categoryType;
         this.name = name;
         this.price = price;
         this.ingredientCost = ingredientCost;

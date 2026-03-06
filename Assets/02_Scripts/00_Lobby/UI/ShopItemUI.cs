@@ -23,8 +23,7 @@ public class ShopItemUI : MonoBehaviour
         shopManager = manager;
 
 
-        iconImage.sprite = shopManager.ingredientDatabase.GetIcon(itemData.id);
-
+        iconImage.sprite = IngredientDatabase.Instance.GetIcon(itemData.id);
         purchaseButton.onClick.RemoveAllListeners();
         purchaseButton.onClick.AddListener(OnPurchaseButton);
         ItemUI();

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5453543921863384630}
   - component: {fileID: 921483392669119254}
   - component: {fileID: 5975945875286945433}
+  - component: {fileID: 737815543542208745}
   m_Layer: 0
   m_Name: Noodle_PastaCooker_CookedNoodle
   m_TagString: Untagged
@@ -119,3 +120,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d38ea7d1f8733f488045d5c66edf7e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &737815543542208745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7492044799998688880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79ac290b97ba009438954918551fb805, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ingredientID: 101

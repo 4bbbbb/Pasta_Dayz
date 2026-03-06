@@ -65,11 +65,19 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         // 일반 토핑
         if (target is Topping topping)
         {
+            if (addedToppings.Count >= 2)
+            {
+                return false;
+            }
+
             // 이미 추가한 토핑이라면 추가 X
             if (addedToppings.Contains(topping.toppingType))
+            {
                 return false;
+            }
 
             Transform spawnPoint = GetRandomEmptyToppingPoint();
+
             if (spawnPoint == null)
             {
                 return false;
@@ -144,7 +152,10 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             cookedNoodle.transform.position = noodleSpawnPoint.position;
 
             IngredientIDs id = cookedNoodle.GetComponent<IngredientIDs>();
-            
+
+            Debug.Log("Object: " + cookedNoodle.name);
+            Debug.Log("Has IngredientIDs: " + (id != null));
+
             if (id == null)
             {
                 Debug.Log("cookedNoodle에 IngredientIDs 없음");

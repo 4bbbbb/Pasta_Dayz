@@ -8,10 +8,6 @@ public class Shop_Manager : MonoBehaviour
 {
     public static Shop_Manager Instance;
 
-
-    // 데이터베이스
-    public IngredientDatabase ingredientDatabase;
-
     // 상점 UI를 배치할 부모
     public Transform shopContentParent;
 
@@ -22,20 +18,39 @@ public class Shop_Manager : MonoBehaviour
     private List<ShopItemUI> shopItemUIs = new List<ShopItemUI>();
     void Awake()
     {
-        Instance = this;
-    }
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
 
-    void Start()
-    {
-        PopulateShop();
-        UpdateShopUI();
-        FilterByCategory(CategoryType.Noodle);
+        void Start()
+        {
+            shopItemUIs.Clear();
+
+            foreach (Transform child in shopContentParent)
+            {
+                Destroy(child.gameObject);
+            }
+
+            PopulateShop();
+            UpdateShopUI();
+            FilterByCategory(CategoryType.Noodle);
+        }
     }
 
     // 상점 UI 생성
     void PopulateShop()
     {
-        foreach (var item in ingredientDatabase.ingredientList)
+        if (IngredientDatabase.Instance == null)
+        {
+            return;
+        }
+
+        foreach (var item in IngredientDatabase.Instance.ingredientList)
         {
             GameObject go = Instantiate(shopItemPrefab, shopContentParent);
             ShopItemUI ui = go.GetComponent<ShopItemUI>();
@@ -63,9 +78,7 @@ public class Shop_Manager : MonoBehaviour
 
         Gold_Manager.Instance.Spend(item.unlockCost); // 골드 차감
 
-        item.isUnlocked = true;
-
-        ingredientDatabase.UpdateUnlockState(item.id, true);
+        IngredientDatabase.Instance.UpdateUnlockState(item.id, true);
 
         UpdateShopUI();
     }

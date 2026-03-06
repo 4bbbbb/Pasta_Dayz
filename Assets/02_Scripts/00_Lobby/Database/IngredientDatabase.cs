@@ -6,6 +6,8 @@ using static IngredientData;
 
 public class IngredientDatabase : MonoBehaviour
 {
+    public static IngredientDatabase Instance;
+
     public List<IngredientData> ingredientList = new List<IngredientData>();
     public List<IngredientIconData> iconDataList = new List<IngredientIconData>();
 
@@ -22,6 +24,16 @@ public class IngredientDatabase : MonoBehaviour
 
     void Awake()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
         LoadIngredientData();
 
         ingredientDict = ingredientList.ToDictionary(i => i.id);
@@ -84,11 +96,12 @@ public class IngredientDatabase : MonoBehaviour
         return toppings;
     }
 
-    public void UpdateUnlockState(int id, bool state)
+    public void UpdateUnlockState(int id, bool unlocked)
     {
-        if (ingredientDict.TryGetValue(id, out var data))
+        var item = ingredientList.Find(x => x.id == id);
+        if (item != null)
         {
-            data.isUnlocked = state;
+            item.isUnlocked = unlocked;
         }
-    }  
+    }
 }

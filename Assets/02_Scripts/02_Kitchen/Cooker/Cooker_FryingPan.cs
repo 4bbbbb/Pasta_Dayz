@@ -14,8 +14,11 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     [SerializeField] private Transform[] toppingSpawnPoints;
     [SerializeField] private Transform sauceSpawnPoint;
     [SerializeField] private Transform finishedPastaSpawnPoint;
-    [SerializeField] private Transform noodleSpawnPoint;
-    [SerializeField] private Transform oliveoilSpawnPoint;  
+    [SerializeField] private Transform noodleSpawnPoint;    
+
+    [Header("<<오일 상태>>")]
+    [SerializeField] private GameObject oilOffSprite; // 기름 없음
+    [SerializeField] private GameObject oilOnSprite;  // 기름 있음
 
     [Header("<<완성된 파스타 프리팹>>")][SerializeField] private GameObject finishedPastaPrefab;
 
@@ -35,6 +38,9 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
+
+        oilOffSprite.SetActive(true);
+        oilOnSprite.SetActive(false);
     }
 
     public bool Interact(IInteractable target)
@@ -46,15 +52,26 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         // 올리브오일
         if (target is Topping_OliveOil oil)
         {
+            if (hasOil)
+            {
+                return false;
+
+            }
+
             hasOil = true;
             gasStove.TurnOn();
+
+            oilOffSprite.SetActive(false);
+            oilOnSprite.SetActive(true);
 
             IngredientIDs id = oil.GetComponent<IngredientIDs>();
 
             if (id != null)
             {
-                SpawnIngredientByID(id.GetID(), oliveoilSpawnPoint);
-            }            
+                ingredientIDs.Add(id.GetID());
+                Debug.Log("오일 추가됨 ID: " + id.GetID());
+            }
+
 
             return true;
         }
@@ -193,6 +210,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         );
 
         ingredientIDs.Add(ingredientID);
+        Debug.Log("현재 팬 재료 ID 목록: " + string.Join(", ", ingredientIDs));
     }
 
     // 토핑 랜덤 생성시 겹침 방지
@@ -213,8 +231,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
     IEnumerator CookRoutine()
     {
-        isCooking = true;
-        sr.color = Color.grey;
+        isCooking = true;        
 
         for (int i = 1; i <= 4; i++)
         {
@@ -232,12 +249,12 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         FinishedPasta pasta = finishedPasta.GetComponent<FinishedPasta>();
         
         pasta.SetIngredients(new HashSet<int>(ingredientIDs));
+        Debug.Log("완성 파스타 재료 전달: " + string.Join(", ", ingredientIDs));
         pasta.Init(gasStove);
 
         ClearPanIngredients();
 
-        isCooking = false;
-        sr.color = Color.white;
+        isCooking = false;        
         gasStove.TurnOff();        
     }
 
@@ -249,11 +266,6 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             {
                 Destroy(child.gameObject);
             }
-        }
-
-        if (oliveoilSpawnPoint.childCount > 0)
-        {
-            Destroy(oliveoilSpawnPoint.GetChild(0).gameObject);
         }
 
         if (sauceSpawnPoint.childCount > 0)
@@ -274,7 +286,11 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         addedToppings.Clear();
         addedSauces.Clear();
         ingredientIDs.Clear();
+
         hasOil = false;
+
+        oilOffSprite.SetActive(true);
+        oilOnSprite.SetActive(false);
     }
 
     public void Cancel()

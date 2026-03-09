@@ -21,8 +21,13 @@ public class Topping : MonoBehaviour, IInteractable
         Onion,
         Mushroom,
         Bacon,
-
-
+        Pepperoncino,
+        Shrimp,
+        Clams,
+        Broccoli,
+        Mussel,
+        Meatball,
+        Sausage,
     }
 
     void Start()

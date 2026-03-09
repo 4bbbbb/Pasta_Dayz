@@ -15,10 +15,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     [SerializeField] private Transform sauceSpawnPoint;
     [SerializeField] private Transform finishedPastaSpawnPoint;
     [SerializeField] private Transform noodleSpawnPoint;
-    [SerializeField] private Transform oliveoilSpawnPoint;   
-
-    [Header("<<익은면 프리팹>>")]
-    [SerializeField] private GameObject cookedNoodlePrefab;
+    [SerializeField] private Transform oliveoilSpawnPoint;  
 
     [Header("<<완성된 파스타 프리팹>>")][SerializeField] private GameObject finishedPastaPrefab;
 
@@ -148,10 +145,12 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
                 return false;
             }
 
-            cookedNoodle.transform.SetParent(noodleSpawnPoint);
-            cookedNoodle.transform.position = noodleSpawnPoint.position;
+            if (noodleSpawnPoint.childCount > 0)
+            {
+                return false;
+            }
 
-            IngredientIDs id = cookedNoodle.GetComponent<IngredientIDs>();
+            IngredientIDs id = cookedNoodle.GetComponent<IngredientIDs>(); ;
 
             Debug.Log("Object: " + cookedNoodle.name);
             Debug.Log("Has IngredientIDs: " + (id != null));
@@ -159,11 +158,13 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             if (id == null)
             {
                 Debug.Log("cookedNoodle에 IngredientIDs 없음");
+                return false;
             }
             else
             {
                 Debug.Log("cookedNoodle ID: " + id.GetID());
-                ingredientIDs.Add(id.GetID());
+
+                SpawnIngredientByID(id.GetID(), noodleSpawnPoint);
             }
 
             Destroy(cookedNoodle.gameObject);

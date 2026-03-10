@@ -1504,8 +1504,8 @@ MonoBehaviour:
     icon: {fileID: 21300000, guid: 6ebf04098c2edc645923017d23d8365a, type: 3}
     ingredientPrefab: {fileID: 4456431008458272939, guid: fbb71ae443d45644b9f8aef2c4b6aafd, type: 3}
   - id: 502
-    icon: {fileID: 21300000, guid: 86761804f39eb9f4591191b1f739d6f2, type: 3}
-    ingredientPrefab: {fileID: 4456431008458272939, guid: fbb71ae443d45644b9f8aef2c4b6aafd, type: 3}
+    icon: {fileID: 21300000, guid: 2c42933c615cc774c9a9436168184927, type: 3}
+    ingredientPrefab: {fileID: 0}
 --- !u!114 &326935924
 MonoBehaviour:
   m_ObjectHideFlags: 0

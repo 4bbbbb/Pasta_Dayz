@@ -25,7 +25,6 @@ public class IngredientData
         bool isUnlocked = false)
     {
         this.id = id;
-        this.categoryType = categoryType;
         this.name = name;
         this.price = price;
         this.ingredientCost = ingredientCost;

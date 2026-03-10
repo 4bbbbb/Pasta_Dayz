@@ -6,9 +6,18 @@ using static IInteractableScript;
 
 public class Cooker_PastaCooker : MonoBehaviour, IInteractable
 {
+    [System.Serializable]
+    public class NoodlePrefabData
+    {
+        public int id;
+        public GameObject prefab;
+    }
+
+    [SerializeField] private List<NoodlePrefabData> noodlePrefabs;
+
     [Header("<<스폰위치>>")]
     [SerializeField] private Transform cookedNoodleSpawnPoint;
-    [SerializeField] public GameObject cookedNoodlePrefab;
+    
 
     private SpriteRenderer sr;
 
@@ -42,8 +51,19 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
         }
         return false;
        
-    }    
-    
+    }
+
+    GameObject GetNoodlePrefab(int id)
+    {
+        foreach (var data in noodlePrefabs)
+        {
+            if (data.id == id)
+                return data.prefab;
+        }
+
+        return null;
+    }
+
     public void StartBowling(Noodles noodles)
     {
         OnBowling();
@@ -59,12 +79,22 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
             Debug.Log($"{i}초...");
         }
 
-        Instantiate(
-            cookedNoodlePrefab,
-            cookedNoodleSpawnPoint.position,
-            Quaternion.identity,
-            cookedNoodleSpawnPoint
-        );
+        IngredientIDs id = noodles.GetComponent<IngredientIDs>();
+
+        if (id != null)
+        {
+            GameObject prefab = GetNoodlePrefab(id.GetID());
+
+            if (prefab != null)
+            {
+                Instantiate(
+                    prefab,
+                    cookedNoodleSpawnPoint.position,
+                    Quaternion.identity,
+                    cookedNoodleSpawnPoint
+                );
+            }
+        }
 
         StopBowling();
     }

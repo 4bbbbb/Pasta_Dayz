@@ -7,190 +7,130 @@ using static Topping;
 
 public class Cooker_FryingPan : MonoBehaviour, IInteractable
 {
-    [Header("<<가스스토브>>")] 
+    [Header("가스스토브")]
     [SerializeField] private Cooker_GasStove gasStove;
 
-    [Header("<<스폰위치>>")] 
+    [Header("스폰 위치")]
     [SerializeField] private Transform[] toppingSpawnPoints;
     [SerializeField] private Transform sauceSpawnPoint;
     [SerializeField] private Transform finishedPastaSpawnPoint;
-    [SerializeField] private Transform noodleSpawnPoint;    
+    [SerializeField] private Transform noodleSpawnPoint;
 
-    [Header("<<오일 상태>>")]
-    [SerializeField] private GameObject oilOffSprite; // 기름 없음
-    [SerializeField] private GameObject oilOnSprite;  // 기름 있음
+    [Header("오일 상태")]
+    [SerializeField] private GameObject oilOffSprite;
+    [SerializeField] private GameObject oilOnSprite;
 
-    [Header("<<완성된 파스타 프리팹>>")][SerializeField] private GameObject finishedPastaPrefab;
-
-    private SpriteRenderer sr;
+    [Header("완성 파스타")]
+    [SerializeField] private GameObject finishedPastaPrefab;
 
     private bool hasOil = false;
     private bool isCooking = false;
 
     private HashSet<ToppingType> addedToppings = new HashSet<ToppingType>();
     private HashSet<SauceType> addedSauces = new HashSet<SauceType>();
+    private HashSet<int> ingredientIDs = new HashSet<int>();
 
     public bool CanBeSelected => false;
 
-    private HashSet<int> ingredientIDs = new HashSet<int>();
-
-
     void Start()
     {
-        sr = GetComponent<SpriteRenderer>();
-
         oilOffSprite.SetActive(true);
         oilOnSprite.SetActive(false);
     }
 
     public bool Interact(IInteractable target)
     {
-        // 프라이팬이 조리중이므로 아무런 상호작용 X
-        if (isCooking) return false;
+        if (isCooking)
+        {
+            return false;
+        }
 
-
-        // 올리브오일
         if (target is Topping_OliveOil oil)
         {
-            if (hasOil)
-            {
-                return false;
-
-            }
-
-            hasOil = true;
-            gasStove.TurnOn();
-
-            oilOffSprite.SetActive(false);
-            oilOnSprite.SetActive(true);
-
-            IngredientIDs id = oil.GetComponent<IngredientIDs>();
-
-            if (id != null)
-            {
-                ingredientIDs.Add(id.GetID());
-                Debug.Log("오일 추가됨 ID: " + id.GetID());
-            }
-
-
-            return true;
+            return AddOil(oil);
         }
 
-        // 일반 토핑
         if (target is Topping topping)
         {
-            if (addedToppings.Count >= 2)
-            {
-                return false;
-            }
-
-            // 이미 추가한 토핑이라면 추가 X
-            if (addedToppings.Contains(topping.toppingType))
-            {
-                return false;
-            }
-
-            Transform spawnPoint = GetRandomEmptyToppingPoint();
-
-            if (spawnPoint == null)
-            {
-                return false;
-            }
-
-            IngredientIDs id = topping.GetComponent<IngredientIDs>();
-
-            if (id != null)
-            {
-                SpawnIngredientByID(id.GetID(), spawnPoint);
-            }
-
-            addedToppings.Add(topping.toppingType);
-
-            return true;
+            return AddTopping(topping);
         }
 
-        // 소스
-        if (target is Sauces sauces)
+        if (target is Sauces sauce)
         {
-            // 이미 같은 소스가 있으면 안 넣음
-            if (addedSauces.Contains(sauces.sauceType))
-                return false;     
-            
-           IngredientIDs id = sauces.GetComponent<IngredientIDs>();
-
-            if (id != null)
-            {
-                SpawnIngredientByID(id.GetID(), sauceSpawnPoint);
-            }
-
-            // 추가 기록
-            addedSauces.Add(sauces.sauceType);
-
-            // 로제 소스 조합 체크
-            if (addedSauces.Contains(SauceType.Tomato) && addedSauces.Contains(SauceType.Cream))
-            {
-                // 기존 소스들 제거
-                foreach (Transform child in sauceSpawnPoint)
-                {
-                    Destroy(child.gameObject);
-                }
-
-                addedSauces.Clear();
-
-                // 로제 소스 생성
-                // 여기에 로제 소스 프리팹 연결 필요
-               /* GameObject rosePrefab =*/ /* 로제 프리팹 참조 변수 */
-                //Instantiate(
-                //    rosePrefab,
-                //    sauceSpawnPoint.position,
-                //    Quaternion.identity,
-                //    sauceSpawnPoint
-                //);
-
-                // 로제 추가
-                //addedSauces.Add(SauceType.Rose);
-            }           
-
-            return true;
+            return AddSauce(sauce);
         }
 
-        // 익은 면
-        if (target is Noodles_CookedNoodle cookedNoodle)
+        if (target is Noodles_CookedNoodle noodle)
         {
-            if (!hasOil)
-            {
-                return false;
-            }
-
-            if (noodleSpawnPoint.childCount > 0)
-            {
-                return false;
-            }
-
-            IngredientIDs id = cookedNoodle.GetComponent<IngredientIDs>(); ;
-
-            Debug.Log("Object: " + cookedNoodle.name);
-            Debug.Log("Has IngredientIDs: " + (id != null));
-
-            if (id == null)
-            {
-                Debug.Log("cookedNoodle에 IngredientIDs 없음");
-                return false;
-            }
-            else
-            {
-                Debug.Log("cookedNoodle ID: " + id.GetID());
-
-                SpawnIngredientByID(id.GetID(), noodleSpawnPoint);
-            }
-
-            Destroy(cookedNoodle.gameObject);
-
-            StartCoroutine(CookRoutine());
-            return true;
+            return AddNoodle(noodle);
         }
 
         return false;
+    }
+
+    bool AddOil(Topping_OliveOil oil)
+    {
+        if (hasOil) return false;
+
+        hasOil = true;
+        gasStove.TurnOn();
+
+        oilOffSprite.SetActive(false);
+        oilOnSprite.SetActive(true);
+
+        IngredientIDs id = oil.GetComponent<IngredientIDs>();
+        if (id != null)
+            ingredientIDs.Add(id.GetID());
+
+        return true;
+    }
+
+    bool AddTopping(Topping topping)
+    {
+        if (addedToppings.Count >= 2) return false;
+        if (addedToppings.Contains(topping.toppingType)) return false;
+
+        Transform spawnPoint = GetRandomEmptyToppingPoint();
+        if (spawnPoint == null) return false;
+
+        IngredientIDs id = topping.GetComponent<IngredientIDs>();
+
+        if (id != null)
+            SpawnIngredientByID(id.GetID(), spawnPoint);
+
+        addedToppings.Add(topping.toppingType);
+        return true;
+    }
+
+    bool AddSauce(Sauces sauce)
+    {
+        if (addedSauces.Contains(sauce.sauceType))
+            return false;
+
+        IngredientIDs id = sauce.GetComponent<IngredientIDs>();
+
+        if (id != null)
+            SpawnIngredientByID(id.GetID(), sauceSpawnPoint);
+
+        addedSauces.Add(sauce.sauceType);
+
+        return true;
+    }
+
+    bool AddNoodle(Noodles_CookedNoodle cookedNoodle)
+    {
+        if (!hasOil) return false;
+        if (noodleSpawnPoint.childCount > 0) return false;
+
+        IngredientIDs id = cookedNoodle.GetComponent<IngredientIDs>();
+        if (id == null) return false;
+
+        SpawnIngredientByID(id.GetID(), noodleSpawnPoint);
+
+        Destroy(cookedNoodle.gameObject);
+
+        StartCoroutine(CookRoutine());
+        return true;
     }
 
     void SpawnIngredientByID(int ingredientID, Transform spawnPoint)
@@ -199,8 +139,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             .ingredientDB
             .GetPrefab(ingredientID);
 
-        if (prefab == null)
-            return;
+        if (prefab == null) return;
 
         Instantiate(
             prefab,
@@ -210,10 +149,8 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         );
 
         ingredientIDs.Add(ingredientID);
-        Debug.Log("현재 팬 재료 ID 목록: " + string.Join(", ", ingredientIDs));
     }
 
-    // 토핑 랜덤 생성시 겹침 방지
     Transform GetRandomEmptyToppingPoint()
     {
         List<Transform> empty = new List<Transform>();
@@ -231,13 +168,9 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
     IEnumerator CookRoutine()
     {
-        isCooking = true;        
+        isCooking = true;
 
-        for (int i = 1; i <= 4; i++)
-        {
-            yield return new WaitForSeconds(1f);
-            Debug.Log($"{i}초... 볶는 중");
-        }                
+        yield return new WaitForSeconds(4f);
 
         GameObject finishedPasta = Instantiate(
             finishedPastaPrefab,
@@ -247,41 +180,34 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         );
 
         FinishedPasta pasta = finishedPasta.GetComponent<FinishedPasta>();
-        
+
         pasta.SetIngredients(new HashSet<int>(ingredientIDs));
-        Debug.Log("완성 파스타 재료 전달: " + string.Join(", ", ingredientIDs));
         pasta.Init(gasStove);
 
-        ClearPanIngredients();
+        ClearPan();
 
-        isCooking = false;        
-        gasStove.TurnOff();        
+        isCooking = false;
+        gasStove.TurnOff();
     }
 
-    void ClearPanIngredients()
+    void ClearPan()
     {
         foreach (Transform point in toppingSpawnPoints)
         {
             foreach (Transform child in point)
-            {
                 Destroy(child.gameObject);
-            }
         }
 
         if (sauceSpawnPoint.childCount > 0)
-        {
             Destroy(sauceSpawnPoint.GetChild(0).gameObject);
-        }
 
         if (noodleSpawnPoint.childCount > 0)
-        {
             Destroy(noodleSpawnPoint.GetChild(0).gameObject);
-        }
 
-        ResetPanState();
+        ResetState();
     }
 
-    void ResetPanState()
+    void ResetState()
     {
         addedToppings.Clear();
         addedSauces.Clear();
@@ -292,11 +218,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         oilOffSprite.SetActive(true);
         oilOnSprite.SetActive(false);
     }
-
-    public void Cancel()
+    public void Cancel() 
     {
-
     }
-
 }
-    

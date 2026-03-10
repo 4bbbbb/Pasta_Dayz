@@ -602,7 +602,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 99672556a9e1de2458931d2b79c29626, type: 3}
     m_FontSize: 14
     m_FontStyle: 1
     m_BestFit: 1
@@ -1616,7 +1616,7 @@ Transform:
   m_GameObject: {fileID: 331358125}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 17.63, y: -6.21, z: 0}
+  m_LocalPosition: {x: 17.59, y: -6.21, z: 0}
   m_LocalScale: {x: 0.47049364, y: 0.47049364, z: 0.7841561}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2593,8 +2593,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bba4ecc397082e84fae254f5e6d99edf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  noodlePrefabs:
+  - id: 101
+    prefab: {fileID: 7492044799998688880, guid: ab0312be9e408bd478a6f9faecd772b1, type: 3}
+  - id: 102
+    prefab: {fileID: 7492044799998688880, guid: fdb644952ad7b5249acbe49f0475c39f, type: 3}
+  - id: 103
+    prefab: {fileID: 7492044799998688880, guid: c99894c69fb88d847b43ec59cb6ee309, type: 3}
+  - id: 104
+    prefab: {fileID: 7492044799998688880, guid: 449797958223bdd47810dbd663098ac1, type: 3}
   cookedNoodleSpawnPoint: {fileID: 45051436}
-  cookedNoodlePrefab: {fileID: 7492044799998688880, guid: ab0312be9e408bd478a6f9faecd772b1, type: 3}
 --- !u!1 &658898292
 GameObject:
   m_ObjectHideFlags: 0
@@ -5874,7 +5882,7 @@ GameObject:
   - component: {fileID: 1373503890}
   - component: {fileID: 1373503889}
   m_Layer: 0
-  m_Name: Shelf (1)
+  m_Name: Shelf2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6416,7 +6424,7 @@ Transform:
   m_GameObject: {fileID: 1651584278}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 22.56, y: -6.23, z: 0}
+  m_LocalPosition: {x: 22.54, y: -6.23, z: 0}
   m_LocalScale: {x: 0.5449099, y: 0.5449099, z: 0.5449099}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6622,7 +6630,7 @@ GameObject:
   - component: {fileID: 1726168049}
   - component: {fileID: 1726168048}
   m_Layer: 0
-  m_Name: Shelf
+  m_Name: Shelf1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

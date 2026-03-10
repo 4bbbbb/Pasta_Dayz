@@ -11,6 +11,12 @@ public class Noodles_CookedNoodle : MonoBehaviour, IInteractable
 
     public bool CanBeSelected => true;
 
+    //[Header("Noodle Sprites")]
+    //[SerializeField] private Sprite spaghetti;
+    //[SerializeField] private Sprite linguine;
+    //[SerializeField] private Sprite penne;
+    //[SerializeField] private Sprite farfalle;
+
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
@@ -26,6 +32,28 @@ public class Noodles_CookedNoodle : MonoBehaviour, IInteractable
         }
         return false;
     }
+
+    //public void SetNoodleSprite(int id)
+    //{
+    //    switch (id)
+    //    {
+    //        case 201:
+    //            sr.sprite = spaghetti;
+    //            break;
+
+    //        case 202:
+    //            sr.sprite = linguine;
+    //            break;
+
+    //        case 203:
+    //            sr.sprite = penne;
+    //            break;
+
+    //        case 204:
+    //            sr.sprite = farfalle;
+    //            break;
+    //    }
+    //}
 
     public void Cancel()
     {

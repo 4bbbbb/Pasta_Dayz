@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 5114385083528168375}
   - component: {fileID: 5453543921863384630}
   - component: {fileID: 921483392669119254}
-  - component: {fileID: 5975945875286945433}
-  - component: {fileID: 737815543542208745}
+  - component: {fileID: -1860111751869269357}
+  - component: {fileID: -4139061582392096693}
   m_Layer: 0
-  m_Name: Noodle_PastaCooker_CookedNoodle
+  m_Name: Cooker_Linguine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -76,7 +76,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: 836381a69e651bb4cafa00404cee35f1, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 75c54e3c384337b45bbcb239bcac5b91, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -106,21 +106,9 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4, y: 4, z: 0.2}
+  m_Size: {x: 8.89, y: 5.56, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &5975945875286945433
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7492044799998688880}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d38ea7d1f8733f488045d5c66edf7e6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &737815543542208745
+--- !u!114 &-1860111751869269357
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -132,4 +120,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79ac290b97ba009438954918551fb805, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ingredientID: 101
+  ingredientID: 102
+--- !u!114 &-4139061582392096693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7492044799998688880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d38ea7d1f8733f488045d5c66edf7e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

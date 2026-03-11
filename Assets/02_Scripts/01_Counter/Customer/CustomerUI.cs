@@ -21,6 +21,7 @@ public class CustomerUI : MonoBehaviour
     public GameObject bubbleObject; // 말풍선 오브젝트
     public Text orderText;          // 주문 텍스트
     public GameObject yesButton;    // 네 버튼
+    public GameObject autoButton;   // 자동 완성 버튼
 
     private int currentIndex = -1;
 
@@ -28,6 +29,7 @@ public class CustomerUI : MonoBehaviour
     {
         bubbleObject.SetActive(false);
         yesButton.SetActive(false);
+        autoButton.SetActive(false);
     }
 
     // 손님 등장
@@ -36,6 +38,8 @@ public class CustomerUI : MonoBehaviour
         gameObject.SetActive(true);
         bubbleObject.SetActive(false);
         yesButton.SetActive(false);
+        autoButton.SetActive(false);
+
     }
 
     //  손님 스프라이트 설정 (처음 등장 시 호출)
@@ -72,15 +76,19 @@ public class CustomerUI : MonoBehaviour
 
     IEnumerator ShowBubbleDelay()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(1.5f);
         bubbleObject.SetActive(true);
         yesButton.SetActive(true);
+        autoButton.SetActive(true);
+
     }
 
     public void HideBubble()
     {
         bubbleObject.SetActive(false);
         yesButton.SetActive(false);
+        autoButton.SetActive(false);
+
     }
 
     public void ShowResult(string result)
@@ -89,5 +97,6 @@ public class CustomerUI : MonoBehaviour
 
         bubbleObject.SetActive(true);
         yesButton.SetActive(false);
+        autoButton.SetActive(false);
     }
 }

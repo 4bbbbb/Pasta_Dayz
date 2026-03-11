@@ -104,14 +104,51 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
     bool AddSauce(Sauces sauce)
     {
-        if (addedSauces.Contains(sauce.sauceType))
+        IngredientIDs id = sauce.GetComponent<IngredientIDs>();
+        if (id == null) return false;
+
+        int newID = id.GetID();
+
+        // 토마토 + 크림 -> 로제
+        if (ingredientIDs.Contains(202) && newID == 203)
+        {
+            ingredientIDs.Remove(202);
+            ingredientIDs.Add(204);
+
+            addedSauces.Clear();
+            addedSauces.Add(SauceType.Rose);
+
+            Debug.Log("로제소스됨");
+
+            return true;
+        }
+
+        // 크림 + 토마토 -> 로제
+        if (ingredientIDs.Contains(203) && newID == 202)
+        {
+            ingredientIDs.Remove(203);
+            ingredientIDs.Add(204);
+
+            addedSauces.Clear();
+            addedSauces.Add(SauceType.Rose);
+
+            Debug.Log("로제소스됨");
+
+
+            return true;
+        }
+
+        // 로제 이미 있으면 추가 불가
+        if (ingredientIDs.Contains(204))
             return false;
 
-        IngredientIDs id = sauce.GetComponent<IngredientIDs>();
+        // 일반 소스
+        if (addedSauces.Count >= 1)
+        {
+            return false;
+        }
 
-        if (id != null)
-            SpawnIngredientByID(id.GetID(), sauceSpawnPoint);
-
+        SpawnIngredientByID(newID, sauceSpawnPoint);
         addedSauces.Add(sauce.sauceType);
 
         return true;
@@ -170,7 +207,30 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     {
         isCooking = true;
 
-        yield return new WaitForSeconds(4f);
+        Vector3 originalPos = transform.localPosition;
+        float cookTime = 4f;
+        float elapsed = 0f;
+
+        float radiusX = 0.12f;   // 가로 반경
+        float radiusY = 0.08f;   // 세로 반경
+        float angularSpeed = 4f; // 회전 속도
+
+        while (elapsed < cookTime)
+        {
+            float angle = elapsed * angularSpeed;
+
+            float x = Mathf.Cos(angle) * radiusX;
+            float y = Mathf.Sin(angle) * radiusY;
+
+            transform.localPosition = originalPos + new Vector3(x, y, 0f);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+
+        //yield return new WaitForSeconds(4f);
+
 
         GameObject finishedPasta = Instantiate(
             finishedPastaPrefab,

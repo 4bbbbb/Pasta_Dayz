@@ -1,0 +1,25 @@
+﻿OrderType,Template
+Menu,{menu} 하나요.
+Menu,{menu} 해주세요!
+Menu,{menu}가 맛있을 거 같아요.
+Menu,{menu} 하나 주세요.
+Menu,{menu}로 할게요.
+Menu,오늘은 {menu}가 먹고싶어요.
+Noodle,면은 {noodle}로 해주세요.
+Noodle,면은 {noodle}로 해주시고요.
+Noodle,저는 {noodle}면이 좋아요.
+Noodle,{noodle}면 어울리겠죠?
+Noodle,{noodle}면이 좋겠어요.
+Noodle,"면은 {noodle}로,"
+Noodle,"{noodle}면에다가,"
+Topping,{topping} 토핑은 꼭 넣어주세요!
+Topping,{topping} 추가 해주세요.
+Topping,{topping} 넣어서 먹을래요!
+Topping,{topping} 추가할래요.
+Topping,{topping}도 듬뿍 넣어주세요!
+Topping,{topping}까지 넣으면 맛있을거 같아요!!
+Topping,{topping}!! {topping} 많이요!!
+Topping,아! {topping} 넣어주세요!
+Topping,{topping} 잊지마세요!
+Topping,{topping} 토핑은 필수에요!
+Topping,{topping} 토핑은 필수인거 아시죠?

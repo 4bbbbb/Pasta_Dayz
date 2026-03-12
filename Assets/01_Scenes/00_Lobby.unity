@@ -208,6 +208,7 @@ GameObject:
   - component: {fileID: 20237738}
   - component: {fileID: 20237737}
   - component: {fileID: 20237740}
+  - component: {fileID: 20237741}
   m_Layer: 5
   m_Name: Button_Start
   m_TagString: Untagged
@@ -291,6 +292,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 20237741}
+        m_TargetAssemblyTypeName: JellyButton, Assembly-CSharp
+        m_MethodName: PlayJelly
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &20237738
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -341,6 +354,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b672c5274be083e4d9c0c184bbf96791, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &20237741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 20237735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9bf1f1f1544cb348a35aea3d7b31c19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  pressX: 0.92
+  pressY: 0.88
+  bounceX: 1.08
+  bounceY: 1.12
+  settleX: 0.98
+  settleY: 1.02
 --- !u!1 &36299868
 GameObject:
   m_ObjectHideFlags: 0
@@ -1242,6 +1274,7 @@ GameObject:
   - component: {fileID: 247427576}
   - component: {fileID: 247427575}
   - component: {fileID: 247427577}
+  - component: {fileID: 247427578}
   m_Layer: 5
   m_Name: Panel_Profile
   m_TagString: Untagged
@@ -1328,6 +1361,18 @@ MonoBehaviour:
   xpText: {fileID: 162763869}
   dayText: {fileID: 73924307}
   xpImage: {fileID: 1198851122}
+--- !u!225 &247427578
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 247427573}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &280791280
 GameObject:
   m_ObjectHideFlags: 0
@@ -2373,6 +2418,7 @@ GameObject:
   - component: {fileID: 571171395}
   - component: {fileID: 571171394}
   - component: {fileID: 571171396}
+  - component: {fileID: 571171397}
   m_Layer: 5
   m_Name: Button_Setting
   m_TagString: Untagged
@@ -2493,6 +2539,37 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+      - m_Target: {fileID: 571171397}
+        m_TargetAssemblyTypeName: JellyButton, Assembly-CSharp
+        m_MethodName: PlayJelly
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+--- !u!114 &571171397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 571171392}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9bf1f1f1544cb348a35aea3d7b31c19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  pressX: 0.92
+  pressY: 0.88
+  bounceX: 1.08
+  bounceY: 1.12
+  settleX: 0.98
+  settleY: 1.02
 --- !u!1 &585067113
 GameObject:
   m_ObjectHideFlags: 0
@@ -2741,6 +2818,7 @@ GameObject:
   - component: {fileID: 650347107}
   - component: {fileID: 650347110}
   - component: {fileID: 650347109}
+  - component: {fileID: 650347111}
   m_Layer: 5
   m_Name: Panel_Setting
   m_TagString: Untagged
@@ -2809,6 +2887,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 650347106}
   m_CullTransparentMesh: 1
+--- !u!225 &650347111
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 650347106}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &670891798
 GameObject:
   m_ObjectHideFlags: 0
@@ -4529,6 +4619,7 @@ GameObject:
   - component: {fileID: 1170264321}
   - component: {fileID: 1170264320}
   - component: {fileID: 1170264319}
+  - component: {fileID: 1170264322}
   m_Layer: 5
   m_Name: Button_Exit
   m_TagString: Untagged
@@ -4611,6 +4702,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1170264322}
+        m_TargetAssemblyTypeName: JellyButton, Assembly-CSharp
+        m_MethodName: PlayJelly
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1170264320
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4649,6 +4752,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1170264317}
   m_CullTransparentMesh: 1
+--- !u!114 &1170264322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1170264317}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9bf1f1f1544cb348a35aea3d7b31c19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  pressX: 0.92
+  pressY: 0.88
+  bounceX: 1.08
+  bounceY: 1.12
+  settleX: 0.98
+  settleY: 1.02
 --- !u!1 &1188437741
 GameObject:
   m_ObjectHideFlags: 0
@@ -4700,6 +4822,7 @@ GameObject:
   - component: {fileID: 1189475329}
   - component: {fileID: 1189475328}
   - component: {fileID: 1189475327}
+  - component: {fileID: 1189475330}
   m_Layer: 5
   m_Name: Button_Exit
   m_TagString: Untagged
@@ -4782,6 +4905,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1189475330}
+        m_TargetAssemblyTypeName: JellyButton, Assembly-CSharp
+        m_MethodName: PlayJelly
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1189475328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4820,6 +4955,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1189475325}
   m_CullTransparentMesh: 1
+--- !u!114 &1189475330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1189475325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9bf1f1f1544cb348a35aea3d7b31c19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  pressX: 0.92
+  pressY: 0.88
+  bounceX: 1.08
+  bounceY: 1.12
+  settleX: 0.98
+  settleY: 1.02
 --- !u!1 &1198851120
 GameObject:
   m_ObjectHideFlags: 0
@@ -5373,6 +5527,7 @@ GameObject:
   - component: {fileID: 1358595820}
   - component: {fileID: 1358595819}
   - component: {fileID: 1358595821}
+  - component: {fileID: 1358595822}
   m_Layer: 5
   m_Name: Panel_Shop
   m_TagString: Untagged
@@ -5457,6 +5612,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   contentParent: {fileID: 1287539589}
+--- !u!225 &1358595822
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1358595817}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1362475250
 GameObject:
   m_ObjectHideFlags: 0
@@ -6115,6 +6282,7 @@ GameObject:
   - component: {fileID: 1521514525}
   - component: {fileID: 1521514524}
   - component: {fileID: 1521514526}
+  - component: {fileID: 1521514527}
   m_Layer: 5
   m_Name: Button_Shop
   m_TagString: Untagged
@@ -6235,6 +6403,37 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+      - m_Target: {fileID: 1521514527}
+        m_TargetAssemblyTypeName: JellyButton, Assembly-CSharp
+        m_MethodName: PlayJelly
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+--- !u!114 &1521514527
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1521514522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9bf1f1f1544cb348a35aea3d7b31c19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  pressX: 0.92
+  pressY: 0.88
+  bounceX: 1.08
+  bounceY: 1.12
+  settleX: 0.98
+  settleY: 1.02
 --- !u!1 &1584618185
 GameObject:
   m_ObjectHideFlags: 0
@@ -6862,6 +7061,7 @@ GameObject:
   - component: {fileID: 1781609400}
   - component: {fileID: 1781609399}
   - component: {fileID: 1781609398}
+  - component: {fileID: 1781609401}
   m_Layer: 5
   m_Name: Button_Profile
   m_TagString: Untagged
@@ -6944,6 +7144,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+      - m_Target: {fileID: 1781609401}
+        m_TargetAssemblyTypeName: JellyButton, Assembly-CSharp
+        m_MethodName: PlayJelly
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
 --- !u!114 &1781609399
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6982,6 +7194,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1781609396}
   m_CullTransparentMesh: 1
+--- !u!114 &1781609401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1781609396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9bf1f1f1544cb348a35aea3d7b31c19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  pressX: 0.92
+  pressY: 0.88
+  bounceX: 1.08
+  bounceY: 1.12
+  settleX: 0.98
+  settleY: 1.02
 --- !u!1 &1808729117
 GameObject:
   m_ObjectHideFlags: 0
@@ -7571,6 +7802,7 @@ GameObject:
   - component: {fileID: 1982119343}
   - component: {fileID: 1982119342}
   - component: {fileID: 1982119341}
+  - component: {fileID: 1982119344}
   m_Layer: 5
   m_Name: Button_Exit
   m_TagString: Untagged
@@ -7653,6 +7885,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1982119344}
+        m_TargetAssemblyTypeName: JellyButton, Assembly-CSharp
+        m_MethodName: PlayJelly
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1982119342
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7691,6 +7935,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1982119339}
   m_CullTransparentMesh: 1
+--- !u!114 &1982119344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1982119339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9bf1f1f1544cb348a35aea3d7b31c19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  pressX: 0.92
+  pressY: 0.88
+  bounceX: 1.08
+  bounceY: 1.12
+  settleX: 0.98
+  settleY: 1.02
 --- !u!1 &1992546228
 GameObject:
   m_ObjectHideFlags: 0

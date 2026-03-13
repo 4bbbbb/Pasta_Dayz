@@ -5,7 +5,6 @@ using static IInteractableScript;
 
 public class Cooker_GasStove: MonoBehaviour, IInteractable
 {
-    private SpriteRenderer sr;
     public GameObject fryingPan;
     private bool isFireOn = false;
     bool isCooking = false;
@@ -15,7 +14,6 @@ public class Cooker_GasStove: MonoBehaviour, IInteractable
 
     void Start()
     {        
-        sr = GetComponent<SpriteRenderer>();
         fryingPan.SetActive(false);
         isFireOn = false;
     }
@@ -41,14 +39,12 @@ public class Cooker_GasStove: MonoBehaviour, IInteractable
     {
         Debug.Log("가스에 불이 켜집니다 타닥타닥..!!");
         isFireOn = true;
-        sr.color = Color.blue;
     }
 
     public void TurnOff()
     {
         Debug.Log("조리 완료! 가스가 꺼집니다.");
         isFireOn = false;
-        sr.color = Color.white;        
     }
 
     public void DestroyFryingPan()

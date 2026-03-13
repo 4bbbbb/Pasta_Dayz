@@ -246,8 +246,8 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         Vector3 originalPanPos = transform.localPosition;
         Vector3 panMoveDir = transform.localRotation * Vector3.up;
 
-        float cycleCount = 4.25f;
-        float cycleDuration = 0.95f;
+        float cycleCount = 7.25f;
+        float cycleDuration = 0.65f;
         float totalTime = cycleCount * cycleDuration;
 
         float panMoveAmount = 0.12f;
@@ -316,12 +316,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         }
 
 
-        GameObject finishedPasta = Instantiate(
-            finishedPastaPrefab,
-            finishedPastaSpawnPoint.position,
-            Quaternion.identity,
-            finishedPastaSpawnPoint
-        );
+        GameObject finishedPasta = Instantiate(finishedPastaPrefab, finishedPastaSpawnPoint);
 
         FinishedPasta pasta = finishedPasta.GetComponent<FinishedPasta>();
 

@@ -5,6 +5,14 @@ using static IInteractableScript;
 
 public class FinishedPasta : MonoBehaviour, IInteractable
 {
+    [System.Serializable]
+    public class PastaPanSpriteEntry
+    {
+        public int noodleID;      // 100번대
+        public int sauceID; // 201, 202, 203, 204, 205
+        public Sprite sprite;
+    }
+
     [Header("<<후라이팬>>")]
     [SerializeField] private Cooker_FryingPan fryingPan;
 
@@ -21,7 +29,9 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
     [Header("<<치즈, 파슬리 스폰 위치>>")]
     [SerializeField] Transform cheeseSpawnPoint;
-    [SerializeField] Transform parsleySpawnPoint;     
+    [SerializeField] Transform parsleySpawnPoint;
+
+    [SerializeField] private List<PastaPanSpriteEntry> panSpriteEntries = new List<PastaPanSpriteEntry>();
 
 
     private SpriteRenderer sr;
@@ -162,17 +172,76 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     public bool HasMozzarella()
     {
         return addedCheeseType == Cheese.CheeseType.Mozzarella;
-    }
+    }       
 
     public void SetIngredients(HashSet<int> ids)
     {
-        ingredientIDs = ids;
+        ingredientIDs = new HashSet<int>(ids);
+        UpdatePanSprite();
+    }
+
+    private int GetNoodleID()
+    {
+        foreach (int id in ingredientIDs)
+        {
+            if (id >= 100 && id < 200)
+                return id;
+        }
+
+        return -1;
+    }
+
+    private int GetSauceID()
+    {
+        if (ingredientIDs.Contains(202)) return 202; // 토마토
+        if (ingredientIDs.Contains(203)) return 203; // 크림
+        if (ingredientIDs.Contains(204)) return 204; // 로제
+        if (ingredientIDs.Contains(205)) return 205; // 봉골레
+
+        if (ingredientIDs.Contains(201)) return 201; // 알리오올리오
+
+        return -1;
+    }
+
+    public void UpdatePanSprite()
+    {
+        if (sr == null)
+            sr = GetComponent<SpriteRenderer>();
+
+        int noodleID = GetNoodleID();
+        int sauceID = GetSauceID();
+
+        if (noodleID == -1 || sauceID == -1)
+        {
+            Debug.LogWarning($"면 또는 소스 ID를 찾지 못함. noodleID={noodleID}, sauceID={sauceID}");
+            return;
+        }
+
+        foreach (var entry in panSpriteEntries)
+        {
+            if (entry.noodleID == noodleID && entry.sauceID == sauceID)
+            {
+                if (entry.sprite != null)
+                {
+                    sr.sprite = entry.sprite;
+                    Debug.Log($"스프라이트 변경 완료: noodle={noodleID}, sauce={sauceID}");
+                }
+                else
+                {
+                    Debug.LogWarning($"매칭은 됐지만 sprite가 비어있음: noodle={noodleID}, sauce={sauceID}");
+                }
+                return;
+            }
+        }
+
+        Debug.LogWarning($"일치하는 스프라이트 없음: noodle={noodleID}, sauce={sauceID}");
     }
 
     public HashSet<int> GetIngredientSet()
     {
-        return ingredientIDs;
+        return new HashSet<int>(ingredientIDs);
     }
+
     public void PrintIngredients()
     {
         Debug.Log("현재 ingredientIDs 개수: " + ingredientIDs.Count);

@@ -246,8 +246,8 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         Vector3 originalPanPos = transform.localPosition;
         Vector3 panMoveDir = transform.localRotation * Vector3.up;
 
-        float cycleCount = 7.25f;
-        float cycleDuration = 0.65f;
+        float cycleCount = 20.25f;
+        float cycleDuration = 0.25f;
         float totalTime = cycleCount * cycleDuration;
 
         float panMoveAmount = 0.12f;

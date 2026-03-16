@@ -13,6 +13,16 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         public Sprite sprite;
     }
 
+    [System.Serializable]
+    public class PastaPlateSpriteEntry
+    {
+        public int noodleID;   // 100번대
+        public int sauceID;    // 201~205
+        public int plateID;
+        public bool hasPane;     // 빠네 여부
+        public Sprite sprite;
+    }
+
     [Header("<<후라이팬>>")]
     [SerializeField] private Cooker_FryingPan fryingPan;
 
@@ -32,6 +42,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     [SerializeField] Transform parsleySpawnPoint;
 
     [SerializeField] private List<PastaPanSpriteEntry> panSpriteEntries = new List<PastaPanSpriteEntry>();
+    [SerializeField] private List<PastaPlateSpriteEntry> plateSpriteEntries = new List<PastaPlateSpriteEntry>();
 
 
     private SpriteRenderer sr;
@@ -152,6 +163,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         isSelected = true;
         sr.color = Color.red;
     }
+
     public void Init(Cooker_GasStove stove)
     {
         gasStove = stove;
@@ -159,11 +171,18 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
     public void OnMovedToPlate()
     {
-        gasStove.DestroyFryingPan();
+        if (gasStove != null)
+        {
+            gasStove.DestroyFryingPan();
+        }
+
         isOnPlate = true;
+        UpdatePlateSprite();
+
         Debug.Log("완성된 파스타를 그릇에 담았어요 !!");
         PrintIngredients();
     }
+
     public bool IsOnOvenPlate()
     {
         return isOnPlate && GetComponentInParent<Plates_OvenPlate>() != null;
@@ -172,12 +191,29 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     public bool HasMozzarella()
     {
         return addedCheeseType == Cheese.CheeseType.Mozzarella;
-    }       
+    }
 
     public void SetIngredients(HashSet<int> ids)
     {
         ingredientIDs = new HashSet<int>(ids);
-        UpdatePanSprite();
+    }
+
+    public void AddIngredient(int id)
+    {
+        ingredientIDs.Add(id);
+    }
+
+    public HashSet<int> GetIngredientSet()
+    {
+        return new HashSet<int>(ingredientIDs);
+    }
+
+    public void RefreshSprite()
+    {
+        if (isOnPlate)
+            UpdatePlateSprite();
+        else
+            UpdatePanSprite();
     }
 
     private int GetNoodleID()
@@ -201,6 +237,19 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         if (ingredientIDs.Contains(201)) return 201; // 알리오올리오
 
         return -1;
+    }
+
+    private int GetPlateID()
+    {
+        if (ingredientIDs.Contains(501)) return 501; // basic plate
+        if (ingredientIDs.Contains(502)) return 502; // oven plate
+
+        return -1;
+    }
+
+    private bool HasPane()
+    {
+        return ingredientIDs.Contains(601);
     }
 
     public void UpdatePanSprite()
@@ -233,13 +282,48 @@ public class FinishedPasta : MonoBehaviour, IInteractable
                 return;
             }
         }
-
-        Debug.LogWarning($"일치하는 스프라이트 없음: noodle={noodleID}, sauce={sauceID}");
     }
 
-    public HashSet<int> GetIngredientSet()
+    public void UpdatePlateSprite()
     {
-        return new HashSet<int>(ingredientIDs);
+        if (sr == null)
+        {
+            sr = GetComponent<SpriteRenderer>();
+
+        }
+
+        int noodleID = GetNoodleID();
+        int sauceID = GetSauceID();
+        int plateID = GetPlateID();
+        bool hasPane = HasPane();
+
+        if (noodleID == -1 || sauceID == -1 || plateID == -1)
+        {
+            Debug.LogWarning($"ID를 찾지 못함. noodleID={noodleID}, sauceID={sauceID}, plateID={plateID}");
+            return;
+        }
+
+        foreach (var entry in plateSpriteEntries)
+        {
+            if (entry.noodleID == noodleID &&
+                entry.sauceID == sauceID &&
+                entry.plateID == plateID &&
+                entry.hasPane == hasPane)
+            {
+                if (entry.sprite != null)
+                {
+                    sr.sprite = entry.sprite;
+                    Debug.Log($"접시 스프라이트 변경 완료: noodle={noodleID}, sauce={sauceID}, plate={plateID}, hasPane={hasPane}");
+                }
+                else
+                {
+                    Debug.LogWarning($"접시 스프라이트가 비어있음: noodle={noodleID}, sauce={sauceID}, plate={plateID}, hasPane={hasPane}");
+                }
+                return;
+            }
+        }
+
+        Debug.LogWarning($"접시 스프라이트 매칭 실패: noodle={noodleID}, sauce={sauceID}, plate={plateID}, hasPane={hasPane}");
     }
 
     public void PrintIngredients()

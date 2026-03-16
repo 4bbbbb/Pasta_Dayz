@@ -2090,6 +2090,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43c4f3a29c4f4384a98c8d1d8bb86db0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parmesanSprite: {fileID: 0}
+  parmesanselectedSprite: {fileID: 0}
   cheeseType: 1
 --- !u!114 &476927718
 MonoBehaviour:
@@ -5621,7 +5623,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1229255781
 Transform:
   m_ObjectHideFlags: 0
@@ -6169,6 +6171,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b5ac69da637dd74c8b40d31600782cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  originalSprite: {fileID: 21300000, guid: 89f1d4700cf0c114f939bb2a30230ca1, type: 3}
+  selectedSprite: {fileID: 21300000, guid: 4af096b7b92063e45bfd5c094c034222, type: 3}
 --- !u!114 &1305335769
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7956,8 +7960,8 @@ GameObject:
   - component: {fileID: 1784594221}
   - component: {fileID: 1784594220}
   - component: {fileID: 1784594223}
-  - component: {fileID: 1784594224}
   - component: {fileID: 1784594225}
+  - component: {fileID: 1784594226}
   m_Layer: 0
   m_Name: Cheese_Parmesan_401
   m_TagString: Untagged
@@ -8053,19 +8057,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 3.82, y: 7.76, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1784594224
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1784594219}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43c4f3a29c4f4384a98c8d1d8bb86db0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cheeseType: 0
 --- !u!114 &1784594225
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8079,6 +8070,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ingredientID: 401
+--- !u!114 &1784594226
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1784594219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43c4f3a29c4f4384a98c8d1d8bb86db0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parmesanSprite: {fileID: 21300000, guid: 8b313056e6b1c6d46b65cf105ae4429d, type: 3}
+  parmesanselectedSprite: {fileID: 21300000, guid: dbfe9dc2a99d1e74199b0c9c449ae5a6, type: 3}
+  cheeseType: 0
 --- !u!1 &1827611806
 GameObject:
   m_ObjectHideFlags: 0

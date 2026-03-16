@@ -13,6 +13,7 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
     public bool isSelected { get; private set; }
     public bool CanBeSelected => true;
+
     private bool hasPasta = false;
     private bool hasPane = false;
 
@@ -22,7 +23,7 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
     private HashSet<int> ingredients = new HashSet<int>();
 
     void Start()
-    {        
+    {
         plateCollider = GetComponent<Collider>();
         isSelected = false;
 
@@ -30,16 +31,17 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
         if (ingredientIDs != null)
         {
-            ingredients.Add(ingredientIDs.GetID());   // 🔥 Plate ID 추가
+            ingredients.Add(ingredientIDs.GetID());   // 접시 ID
         }
     }
+
     public bool Interact(IInteractable target)
     {
         if (target == null)
         {
-            Debug.Log("완성된 파스타를 옮겨주세요!");            
+            Debug.Log("완성된 파스타를 옮겨주세요!");
             return true;
-        }             
+        }
 
         if (target is FinishedPasta finishedPasta)
         {
@@ -48,58 +50,63 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
                 Debug.Log("이미 파스타가 담겨 있어요!");
                 return false;
             }
-                       
-            finishedPasta.OnMovedToPlate();
 
             finishedPasta.transform.SetParent(pastaSpawnPoint);
-            finishedPasta.transform.position = pastaSpawnPoint.position;
+            finishedPasta.transform.localPosition = Vector3.zero;
+            finishedPasta.transform.localRotation = Quaternion.identity;
+            finishedPasta.transform.localScale = Vector3.one;
 
-            ingredients = new HashSet<int>(finishedPasta.GetIngredientSet());
+            // 접시가 현재 가지고 있던 재료 유지
+            // (접시 ID + 빠네 601 포함 가능)
+            HashSet<int> finalIngredients = new HashSet<int>(ingredients);
 
-            // 🔥 기존 재료 초기화
-            ingredients.Clear();
-
-            // 🔥 Plate 자기 ID 먼저 추가
-            if (ingredientIDs != null)
-                ingredients.Add(ingredientIDs.GetID());
-
-            // 🔥 FinishedPasta 재료 하나씩 복사
+            // 파스타 재료 추가
             foreach (int id in finishedPasta.GetIngredientSet())
             {
-                ingredients.Add(id);
-            }            
+                finalIngredients.Add(id);
+            }
+
+            // 최종 재료 세트를 FinishedPasta에도 반영
+            finishedPasta.SetIngredients(finalIngredients);
+
+            // 접시 쪽도 동일하게 갱신
+            ingredients = new HashSet<int>(finalIngredients);
+
+            // 마지막에 호출해야 접시 스프라이트가 정확히 바뀜
+            finishedPasta.OnMovedToPlate();
 
             hasPasta = true;
 
+            PrintIngredients();
             return true;
-        }        
-        
+        }
+
         if (target is Plate_BakedPane bakedPane)
         {
-            if(hasPasta)
+            if (hasPasta)
             {
                 Debug.Log("지금은 빠네를 추가할 수 없어요ㅠㅜ");
                 return false;
             }
 
-            if(hasPane)
+            if (hasPane)
             {
-                Debug.Log("이미 빠네가 준비되었어요 !");
+                Debug.Log("이미 빠네가 준비되었어요!");
                 return false;
             }
 
             bakedPane.transform.SetParent(paneSpawnPoint);
             bakedPane.transform.position = paneSpawnPoint.position;
+
             plateCollider.enabled = false;
 
             IngredientIDs id = bakedPane.GetComponent<IngredientIDs>();
             if (id != null)
-                ingredients.Add(id.GetID());
-
-            PrintIngredients();
+                ingredients.Add(id.GetID());   // 601 추가
 
             hasPane = true;
 
+            PrintIngredients();
             return true;
         }
 
@@ -114,13 +121,11 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
         }
     }
 
-    // 현재 재료 세트 반환 (Order 비교용)
     public HashSet<int> GetIngredientSet()
     {
-        return ingredients;
+        return new HashSet<int>(ingredients);
     }
 
-    // 필요하면 디버그용 출력
     public void PrintIngredients()
     {
         foreach (int id in ingredients)
@@ -131,6 +136,5 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
     public void Cancel()
     {
-               
     }
 }

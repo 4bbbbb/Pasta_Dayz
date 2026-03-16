@@ -322,6 +322,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
         pasta.SetIngredients(new HashSet<int>(ingredientIDs));
         pasta.Init(gasStove);
+        pasta.UpdatePanSprite();
 
         ClearPan();
 

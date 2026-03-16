@@ -6,9 +6,10 @@ using static IInteractableScript;
 public class Plates_OvenPlate : MonoBehaviour, IInteractable
 {
     [Header("<<완성된 파스타 스폰위치>>")]
-    [SerializeField] private Transform pastaSpawnPoint;    
+    [SerializeField] private Transform pastaSpawnPoint;
 
     private Collider plateCollider;
+
     public bool isSelected { get; private set; }
     public bool CanBeSelected => true;
 
@@ -24,7 +25,7 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
 
         if (ingredientIDs != null)
         {
-            ingredients.Add(ingredientIDs.GetID());
+            ingredients.Add(ingredientIDs.GetID());   // 오븐 접시 ID
         }
     }
 
@@ -39,29 +40,35 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
         if (target == null)
         {
             Debug.Log("완성된 파스타를 옮겨주세요!");
-            return true;            
+            return true;
         }
 
         if (target is FinishedPasta finishedPasta)
-        {                           
+        {
+            finishedPasta.transform.SetParent(pastaSpawnPoint);
+            finishedPasta.transform.localPosition = Vector3.zero;
+            finishedPasta.transform.localRotation = Quaternion.identity;
+            finishedPasta.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+
+            // 현재 접시 재료 유지 (접시 ID 포함)
+            HashSet<int> finalIngredients = new HashSet<int>(ingredients);
+
+            // 파스타 재료 추가
+            foreach (int id in finishedPasta.GetIngredientSet())
+            {
+                finalIngredients.Add(id);
+            }
+
+            // FinishedPasta에도 최종 재료 반영
+            finishedPasta.SetIngredients(finalIngredients);
+
+            // 접시 쪽도 동일하게 저장
+            ingredients = new HashSet<int>(finalIngredients);
+
+            // 마지막에 호출
             finishedPasta.OnMovedToPlate();
 
-            finishedPasta.transform.SetParent(pastaSpawnPoint);
-            finishedPasta.transform.position = pastaSpawnPoint.position;
-
-            ingredients = new HashSet<int>(finishedPasta.GetIngredientSet());
-
-            ingredients.Clear();
-
-            // FinishedPasta 재료 복사
-            ingredients = new HashSet<int>(finishedPasta.GetIngredientSet());
-
-            // Plate 자기 ID 다시 추가
-            if (ingredientIDs != null)
-                ingredients.Add(ingredientIDs.GetID());
-
             PrintIngredients();
-
             return true;
         }
 
@@ -76,13 +83,11 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
         }
     }
 
-    // 현재 재료 세트 반환 (Order 비교용)
     public HashSet<int> GetIngredientSet()
     {
-        return ingredients;
+        return new HashSet<int>(ingredients);
     }
 
-    // 필요하면 디버그용 출력
     public void PrintIngredients()
     {
         foreach (int id in ingredients)
@@ -93,6 +98,5 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
 
     public void Cancel()
     {
-
     }
 }

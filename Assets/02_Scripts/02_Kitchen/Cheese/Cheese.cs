@@ -5,6 +5,9 @@ using static IInteractableScript;
 
 public class Cheese: MonoBehaviour, IInteractable
 {
+    [SerializeField] private Sprite parmesanSprite;
+    [SerializeField] private Sprite parmesanselectedSprite;
+
     private SpriteRenderer sr;
     public bool isSelected { get; private set; }
 
@@ -26,7 +29,6 @@ public class Cheese: MonoBehaviour, IInteractable
     {
         if (target == null)
         {
-            Debug.Log($"{name} º±≈√!");
             Select();
             return true;
         }
@@ -37,12 +39,30 @@ public class Cheese: MonoBehaviour, IInteractable
     void Select()
     {
         isSelected = true;
-        sr.color = Color.red;
+        if(cheeseType == CheeseType.Parmesan)
+        {
+            sr.sprite = parmesanselectedSprite;
+
+        }
+        else
+        {
+            sr.color = Color.red;
+
+        }
     }
 
     public void Cancel()
     {
         isSelected = false;
-        sr.color = Color.white;
+        if (cheeseType == CheeseType.Parmesan)
+        {
+            sr.sprite = parmesanSprite;
+
+        }
+        else
+        {
+            sr.color = Color.white;
+
+        }
     }
 }

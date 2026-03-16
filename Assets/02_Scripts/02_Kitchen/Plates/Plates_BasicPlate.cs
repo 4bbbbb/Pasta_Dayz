@@ -4,7 +4,7 @@ using UnityEngine;
 using static IInteractableScript;
 
 public class Plates_BasicPlate : MonoBehaviour, IInteractable
-{
+{  
     [Header("<<완성된 파스타 스폰위치>>")]
     [SerializeField] private Transform pastaSpawnPoint;
 
@@ -19,6 +19,7 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
     public Collider plateCollider;
 
+    private int plateID;
     private IngredientIDs ingredientIDs;
     private HashSet<int> ingredients = new HashSet<int>();
 
@@ -31,7 +32,8 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
         if (ingredientIDs != null)
         {
-            ingredients.Add(ingredientIDs.GetID());   // 접시 ID
+            plateID = ingredientIDs.GetID();  
+            ingredients.Add(plateID);
         }
     }
 
@@ -48,6 +50,12 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
             if (hasPasta)
             {
                 Debug.Log("이미 파스타가 담겨 있어요!");
+                return false;
+            }
+
+            if (!finishedPasta.CanMoveToPlate(plateID))
+            {
+                Debug.Log("옮길수없습니다.");
                 return false;
             }
 

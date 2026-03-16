@@ -14,18 +14,21 @@ public class ToppingManager : MonoBehaviour
         tenToppingGroup.SetActive(false);
         thirteenToppingGroup.SetActive(false);
 
-        // 2️. 구매한 토핑 개수 계산
-        int unlockedToppingCount = IngredientDatabase.Instance.ingredientList
-            .Count(x => x.isUnlocked && x.categoryType == IngredientData.CategoryType.Topping);
+        // 언락된 토핑 리스트를 가져오고
+        // 토핑 그룹의 자식 게임오브젝트 Topping들에 적용
+
+        // 2. 구매한 토핑 리스트 가져오기
+        var list = IngredientDatabase.Instance.ingredientList
+            .Where(t => t.isUnlocked && t.categoryType == IngredientData.CategoryType.Topping).ToList();
 
         // 3️. 토핑 개수에 따라 그룹 활성화
         GameObject activeGroup;
 
-        if (unlockedToppingCount <= 6)
+        if (list.Count <= 6)
         {
             activeGroup = sixToppingGroup;
         }
-        else if (unlockedToppingCount <= 10)
+        else if (list.Count <= 10)
         {
             activeGroup = tenToppingGroup;
         }
@@ -42,15 +45,13 @@ public class ToppingManager : MonoBehaviour
         }
 
         // 5. Unlocked된 토핑만 켜기
-        foreach (var item in IngredientDatabase.Instance.ingredientList)
-        {
-            if (item.isUnlocked && item.categoryType == IngredientData.CategoryType.Topping)
-            {
-                GameObject toppingObj = activeGroup.transform.Find($"Topping_{item.id}")?.gameObject;
+        var toppings = activeGroup.GetComponentsInChildren<Topping>(true);
 
-                if (toppingObj != null)
-                    toppingObj.SetActive(true);
-            }
+        for (int i = 0; i < list.Count; i++)
+        {
+            toppings[i].gameObject.SetActive(true);
+            IngredientDatabase.IngredientIconData iconData = IngredientDatabase.Instance.GetIngredientIconData(list[i].id);
+            toppings[i].Initialize(iconData);
         }
     }
 }

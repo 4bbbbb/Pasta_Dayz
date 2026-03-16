@@ -29,7 +29,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     [Header("<<가스 스토브>>")]
     [SerializeField] private Cooker_GasStove gasStove;
 
-
     [Header("<<치즈 프리팹>>")]
     [SerializeField] private GameObject parmesanCheesePrefab;
     [SerializeField] private GameObject mozzarellaCheesePrefab;
@@ -97,12 +96,29 @@ public class FinishedPasta : MonoBehaviour, IInteractable
                 return false;
             }
 
-            Instantiate(
-                cheesePrefab,
-                cheeseSpawnPoint.position,
-                Quaternion.identity,
-                cheeseSpawnPoint
-            );
+            if (cheese.cheeseType == Cheese.CheeseType.Parmesan)
+            {
+                cheese.Sprinkle(cheeseSpawnPoint, () =>
+                {
+                    Instantiate(
+                        cheesePrefab,
+                        cheeseSpawnPoint.position,
+                        Quaternion.identity,
+                        cheeseSpawnPoint
+                    );
+                });
+            }
+
+            else
+            {
+                //  모짜렐라
+                Instantiate(
+                    cheesePrefab,
+                    cheeseSpawnPoint.position,
+                    Quaternion.identity,
+                    cheeseSpawnPoint
+                );
+            }
 
             IngredientIDs id = cheese.GetComponent<IngredientIDs>();
             if (id != null)
@@ -141,12 +157,16 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             }
 
             Debug.Log("파슬리를 뿌렸어요");
-            Instantiate(
-                parsleyPrefab,
-                parsleySpawnPoint.position,
-                Quaternion.identity,
-                parsleySpawnPoint
+
+            parsley.Sprinkle(parsleySpawnPoint, () =>
+            {
+                Instantiate(
+                    parsleyPrefab,
+                    parsleySpawnPoint.position,
+                    Quaternion.identity,
+                    parsleySpawnPoint
                 );
+            });
 
             IngredientIDs id = parsley.GetComponent<IngredientIDs>();
             if (id != null)
@@ -167,6 +187,26 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     public void Init(Cooker_GasStove stove)
     {
         gasStove = stove;
+    }
+
+    public bool CanMoveToPlate(int plateID)
+    {
+        int noodleID = GetNoodleID();
+        int sauceID = GetSauceID();
+        bool hasPane = HasPane();
+
+        foreach (var entry in plateSpriteEntries)
+        {
+            if (entry.noodleID == noodleID &&
+                entry.sauceID == sauceID &&
+                entry.plateID == plateID &&
+                entry.hasPane == hasPane)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void OnMovedToPlate()

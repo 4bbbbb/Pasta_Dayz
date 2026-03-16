@@ -74,6 +74,7 @@ public class IngredientDatabase : MonoBehaviour
     public IngredientData GetIngredient(int id) => ingredientDict.TryGetValue(id, out var data) ? data : null;
     public Sprite GetIcon(int id) => iconDict.TryGetValue(id, out var data) ? data.icon : null;
     public GameObject GetPrefab(int id) => iconDict.TryGetValue(id, out var data) ? data.ingredientPrefab : null;
+    public IngredientIconData GetIngredientIconData(int id) => iconDict.TryGetValue(id, out var data) ? data : null;
 
     public int GetRandomNoodle()
     {

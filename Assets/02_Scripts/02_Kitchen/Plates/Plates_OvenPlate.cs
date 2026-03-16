@@ -13,6 +13,7 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
     public bool isSelected { get; private set; }
     public bool CanBeSelected => true;
 
+    private int plateID;
     private IngredientIDs ingredientIDs;
     private HashSet<int> ingredients = new HashSet<int>();
 
@@ -25,7 +26,7 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
 
         if (ingredientIDs != null)
         {
-            ingredients.Add(ingredientIDs.GetID());   // 오븐 접시 ID
+            plateID = ingredientIDs.GetID();   
         }
     }
 
@@ -45,6 +46,12 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
 
         if (target is FinishedPasta finishedPasta)
         {
+            if (!finishedPasta.CanMoveToPlate(plateID))
+            {
+                Debug.Log("옮길수없습니다.");
+                return false;
+            }
+
             finishedPasta.transform.SetParent(pastaSpawnPoint);
             finishedPasta.transform.localPosition = Vector3.zero;
             finishedPasta.transform.localRotation = Quaternion.identity;

@@ -1663,6 +1663,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0315c28652bce394f93d5ac0a04d35b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  original501Sprite: {fileID: 21300000, guid: 6ec2ea29ca149a746a1cb3b950c66c5b, type: 3}
+  selected501Sprite: {fileID: 21300000, guid: 97231f0f42cd9914e9519e892e30a8ec, type: 3}
+  original502Sprite: {fileID: 21300000, guid: a58bff7deecf1f24ab5f820decd654f3, type: 3}
+  selected502Sprite: {fileID: 21300000, guid: 418fe6e601d323e488c92ccf29076354, type: 3}
   plateType: 0
 --- !u!114 &331358130
 MonoBehaviour:
@@ -6126,7 +6130,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 89f1d4700cf0c114f939bb2a30230ca1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -7093,6 +7097,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0315c28652bce394f93d5ac0a04d35b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  original501Sprite: {fileID: 21300000, guid: 6ec2ea29ca149a746a1cb3b950c66c5b, type: 3}
+  selected501Sprite: {fileID: 21300000, guid: 97231f0f42cd9914e9519e892e30a8ec, type: 3}
+  original502Sprite: {fileID: 21300000, guid: a58bff7deecf1f24ab5f820decd654f3, type: 3}
+  selected502Sprite: {fileID: 21300000, guid: 418fe6e601d323e488c92ccf29076354, type: 3}
   plateType: 1
 --- !u!212 &1651584281
 SpriteRenderer:
@@ -8009,7 +8017,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 8b313056e6b1c6d46b65cf105ae4429d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -9262,7 +9270,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!212 &2002817760
 SpriteRenderer:
   m_ObjectHideFlags: 0

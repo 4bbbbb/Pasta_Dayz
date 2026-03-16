@@ -100,8 +100,15 @@ public class Order_Manager : MonoBehaviour
     {
         if (scene.name == "01_Counter")
         {
-            Canvas canvas = FindObjectOfType<Canvas>();
-            canvasTransform = canvas.transform;
+            GameObject panel = GameObject.Find("Panel_Customer");
+
+            if (panel == null)
+            {
+                Debug.LogError("CustomerPanel을 찾을 수 없음!");
+                return;
+            }
+
+            canvasTransform = panel.transform;
 
             if (!currentCustomer)
             {

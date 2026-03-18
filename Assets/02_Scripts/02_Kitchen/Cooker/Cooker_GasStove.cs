@@ -9,6 +9,10 @@ public class Cooker_GasStove: MonoBehaviour, IInteractable
     private bool isFireOn = false;
     bool isCooking = false;
 
+    [Header("<< 가스 사운드 >>")]
+    public AudioSource audioSource;
+    public AudioClip fireOnSound;
+
     public bool CanBeSelected => false;
 
 
@@ -38,7 +42,13 @@ public class Cooker_GasStove: MonoBehaviour, IInteractable
     public void TurnOn()
     {
         Debug.Log("가스에 불이 켜집니다 타닥타닥..!!");
+
         isFireOn = true;
+
+        if (audioSource != null && fireOnSound != null)
+        {
+            audioSource.PlayOneShot(fireOnSound);
+        }
     }
 
     public void TurnOff()

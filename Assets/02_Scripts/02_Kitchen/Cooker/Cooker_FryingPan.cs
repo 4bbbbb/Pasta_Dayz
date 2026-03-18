@@ -297,8 +297,8 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
                 // 각 재료마다 미세하게 다르게
                 float phase = ingredient.GetInstanceID() * 0.01f;
 
-                float offsetY = Mathf.Sin(angle - 0.6f + phase) * 0.03f * envelope;
-                float offsetX = Mathf.Cos(angle * 1.2f + phase) * 0.015f * envelope;
+                float offsetY = Mathf.Sin(angle - 0.6f + phase) * 0.05f * envelope;
+                float offsetX = Mathf.Cos(angle * 1.2f + phase) * 0.02f * envelope;
 
                 ingredient.localPosition = basePos + new Vector3(offsetX, offsetY, 0f);
             }

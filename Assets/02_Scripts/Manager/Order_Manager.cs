@@ -222,11 +222,50 @@ public class Order_Manager : MonoBehaviour
 
         string message = currentOrder.GetOrderText(generator.ingredientDB);
 
-        currentCustomer.ShowOrder(message);
+        StartCoroutine(CustomerEntranceRoutine(message));
 
         // 버튼은 숨김
         if (currentCustomer.yesButton != null)
             currentCustomer.yesButton.SetActive(false);
+    }
+
+    IEnumerator CustomerEntranceRoutine(string message)
+    {
+        currentCustomer.gameObject.SetActive(true);
+
+        RectTransform rect = currentCustomer.GetComponent<RectTransform>();
+
+        // 최종 위치 (말풍선 기준 위치)
+        Vector2 endPos = new Vector2(0f, -100f);
+
+        // 시작 위치 (화면 아래 완전히 밖)
+        Vector2 startPos = new Vector2(0f, endPos.y - 600f);
+
+        rect.anchoredPosition = startPos;
+
+        // 👉 씬 전환 후 딜레이
+        yield return new WaitForSeconds(1.5f);
+
+        float duration = 0.5f;
+        float time = 0f;
+
+        while (time < duration)
+        {
+            time += Time.deltaTime;
+            float t = time / duration;
+
+            // 부드럽게 멈추는 easing
+            t = 1 - Mathf.Pow(1 - t, 3);
+
+            rect.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
+
+            yield return null;
+        }
+
+        rect.anchoredPosition = endPos;
+
+        // 👉 위치 잡힌 다음 말풍선
+        currentCustomer.ShowOrder(message);
     }
 
     public void GetPrice()

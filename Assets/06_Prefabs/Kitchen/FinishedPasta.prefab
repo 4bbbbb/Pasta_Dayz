@@ -397,7 +397,7 @@ MonoBehaviour:
     hasPane: 1
     sprite: {fileID: 21300000, guid: f9dc98ba0bcd0e24598bd038accc954e, type: 3}
   - noodleID: 104
-    sauceID: 2040
+    sauceID: 204
     plateID: 501
     hasPane: 1
     sprite: {fileID: 21300000, guid: 3c157d8a861dd2f4184fe3f8d8f59928, type: 3}

@@ -345,6 +345,8 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
         foreach (var entry in plateSpriteEntries)
         {
+            Debug.Log($"Entry: noodle={entry.noodleID}, sauce={entry.sauceID}, plate={entry.plateID}, pane={entry.hasPane}");
+
             if (entry.noodleID == noodleID &&
                 entry.sauceID == sauceID &&
                 entry.plateID == plateID &&
@@ -364,6 +366,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         }
 
         Debug.LogWarning($"접시 스프라이트 매칭 실패: noodle={noodleID}, sauce={sauceID}, plate={plateID}, hasPane={hasPane}");
+        Debug.Log("plateSpriteEntries count = " + plateSpriteEntries.Count);
     }
 
     public void PrintIngredients()

@@ -1437,8 +1437,10 @@ GameObject:
   - component: {fileID: 301801717}
   - component: {fileID: 301801719}
   - component: {fileID: 301801720}
+  - component: {fileID: 301801721}
+  - component: {fileID: 301801722}
   m_Layer: 0
-  m_Name: Pane
+  m_Name: Pane_601
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1542,6 +1544,31 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 791c9b7b76e4cb946a880383f13e260a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &301801721
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 301801716}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79ac290b97ba009438954918551fb805, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ingredientID: 601
+--- !u!114 &301801722
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 301801716}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bf7b670f229e624c9deb6b069fb99ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &331358125
@@ -2272,12 +2299,12 @@ GameObject:
   - component: {fileID: 619858744}
   - component: {fileID: 619858745}
   m_Layer: 7
-  m_Name: Oil_Off_Fryingpan (3)
+  m_Name: Rose_Fryingpan
   m_TagString: Cooker
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &619858744
 Transform:
   m_ObjectHideFlags: 0
@@ -2333,8 +2360,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: fc5f913a97a817e4c826136c855d1ca7, type: 3}
+  m_SortingOrder: 3
+  m_Sprite: {fileID: 21300000, guid: 16075fa9dc3116846b9b958a525defd6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -4792,7 +4819,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!212 &1112150582
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -4870,13 +4897,14 @@ GameObject:
   m_Component:
   - component: {fileID: 1123529364}
   - component: {fileID: 1123529365}
+  - component: {fileID: 1123529366}
   m_Layer: 7
-  m_Name: Oil_Off_Fryingpan (4)
+  m_Name: Vongole_Fryingpan
   m_TagString: Cooker
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1123529364
 Transform:
   m_ObjectHideFlags: 0
@@ -4912,7 +4940,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 726739ee7f1876f4a9ea4237eb0d56d3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4932,8 +4960,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: fc5f913a97a817e4c826136c855d1ca7, type: 3}
+  m_SortingOrder: 3
+  m_Sprite: {fileID: 21300000, guid: 84008a7a90b52ce4f823a8d404dc8d59, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -4944,6 +4972,20 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1123529366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1123529363}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fc75827694204d4d805208fdf4532d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sauceRenderer: {fileID: 1123529365}
+  spreadDuration: 0.9
 --- !u!1 &1149041889
 GameObject:
   m_ObjectHideFlags: 0
@@ -5631,13 +5673,14 @@ GameObject:
   m_Component:
   - component: {fileID: 1219466524}
   - component: {fileID: 1219466525}
+  - component: {fileID: 1219466526}
   m_Layer: 7
-  m_Name: Oil_Off_Fryingpan (2)
+  m_Name: Cream_Fryingpan
   m_TagString: Cooker
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1219466524
 Transform:
   m_ObjectHideFlags: 0
@@ -5673,7 +5716,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 726739ee7f1876f4a9ea4237eb0d56d3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5693,8 +5736,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: fc5f913a97a817e4c826136c855d1ca7, type: 3}
+  m_SortingOrder: 3
+  m_Sprite: {fileID: 21300000, guid: bbf63cc1e9473a440a5d5978ceaf54ab, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -5705,6 +5748,20 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1219466526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1219466523}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fc75827694204d4d805208fdf4532d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sauceRenderer: {fileID: 1219466525}
+  spreadDuration: 0.9
 --- !u!1 &1229255780
 GameObject:
   m_ObjectHideFlags: 0
@@ -5716,7 +5773,6 @@ GameObject:
   - component: {fileID: 1229255781}
   - component: {fileID: 1229255783}
   - component: {fileID: 1229255782}
-  - component: {fileID: 1229255784}
   m_Layer: 0
   m_Name: Cooker_FryingPan
   m_TagString: Untagged
@@ -5776,11 +5832,14 @@ MonoBehaviour:
   noodleSpawnPoint: {fileID: 177454576}
   oilOffSprite: {fileID: 1112150581}
   oilOnSprite: {fileID: 1827611806}
-  oilSpreadEffect: {fileID: 0}
+  oilSpreadEffect: {fileID: 1827611809}
   tomatoSauceSprite: {fileID: 2036038821}
-  creamSauceSprite: {fileID: 0}
-  roseSauceSprite: {fileID: 0}
-  vongoleSauceSprite: {fileID: 0}
+  creamSauceSprite: {fileID: 1219466523}
+  roseSauceSprite: {fileID: 619858743}
+  vongoleSauceSprite: {fileID: 1123529363}
+  tomatoEffect: {fileID: 2036038824}
+  creamEffect: {fileID: 1219466526}
+  vongoleEffect: {fileID: 1123529366}
   finishedPastaPrefab: {fileID: 4694056737463563437, guid: e6da68b172f64dd4aa5deed5495a531c, type: 3}
 --- !u!65 &1229255783
 BoxCollider:
@@ -5803,20 +5862,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 6.05, y: 6.06, z: 0.2}
   m_Center: {x: 0, y: 2.14, z: 0}
---- !u!114 &1229255784
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1229255780}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7fc75827694204d4d805208fdf4532d2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  oilRenderer: {fileID: 1827611808}
-  spreadDuration: 0.45
 --- !u!1 &1232048465
 GameObject:
   m_ObjectHideFlags: 0
@@ -8313,13 +8358,14 @@ GameObject:
   m_Component:
   - component: {fileID: 1827611807}
   - component: {fileID: 1827611808}
+  - component: {fileID: 1827611809}
   m_Layer: 7
   m_Name: Oil_On_Fryingpan
   m_TagString: Cooker
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1827611807
 Transform:
   m_ObjectHideFlags: 0
@@ -8375,8 +8421,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: fc5f913a97a817e4c826136c855d1ca7, type: 3}
+  m_SortingOrder: 2
+  m_Sprite: {fileID: 21300000, guid: 97d569a479aeda941929a42c6f082661, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -8387,6 +8433,20 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1827611809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1827611806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fc75827694204d4d805208fdf4532d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sauceRenderer: {fileID: 1827611808}
+  spreadDuration: 1.1
 --- !u!1 &1856572039
 GameObject:
   m_ObjectHideFlags: 0
@@ -9566,6 +9626,9 @@ MonoBehaviour:
   bakedPastaPrefab: {fileID: 4934322642545547846, guid: d122190525a6e4e42a84800090dcf76e, type: 3}
   burnedPastaPrefab: {fileID: 4529244966350777480, guid: c99ddb541f65b124886d90c9be1a1a33, type: 3}
   bakedSpawnPoint: {fileID: 24670053}
+  ovenSprite: {fileID: 21300000, guid: 23223fd78a4dc9345962f203e8ea8b06, type: 3}
+  ovenBakingSprite: {fileID: 21300000, guid: 4718383dee16f5a42800022e39eac41b, type: 3}
+  ovenFinishSprite: {fileID: 21300000, guid: 4c1c7246f66858241acacd21965fa1f2, type: 3}
 --- !u!65 &2002817763
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9597,13 +9660,14 @@ GameObject:
   m_Component:
   - component: {fileID: 2036038822}
   - component: {fileID: 2036038823}
+  - component: {fileID: 2036038824}
   m_Layer: 7
-  m_Name: t
+  m_Name: Tomato_Fryingpan
   m_TagString: Cooker
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2036038822
 Transform:
   m_ObjectHideFlags: 0
@@ -9639,7 +9703,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 726739ee7f1876f4a9ea4237eb0d56d3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9659,7 +9723,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: c62a2fe2cc7f56d4f9cd1779d11a1514, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -9671,6 +9735,20 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &2036038824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2036038821}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fc75827694204d4d805208fdf4532d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sauceRenderer: {fileID: 2036038823}
+  spreadDuration: 0.9
 --- !u!1 &2039502678
 GameObject:
   m_ObjectHideFlags: 0

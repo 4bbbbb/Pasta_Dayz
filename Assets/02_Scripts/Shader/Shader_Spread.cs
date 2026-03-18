@@ -3,29 +3,35 @@ using UnityEngine;
 
 public class Shader_Spread : MonoBehaviour
 {
-    [SerializeField] private SpriteRenderer oilRenderer;
-    [SerializeField] private float spreadDuration = 0.45f;
+    [SerializeField] private SpriteRenderer sauceRenderer;    
+
+    [SerializeField] private float spreadDuration = 0.8f;
 
     private Material runtimeMat;
     private Coroutine spreadRoutine;
 
     private static readonly int RevealID = Shader.PropertyToID("_Reveal");
+    private static readonly int CenterID = Shader.PropertyToID("_Center");
 
     private void Awake()
     {
-        runtimeMat = new Material(oilRenderer.sharedMaterial);
-        oilRenderer.material = runtimeMat;
+        runtimeMat = new Material(sauceRenderer.sharedMaterial);
+        sauceRenderer.material = runtimeMat;
 
         runtimeMat.SetFloat(RevealID, 0f);
-        oilRenderer.gameObject.SetActive(false);
+
+        runtimeMat.SetVector(CenterID, new Vector2(0.5f, 0.7f));
+        sauceRenderer.gameObject.SetActive(false);
     }
 
     public void PlayOilSpread()
     {
         if (spreadRoutine != null)
+        {
             StopCoroutine(spreadRoutine);
+        }
 
-        oilRenderer.gameObject.SetActive(true);
+        sauceRenderer.gameObject.SetActive(true);
         spreadRoutine = StartCoroutine(CoSpread());
     }
 
@@ -35,7 +41,7 @@ public class Shader_Spread : MonoBehaviour
             StopCoroutine(spreadRoutine);
 
         runtimeMat.SetFloat(RevealID, 0f);
-        oilRenderer.gameObject.SetActive(false);
+        sauceRenderer.gameObject.SetActive(false);
     }
 
     private IEnumerator CoSpread()

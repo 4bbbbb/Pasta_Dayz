@@ -20,8 +20,12 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
     [Header("<< 빠네,파스타 스폰 위치>>")]
     [SerializeField] private Transform bakedSpawnPoint;
 
+    [Header("오븐 스프라이트")]
+    [SerializeField] public Sprite ovenSprite;
+    [SerializeField] public Sprite ovenBakingSprite;
+    [SerializeField] public Sprite ovenFinishSprite;
+
     private SpriteRenderer sr;
-    private Collider ovenCollider;
 
     private Coroutine bakingCoroutine;
 
@@ -57,10 +61,12 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
         switch (ovenState)
         {
             case OvenState.Empty:
+                sr.sprite = ovenSprite;
                 return TryInsert(target);
 
             case OvenState.Baking:
                 Debug.Log("오븐이 이미 작동 중입니다!");
+                sr.sprite = ovenBakingSprite;
                 return false;
 
             case OvenState.Ready:
@@ -138,7 +144,7 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
     IEnumerator BakingRoutine()
     {
         ovenState = OvenState.Baking;
-        sr.color = Color.cyan;
+        sr.sprite = ovenBakingSprite;
         for (int i = 1; i <= 8; i++)
         {
             yield return new WaitForSeconds(1f);
@@ -146,7 +152,7 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
         }
 
         ovenState = OvenState.Ready;
-        sr.color = Color.red;
+        sr.sprite = ovenFinishSprite;
         Debug.Log("완료! 3초 안에 꺼내세요!");
 
         float timer = 0f;
@@ -157,7 +163,7 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
         }
 
         ovenState = OvenState.Burned;
-        sr.color = Color.black;
+        sr.sprite = ovenSprite;
         Debug.Log("타버렸습니다!");
 
         SpawnBurned();
@@ -224,7 +230,7 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
 
         ovenState = OvenState.Empty;
         bakeItem = BakeItemType.None;
-        sr.color = Color.white;
+        sr.sprite = ovenSprite;
     }
 
     public void Cancel()

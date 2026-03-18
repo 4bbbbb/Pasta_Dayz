@@ -21,10 +21,14 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     [SerializeField] private Shader_Spread oilSpreadEffect;
 
     [Header("소스 스프라이트")]
-    [SerializeField] private GameObject tomatoSauceSprite;   // 202
-    [SerializeField] private GameObject creamSauceSprite;    // 203
-    [SerializeField] private GameObject roseSauceSprite;     // 204
-    [SerializeField] private GameObject vongoleSauceSprite;  // 205
+    [SerializeField] private GameObject tomatoSauceSprite;   
+    [SerializeField] private GameObject creamSauceSprite;    
+    [SerializeField] private GameObject roseSauceSprite;     
+    [SerializeField] private GameObject vongoleSauceSprite;  
+    [SerializeField] public Shader_Spread tomatoEffect;
+    [SerializeField] public Shader_Spread creamEffect;
+    [SerializeField] public Shader_Spread vongoleEffect;
+    
 
     [Header("완성 파스타")]
     [SerializeField] private GameObject finishedPastaPrefab;
@@ -79,9 +83,9 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
         hasOil = true;
         gasStove.TurnOn();
-
-        oilOffSprite.SetActive(false);
+        
         oilSpreadEffect.PlayOilSpread();
+        //oilOffSprite.SetActive(false);
 
         IngredientIDs id = oil.GetComponent<IngredientIDs>();
         if (id != null)
@@ -162,8 +166,8 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         ingredientIDs.Add(newID);
 
         ShowSauceSprite(newID);
-        oilOffSprite.SetActive(false);
-        oilOnSprite.SetActive(false);
+        //oilOffSprite.SetActive(false);
+        //oilOnSprite.SetActive(false);
 
         return true;
     }
@@ -178,16 +182,16 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         switch (sauceID)
         {
             case 202:
-                tomatoSauceSprite.SetActive(true);
+                tomatoEffect.PlayOilSpread();
                 break;
             case 203:
-                creamSauceSprite.SetActive(true);
+                creamEffect.PlayOilSpread();
                 break;
             case 204:
                 roseSauceSprite.SetActive(true);
                 break;
             case 205:
-                vongoleSauceSprite.SetActive(true);
+                vongoleEffect.PlayOilSpread();
                 break;
         }
     }

@@ -78,17 +78,17 @@ public class CustomerUI : MonoBehaviour
 
     IEnumerator ShowBubbleDelay()
     {
-        yield return new WaitForSeconds(1.1f);
+        yield return new WaitForSeconds(0.7f);
 
         Transform bubble = bubbleObject.transform;
 
         CanvasGroup cg = bubbleObject.GetComponent<CanvasGroup>();
         if (cg == null) cg = bubbleObject.AddComponent<CanvasGroup>();
 
-        // 👉 시작 상태
+        // 시작
         bubble.localScale = Vector3.one * 0.8f;
         bubble.localRotation = Quaternion.identity;
-        cg.alpha = 0f; // ⭐ 완전 투명
+        cg.alpha = 0f; 
 
         bubbleObject.SetActive(true);
 
@@ -108,12 +108,10 @@ public class CustomerUI : MonoBehaviour
             float t = time / duration;
 
             float eased = 1 - Mathf.Pow(1 - t, 2);
-
-            // 👉 Scale
+                        
             Vector3 scale = Vector3.Lerp(startScale, targetScale, eased);
             bubble.localScale = scale;
-
-            // 👉 Fade (같이 진행)
+                        
             cg.alpha = eased;
 
             yield return null;

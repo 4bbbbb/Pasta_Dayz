@@ -18,6 +18,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     [Header("오일 스프라이트")]
     [SerializeField] private GameObject oilOffSprite;
     [SerializeField] private GameObject oilOnSprite;
+    [SerializeField] private Shader_Spread oilSpreadEffect;
 
     [Header("소스 스프라이트")]
     [SerializeField] private GameObject tomatoSauceSprite;   // 202
@@ -80,7 +81,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         gasStove.TurnOn();
 
         oilOffSprite.SetActive(false);
-        oilOnSprite.SetActive(true);
+        oilSpreadEffect.PlayOilSpread();
 
         IngredientIDs id = oil.GetComponent<IngredientIDs>();
         if (id != null)

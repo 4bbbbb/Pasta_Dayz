@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using static IInteractableScript;
 
@@ -15,19 +14,35 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
 
     [SerializeField] private List<NoodlePrefabData> noodlePrefabs;
 
-    [Header("<<스폰위치>>")]
+    [Header("<<스폰 위치>>")]
     [SerializeField] private Transform cookedNoodleSpawnPoint;
-    
+
+    [Header("쿠커 연출 대상")]
+    [SerializeField] private Transform cookerVisual;
+
+    [Header("쿠커 선택 연출")]
+    [SerializeField] private Vector3 normalScale = Vector3.one;
+    [SerializeField] private Vector3 selectedScale = new Vector3(1.17f, 1.17f, 1f);
+    [SerializeField] private Vector3 selectedOffset = new Vector3(0f, 0.12f, 0f);
+    [SerializeField] private float animDuration = 0.2f;
 
     private SpriteRenderer sr;
-
     private bool isCooking = false;
+
+    private Vector3 originalLocalPos;
+    private Coroutine visualRoutine;
 
     public bool CanBeSelected => false;
 
-    void Start()
+    void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
+
+        if (cookerVisual == null)
+            cookerVisual = transform;
+
+        originalLocalPos = cookerVisual.localPosition;
+        cookerVisual.localScale = normalScale;
     }
 
     public bool Interact(IInteractable target)
@@ -39,9 +54,9 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
         }
 
         if (target is Noodles noodles)
-        {           
+        {
             StartBowling(noodles);
-            return true; 
+            return true;
         }
 
         if (target == null)
@@ -49,8 +64,8 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
             Debug.Log("면을 선택해주세요");
             return false;
         }
+
         return false;
-       
     }
 
     GameObject GetNoodlePrefab(int id)
@@ -71,8 +86,7 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
     }
 
     IEnumerator BowlingRoutine(Noodles noodles)
-    {       
-
+    {
         for (int i = 1; i <= 7; i++)
         {
             yield return new WaitForSeconds(1f);
@@ -87,12 +101,23 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
 
             if (prefab != null)
             {
-                Instantiate(
+                GameObject cooked = Instantiate(
                     prefab,
                     cookedNoodleSpawnPoint.position,
                     Quaternion.identity,
                     cookedNoodleSpawnPoint
                 );
+
+                // spawnPoint 기준 위치 유지
+                cooked.transform.position = cookedNoodleSpawnPoint.position;
+                cooked.transform.rotation = Quaternion.identity;
+                cooked.transform.localScale = new Vector3(0.7f, 0.7f, 1f);
+
+                Noodles_CookedNoodle cookedNoodle = cooked.GetComponent<Noodles_CookedNoodle>();
+                if (cookedNoodle != null)
+                {
+                    cookedNoodle.SetPastaCooker(this);
+                }
             }
         }
 
@@ -113,8 +138,54 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
         Debug.Log("면이 다 익었습니다 !");
     }
 
+    public void OnCookedNoodleSelected()
+    {
+        PlayCookerAnimation(true);
+    }
+
+    public void OnCookedNoodleCanceled()
+    {
+        PlayCookerAnimation(false);
+    }
+
+    private void PlayCookerAnimation(bool selected)
+    {
+        if (visualRoutine != null)
+            StopCoroutine(visualRoutine);
+
+        Vector3 targetScale = selected ? selectedScale : normalScale;
+        Vector3 targetPos = selected ? originalLocalPos + selectedOffset : originalLocalPos;
+
+        visualRoutine = StartCoroutine(AnimateCooker(targetScale, targetPos));
+    }
+
+    private IEnumerator AnimateCooker(Vector3 targetScale, Vector3 targetPos)
+    {
+        Vector3 startScale = cookerVisual.localScale;
+        Vector3 startPos = cookerVisual.localPosition;
+
+        float time = 0f;
+
+        while (time < animDuration)
+        {
+            time += Time.deltaTime;
+            float t = Mathf.Clamp01(time / animDuration);
+
+            // 부드럽게
+            t = t * t * (3f - 2f * t);
+
+            cookerVisual.localScale = Vector3.Lerp(startScale, targetScale, t);
+            cookerVisual.localPosition = Vector3.Lerp(startPos, targetPos, t);
+
+            yield return null;
+        }
+
+        cookerVisual.localScale = targetScale;
+        cookerVisual.localPosition = targetPos;
+        visualRoutine = null;
+    }
+
     public void Cancel()
     {
-
     }
 }

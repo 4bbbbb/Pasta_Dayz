@@ -1,9 +1,14 @@
 using DG.Tweening;
-using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Lobby_UI_Manager : MonoBehaviour
 {
+    [Header("시작 버튼")]
+    [SerializeField] private RectTransform startButton;
+
     [Header("열기 버튼")]
     [SerializeField] private RectTransform settingOpenButton;
     [SerializeField] private RectTransform shopOpenButton;
@@ -40,6 +45,7 @@ public class Lobby_UI_Manager : MonoBehaviour
 
     void Awake()
     {
+        CacheButtonScale(startButton);
         CacheButtonScale(settingOpenButton);
         CacheButtonScale(shopOpenButton);
         CacheButtonScale(profileOpenButton);
@@ -99,6 +105,17 @@ public class Lobby_UI_Manager : MonoBehaviour
         seq.Append(
             target.DOScale(originalScale, 0.14f).SetEase(Ease.OutQuad)
         );
+    }
+    public void OnClickStartButton()
+    {
+        StartCoroutine(LoadSceneAfterDelay());        
+    }
+
+    private IEnumerator LoadSceneAfterDelay()
+    {
+        PlayButtonJelly(startButton);
+        yield return new WaitForSeconds(0.3f);
+        SceneManager.LoadScene(1);
     }
 
     public void OpenSettingWithDelay()

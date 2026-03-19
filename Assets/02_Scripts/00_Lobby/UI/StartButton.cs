@@ -8,6 +8,12 @@ public class StartButton : MonoBehaviour
 {
     public void OnClickStartButton()
     {
+        StartCoroutine(LoadSceneAfterDelay());
+    }
+
+    private IEnumerator LoadSceneAfterDelay()
+    {
+        yield return new WaitForSeconds(1f);
         SceneManager.LoadScene(1);
     }
 }

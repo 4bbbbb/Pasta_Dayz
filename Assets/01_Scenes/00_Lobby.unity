@@ -207,8 +207,6 @@ GameObject:
   - component: {fileID: 20237739}
   - component: {fileID: 20237738}
   - component: {fileID: 20237737}
-  - component: {fileID: 20237740}
-  - component: {fileID: 20237741}
   m_Layer: 5
   m_Name: Button_Start
   m_TagString: Untagged
@@ -280,21 +278,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 20237740}
-        m_TargetAssemblyTypeName: StartButton, Assembly-CSharp
+      - m_Target: {fileID: 1012591157}
+        m_TargetAssemblyTypeName: Lobby_UI_Manager, Assembly-CSharp
         m_MethodName: OnClickStartButton
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 20237741}
-        m_TargetAssemblyTypeName: JellyButton, Assembly-CSharp
-        m_MethodName: PlayJelly
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -342,48 +328,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 20237735}
   m_CullTransparentMesh: 1
---- !u!114 &20237740
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 20237735}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b672c5274be083e4d9c0c184bbf96791, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &20237741
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 20237735}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9bf1f1f1544cb348a35aea3d7b31c19, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  settingOpenButton: {fileID: 0}
-  shopOpenButton: {fileID: 0}
-  profileOpenButton: {fileID: 0}
-  settingCloseButton: {fileID: 0}
-  shopCloseButton: {fileID: 0}
-  profileCloseButton: {fileID: 0}
-  pressX: 0.92
-  pressY: 0.88
-  buttonAnimDelay: 0.35
-  panelStartScale: 0.85
-  panelFadeDuration: 0.25
-  panelCloseDuration: 0.3
-  settingCanvasGroup: {fileID: 0}
-  settingPanel: {fileID: 0}
-  shopCanvasGroup: {fileID: 0}
-  shopPanel: {fileID: 0}
-  profileCanvasGroup: {fileID: 0}
-  profilePanel: {fileID: 0}
 --- !u!1 &36299868
 GameObject:
   m_ObjectHideFlags: 0
@@ -627,6 +571,7 @@ GameObject:
   m_Component:
   - component: {fileID: 75825448}
   - component: {fileID: 75825447}
+  - component: {fileID: 75825449}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -711,6 +656,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &75825449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 75825446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_LightLayerMask: 1
+  m_RenderingLayers: 1
+  m_CustomShadowLayers: 0
+  m_ShadowLayerMask: 1
+  m_ShadowRenderingLayers: 1
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
 --- !u!1 &110393020
 GameObject:
   m_ObjectHideFlags: 0
@@ -4348,6 +4316,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9bf1f1f1544cb348a35aea3d7b31c19, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startButton: {fileID: 20237736}
   settingOpenButton: {fileID: 571171393}
   shopOpenButton: {fileID: 1521514523}
   profileOpenButton: {fileID: 1781609397}

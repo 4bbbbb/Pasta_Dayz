@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using DG.Tweening;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -235,36 +236,46 @@ public class Order_Manager : MonoBehaviour
 
         RectTransform rect = currentCustomer.GetComponent<RectTransform>();
 
-        // 최종 위치 (말풍선 기준 위치)
         Vector2 endPos = new Vector2(0f, -100f);
-
-        // 시작 위치 (화면 아래 완전히 밖)
         Vector2 startPos = new Vector2(0f, endPos.y - 600f);
+        Vector2 overshootPos = endPos + new Vector2(0f, 35f);
+
+        rect.DOKill();
+
+        Vector3 baseScale = rect.localScale;
 
         rect.anchoredPosition = startPos;
+        rect.localScale = new Vector3(baseScale.x, baseScale.y * 1.08f, baseScale.z);
 
-        // 👉 씬 전환 후 딜레이
         yield return new WaitForSeconds(1.5f);
 
-        float duration = 0.5f;
-        float time = 0f;
+        Sequence seq = DOTween.Sequence();
 
-        while (time < duration)
-        {
-            time += Time.deltaTime;
-            float t = time / duration;
+        // 아래에서 확 올라오기
+        seq.Append(
+            rect.DOAnchorPos(overshootPos, 0.45f)
+                .SetEase(Ease.OutCubic)
+        );
 
-            // 부드럽게 멈추는 easing
-            t = 1 - Mathf.Pow(1 - t, 3);
+        // 세로만 살짝 눌림
+        seq.Join(
+            rect.DOScale(new Vector3(baseScale.x, baseScale.y * 0.94f, baseScale.z), 0.45f)
+                .SetEase(Ease.OutQuad)
+        );
 
-            rect.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
+        // 착지
+        seq.Append(
+            rect.DOAnchorPos(endPos, 0.18f)
+                .SetEase(Ease.OutQuad)
+        );
 
-            yield return null;
-        }
+        seq.Join(
+            rect.DOScale(baseScale, 0.18f)
+                .SetEase(Ease.OutBack)
+        );
 
-        rect.anchoredPosition = endPos;
+        yield return seq.WaitForCompletion();
 
-        // 👉 위치 잡힌 다음 말풍선
         currentCustomer.ShowOrder(message);
     }
 

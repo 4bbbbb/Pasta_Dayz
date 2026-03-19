@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5796682620394913190}
   - component: {fileID: 8506994705059392761}
   m_Layer: 0
-  m_Name: Burned...
+  m_Name: 601_BurnedPane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -73,7 +73,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: f4237ea00298b1249827456a1315f01e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: fa3f388abc6d65841b7330a9e215d6f2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

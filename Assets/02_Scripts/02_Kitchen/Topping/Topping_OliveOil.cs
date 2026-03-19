@@ -6,6 +6,7 @@ using static IInteractableScript;
 
 public class Topping_OliveOil : MonoBehaviour, IInteractable
 {
+    [Header("<<올리브오일 스프라이트>>")]
     [SerializeField] private Sprite originalSprite;
     [SerializeField] private Sprite selectedSprite;
 

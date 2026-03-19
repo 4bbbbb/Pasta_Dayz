@@ -5,6 +5,7 @@ using static IInteractableScript;
 
 public class Cheese_ParmesanCheese: MonoBehaviour, IInteractable
 {
+    [Header("<<파마산치즈 스프라이트>>")]
     [SerializeField] private Sprite originalSprite;
     [SerializeField] private Sprite selectedSprite;
 

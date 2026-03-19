@@ -6,6 +6,7 @@ using static IInteractableScript;
 
 public class Topping_Parsley : MonoBehaviour, IInteractable
 {
+    [Header("<<파슬리 스프라이트>>")]
     [SerializeField] private Sprite originalSprite;
     [SerializeField] private Sprite selectedSprite;
 

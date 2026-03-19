@@ -7,31 +7,33 @@ using static Topping;
 
 public class Cooker_FryingPan : MonoBehaviour, IInteractable
 {
-    [Header("가스스토브")]
+    [Header("<<가스스토브>>")]
     [SerializeField] private Cooker_GasStove gasStove;
 
-    [Header("스폰 위치")]
+    [Header("<<스폰 위치>>")]
     [SerializeField] private Transform[] toppingSpawnPoints;    
     [SerializeField] private Transform finishedPastaSpawnPoint;
     [SerializeField] private Transform noodleSpawnPoint;
 
-    [Header("오일 스프라이트")]
+    [Header("<<오일 스프라이트>>")]
     [SerializeField] private GameObject oilOffSprite;
     [SerializeField] private GameObject oilOnSprite;
     [SerializeField] private Shader_Spread oilSpreadEffect;
 
-    [Header("소스 스프라이트")]
+    [Header("<<소스 스프라이트>>")]
     [SerializeField] private GameObject tomatoSauceSprite;   
     [SerializeField] private GameObject creamSauceSprite;    
     [SerializeField] private GameObject roseSauceSprite;     
     [SerializeField] private GameObject vongoleSauceSprite;  
     [SerializeField] public Shader_Spread tomatoEffect;
     [SerializeField] public Shader_Spread creamEffect;
-    [SerializeField] public Shader_Spread vongoleEffect;
-    
+    [SerializeField] public Shader_Spread vongoleEffect;    
 
-    [Header("완성 파스타")]
+    [Header("<<완성 파스타>>")]
     [SerializeField] private GameObject finishedPastaPrefab;
+
+    [Header("<<면 프리팹 삭제 이펙트 속도>>")]
+    [SerializeField] private float noodleFadeDuration = 0.25f;
 
     private bool hasOil = false;
     private bool isCooking = false;
@@ -42,6 +44,8 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
     public bool CanBeSelected => false;
 
+    private bool hasFinishedPastaOnPan = false;
+
     void Start()
     {
         ResetState();
@@ -49,7 +53,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
     public bool Interact(IInteractable target)
     {
-        if (isCooking)
+        if (isCooking || hasFinishedPastaOnPan)
         {
             return false;
         }
@@ -322,31 +326,90 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
 
         GameObject finishedPasta = Instantiate(finishedPastaPrefab, finishedPastaSpawnPoint);
+        finishedPasta.transform.localPosition = Vector3.zero;
+        finishedPasta.transform.localRotation = Quaternion.identity;
+        finishedPasta.transform.localScale = Vector3.one;
 
         FinishedPasta pasta = finishedPasta.GetComponent<FinishedPasta>();
 
         pasta.SetIngredients(new HashSet<int>(ingredientIDs));
         pasta.Init(gasStove);
-        pasta.UpdatePanSprite();
+        pasta.SetFryingPan(this);
 
-        ClearPan();
+        // 정답 pan sprite를 먼저 숨겨놓고
+        pasta.PreparePanSpriteHidden();
 
+        StartCoroutine(FadeOutAndDestroyNoodle());
+        yield return StartCoroutine(pasta.FadeInCurrentSprite());
+        ClearPanForFinishedPasta();
+
+        hasFinishedPastaOnPan = true;
         isCooking = false;
         gasStove.TurnOff();
     }
 
-    void ClearPan()
+    IEnumerator FadeOutAndDestroyNoodle()
+    {
+        if (noodleSpawnPoint.childCount == 0)
+            yield break;
+
+        Transform noodle = noodleSpawnPoint.GetChild(0);
+        if (noodle == null)
+            yield break;
+
+        SpriteRenderer sr = noodle.GetComponent<SpriteRenderer>();
+        if (sr == null)
+        {
+            Destroy(noodle.gameObject);
+            yield break;
+        }
+
+        Color original = sr.color;
+
+        float t = 0f;
+        while (t < noodleFadeDuration)
+        {
+            t += Time.deltaTime;
+            float a = Mathf.Lerp(1f, 0f, t / noodleFadeDuration);
+            sr.color = new Color(original.r, original.g, original.b, a);
+            yield return null;
+        }
+
+        sr.color = new Color(original.r, original.g, original.b, 0f);
+        Destroy(noodle.gameObject);
+    }
+
+    void ClearPanForFinishedPasta()
+    {                     
+        // 소스/오일 비주얼만 초기화
+        oilOffSprite.SetActive(true);
+        oilOnSprite.SetActive(false);
+
+        tomatoSauceSprite.SetActive(false);
+        creamSauceSprite.SetActive(false);
+        roseSauceSprite.SetActive(false);
+        vongoleSauceSprite.SetActive(false);        
+    }
+
+    public void ClearPanAfterServing()
     {
         foreach (Transform point in toppingSpawnPoints)
         {
             foreach (Transform child in point)
                 Destroy(child.gameObject);
-        }                
+        }        
 
-        if (noodleSpawnPoint.childCount > 0)
-            Destroy(noodleSpawnPoint.GetChild(0).gameObject);
+        if (finishedPastaSpawnPoint.childCount > 0)
+        {
+            Transform child = finishedPastaSpawnPoint.GetChild(0);
+            if (child != null)
+            {
+                child.SetParent(null, true); // 혹시 아직 남아있으면 분리
+            }
+        }
 
         ResetState();
+        hasFinishedPastaOnPan = false;
     }
 
     void ResetState()
@@ -357,8 +420,8 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
         hasOil = false;
 
-        oilOffSprite.SetActive(true);     
-        oilOnSprite.SetActive(false);      
+        oilOffSprite.SetActive(true);
+        oilOnSprite.SetActive(false);
 
         tomatoSauceSprite.SetActive(false);
         creamSauceSprite.SetActive(false);

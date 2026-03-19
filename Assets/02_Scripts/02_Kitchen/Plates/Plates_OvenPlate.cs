@@ -5,13 +5,13 @@ using static IInteractableScript;
 
 public class Plates_OvenPlate : MonoBehaviour, IInteractable
 {
-    [Header("<<완성된 파스타 스폰위치>>")]
-    [SerializeField] private Transform pastaSpawnPoint;
-
+    private SpriteRenderer sr;
     private Collider plateCollider;
 
     public bool isSelected { get; private set; }
     public bool CanBeSelected => true;
+
+    private bool hasPasta = false;
 
     private int plateID;
     private IngredientIDs ingredientIDs;
@@ -19,6 +19,7 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
 
     void Start()
     {
+        sr = GetComponent<SpriteRenderer>();
         plateCollider = GetComponent<Collider>();
         isSelected = false;
 
@@ -26,18 +27,17 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
 
         if (ingredientIDs != null)
         {
-            plateID = ingredientIDs.GetID();   
+            plateID = ingredientIDs.GetID();
+            ingredients.Add(plateID);
+        }
+        else
+        {
+            Debug.LogWarning($"{name}: IngredientIDs가 없습니다.");
         }
     }
 
     public bool Interact(IInteractable target)
     {
-        if (pastaSpawnPoint.childCount > 0)
-        {
-            Debug.Log("이미 파스타가 담겨 있어요!");
-            return false;
-        }
-
         if (target == null)
         {
             Debug.Log("완성된 파스타를 옮겨주세요!");
@@ -46,33 +46,43 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
 
         if (target is FinishedPasta finishedPasta)
         {
-            if (!finishedPasta.CanMoveToPlate(plateID))
+            if (hasPasta)
             {
-                Debug.Log("옮길수없습니다.");
+                Debug.Log("이미 파스타가 담겨 있어요!");
                 return false;
             }
 
-            finishedPasta.transform.SetParent(pastaSpawnPoint);
+            // oven plate는 hasPane 개념 없음
+            if (!finishedPasta.CanMoveToPlate(plateID, false))
+            {
+                Debug.Log("옮길 수 없습니다.");
+                return false;
+            }
+
+            finishedPasta.transform.SetParent(transform, true);
             finishedPasta.transform.localPosition = Vector3.zero;
             finishedPasta.transform.localRotation = Quaternion.identity;
-            finishedPasta.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+            finishedPasta.transform.localScale = Vector3.one;
 
-            // 현재 접시 재료 유지 (접시 ID 포함)
             HashSet<int> finalIngredients = new HashSet<int>(ingredients);
 
-            // 파스타 재료 추가
             foreach (int id in finishedPasta.GetIngredientSet())
             {
                 finalIngredients.Add(id);
             }
 
-            // FinishedPasta에도 최종 재료 반영
             finishedPasta.SetIngredients(finalIngredients);
-
-            // 접시 쪽도 동일하게 저장
             ingredients = new HashSet<int>(finalIngredients);
 
-            // 마지막에 호출
+            hasPasta = true;
+
+            // 원래 오븐 접시 비주얼 숨김
+            if (sr != null)
+                sr.enabled = false;
+
+            if (plateCollider != null)
+                plateCollider.enabled = false;
+
             finishedPasta.OnMovedToPlate();
 
             PrintIngredients();
@@ -105,5 +115,6 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
 
     public void Cancel()
     {
+        isSelected = false;
     }
 }

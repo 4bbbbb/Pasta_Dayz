@@ -6,6 +6,7 @@ using static IInteractableScript;
 
 public class Cheese: MonoBehaviour, IInteractable
 {
+    [Header("<<파마산치즈 스프라이트>>")]
     [SerializeField] private Sprite parmesanSprite;
     [SerializeField] private Sprite parmesanselectedSprite;
 
@@ -71,7 +72,7 @@ public class Cheese: MonoBehaviour, IInteractable
         // 기울기
         seq.Append(transform.DORotateQuaternion(pourRot, 0.2f));
 
-        // 흔들기 + 파슬리 생성
+        // 흔들기 + 치즈 생성
         seq.AppendCallback(() =>
         {
             onSprinkle?.Invoke();

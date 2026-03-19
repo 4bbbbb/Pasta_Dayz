@@ -5,11 +5,17 @@ using static IInteractableScript;
 
 public class Cooker_Oven : MonoBehaviour, IInteractable
 {
+    [Header("굽기 전 빠네")]    
+    [SerializeField] public GameObject unbakedPanePrefab;
+
     [Header("<<구운 빠네 >>")]
     [SerializeField] public GameObject bakedPanePrefab;
 
     [Header("<<탄 빠네 >>")]
     [SerializeField] public GameObject burnedPanePrefab;
+
+    [Header("굽기 전 파스타")]
+    [SerializeField] public GameObject unbakedPastaPrefab;
 
     [Header("<<구운 파스타 >>")]
     [SerializeField] public GameObject bakedPastaPrefab;
@@ -27,6 +33,7 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
 
     private SpriteRenderer sr;
 
+    private GameObject currentBakeObject;
     private Coroutine bakingCoroutine;
 
     private OvenState ovenState = OvenState.Empty;
@@ -49,7 +56,6 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
         Pane,
         Pasta,
     }
-
 
     void Start()
     {
@@ -127,7 +133,6 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
                     Destroy(plate.gameObject);
                 }
 
-
                 bakeItem = BakeItemType.Pasta;
                 StartBaking();
                 return true;
@@ -145,12 +150,28 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
     {
         ovenState = OvenState.Baking;
         sr.sprite = ovenBakingSprite;
+
+        GameObject prefab = null;
+
+        switch (bakeItem)
+        {
+            case BakeItemType.Pane:
+                prefab = unbakedPanePrefab;
+                break;
+
+            case BakeItemType.Pasta:
+                prefab = unbakedPastaPrefab;
+                break;
+        }
+
+        currentBakeObject = Instantiate(prefab, bakedSpawnPoint.position, Quaternion.identity, bakedSpawnPoint);
+
         for (int i = 1; i <= 8; i++)
         {
             yield return new WaitForSeconds(1f);
             Debug.Log($"{i}초...");
         }
-
+                
         ovenState = OvenState.Ready;
         sr.sprite = ovenFinishSprite;
         Debug.Log("완료! 3초 안에 꺼내세요!");
@@ -162,6 +183,7 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
             yield return null;
         }
 
+        
         ovenState = OvenState.Burned;
         sr.sprite = ovenSprite;
         Debug.Log("타버렸습니다!");
@@ -171,6 +193,12 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
 
     private void SpawnBaked()
     {
+        if (currentBakeObject != null)
+        {
+            Destroy(currentBakeObject);
+            currentBakeObject = null;
+        }
+
         GameObject prefab = null;
 
         switch (bakeItem)
@@ -186,7 +214,6 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
 
         GameObject obj = Instantiate(prefab, bakedSpawnPoint.position, Quaternion.identity, bakedSpawnPoint);
 
-        // 여기서 데이터 전달
         if (bakeItem == BakeItemType.Pasta)
         {
             BakedPasta baked = obj.GetComponent<BakedPasta>();
@@ -196,6 +223,12 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
 
     private void SpawnBurned()
     {
+        if (currentBakeObject != null)
+        {
+            Destroy(currentBakeObject);
+            currentBakeObject = null;
+        }
+
         GameObject prefab = null;
 
         switch (bakeItem)
@@ -209,17 +242,19 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
                 break;
         }
 
-        Instantiate(prefab, bakedSpawnPoint.position, Quaternion.identity, bakedSpawnPoint);
+        currentBakeObject = Instantiate(prefab, bakedSpawnPoint.position, Quaternion.identity, bakedSpawnPoint);
     }
     private void RemoveBurnedFood()
     {
-        if (bakedSpawnPoint.childCount > 0)
+        if (currentBakeObject != null)
         {
-            Destroy(bakedSpawnPoint.GetChild(0).gameObject);
+            Destroy(currentBakeObject);
+            currentBakeObject = null;
         }
 
         Debug.Log("탄 음식을 치웠습니다!");
     }
+
     private void ResetOven()
     {
         if (bakingCoroutine != null)

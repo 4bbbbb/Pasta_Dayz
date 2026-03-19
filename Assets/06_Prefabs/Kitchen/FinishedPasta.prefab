@@ -108,7 +108,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Sprite: {fileID: 21300000, guid: 7b98c21357ae9fb408344bbcb7f0d891, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -116,7 +116,7 @@ SpriteRenderer:
   m_Size: {x: 4, y: 4}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!65 &1562819927925818475
@@ -365,42 +365,43 @@ MonoBehaviour:
     sauceID: 203
     plateID: 501
     hasPane: 1
-    sprite: {fileID: 21300000, guid: f9f8f8d5b761b364293f72a1aa46ade3, type: 3}
+    sprite: {fileID: 21300000, guid: b6d6417d3bf125b4a9f783c87c1d1091, type: 3}
   - noodleID: 102
     sauceID: 203
     plateID: 501
     hasPane: 1
-    sprite: {fileID: 21300000, guid: 586f430ff1ebd9c4e935d7333d96727d, type: 3}
+    sprite: {fileID: 21300000, guid: fbc7f7606630d8942b2f6194e813d9ed, type: 3}
   - noodleID: 103
     sauceID: 203
     plateID: 501
     hasPane: 1
-    sprite: {fileID: 21300000, guid: 76672fa9681f52e45a7fc1266750f0dd, type: 3}
+    sprite: {fileID: 21300000, guid: 32a7412b14dd4384ab9677ca6fc89293, type: 3}
   - noodleID: 104
     sauceID: 203
     plateID: 501
     hasPane: 1
-    sprite: {fileID: 21300000, guid: faf3f9824ce330745baf66198257acd4, type: 3}
+    sprite: {fileID: 21300000, guid: 3b7cd0a1b28d9334a944abedc098729d, type: 3}
   - noodleID: 101
     sauceID: 204
     plateID: 501
     hasPane: 1
-    sprite: {fileID: 21300000, guid: b606522111744684a88104fc677d29bc, type: 3}
+    sprite: {fileID: 21300000, guid: e4264cb2e70dbb24f823a7b28bf11d83, type: 3}
   - noodleID: 102
     sauceID: 204
     plateID: 501
     hasPane: 1
-    sprite: {fileID: 21300000, guid: bfc14e6636f3f254486b85e729d40616, type: 3}
+    sprite: {fileID: 21300000, guid: 96eaf0c9cec837b4cb81c91c58aa7522, type: 3}
   - noodleID: 103
     sauceID: 204
     plateID: 501
     hasPane: 1
-    sprite: {fileID: 21300000, guid: f9dc98ba0bcd0e24598bd038accc954e, type: 3}
+    sprite: {fileID: 21300000, guid: 08cd8b37efe43f742a99d4fefb9c2e43, type: 3}
   - noodleID: 104
     sauceID: 204
     plateID: 501
     hasPane: 1
-    sprite: {fileID: 21300000, guid: 3c157d8a861dd2f4184fe3f8d8f59928, type: 3}
+    sprite: {fileID: 21300000, guid: c7677e43bcb43954cbb8b397c0826089, type: 3}
+  fadeDuration: 0.35
 --- !u!1 &8878154433793611343
 GameObject:
   m_ObjectHideFlags: 0

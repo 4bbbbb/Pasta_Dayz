@@ -4,20 +4,26 @@ using UnityEngine;
 using static IInteractableScript;
 
 public class Plates_BasicPlate : MonoBehaviour, IInteractable
-{  
+{
     [Header("<<완성된 파스타 스폰위치>>")]
     [SerializeField] private Transform pastaSpawnPoint;
 
     [Header("<<구워진 빠네 스폰위치>>")]
     [SerializeField] private Transform paneSpawnPoint;
 
+    [Header("<<구워진 빠네 프리팹>>")]
+    [SerializeField] private GameObject paneOnPlatePrefab;
+
+    private SpriteRenderer sr;
+    private Collider plateCollider;
+
     public bool isSelected { get; private set; }
     public bool CanBeSelected => true;
 
+    private GameObject currentPaneVisual;
+
     private bool hasPasta = false;
     private bool hasPane = false;
-
-    public Collider plateCollider;
 
     private int plateID;
     private IngredientIDs ingredientIDs;
@@ -25,6 +31,7 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
     void Start()
     {
+        sr = GetComponent<SpriteRenderer>();
         plateCollider = GetComponent<Collider>();
         isSelected = false;
 
@@ -32,8 +39,12 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
         if (ingredientIDs != null)
         {
-            plateID = ingredientIDs.GetID();  
+            plateID = ingredientIDs.GetID();
             ingredients.Add(plateID);
+        }
+        else
+        {
+            Debug.LogWarning($"{name}: IngredientIDs가 없습니다.");
         }
     }
 
@@ -45,6 +56,7 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
             return true;
         }
 
+        // 1) 완성 파스타를 접시에 올릴 때
         if (target is FinishedPasta finishedPasta)
         {
             if (hasPasta)
@@ -53,66 +65,85 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
                 return false;
             }
 
-            if (!finishedPasta.CanMoveToPlate(plateID))
+            if (!finishedPasta.CanMoveToPlate(plateID, hasPane))
             {
-                Debug.Log("옮길수없습니다.");
+                Debug.Log("옮길 수 없습니다.");
                 return false;
             }
 
-            finishedPasta.transform.SetParent(pastaSpawnPoint);
+            finishedPasta.transform.SetParent(pastaSpawnPoint, true);
             finishedPasta.transform.localPosition = Vector3.zero;
             finishedPasta.transform.localRotation = Quaternion.identity;
             finishedPasta.transform.localScale = Vector3.one;
 
-            // 접시가 현재 가지고 있던 재료 유지
-            // (접시 ID + 빠네 601 포함 가능)
             HashSet<int> finalIngredients = new HashSet<int>(ingredients);
 
-            // 파스타 재료 추가
             foreach (int id in finishedPasta.GetIngredientSet())
             {
                 finalIngredients.Add(id);
             }
 
-            // 최종 재료 세트를 FinishedPasta에도 반영
             finishedPasta.SetIngredients(finalIngredients);
-
-            // 접시 쪽도 동일하게 갱신
             ingredients = new HashSet<int>(finalIngredients);
 
-            // 마지막에 호출해야 접시 스프라이트가 정확히 바뀜
-            finishedPasta.OnMovedToPlate();
-
             hasPasta = true;
+
+            // 빠네 비주얼 제거
+            if (currentPaneVisual != null)
+            {
+                Destroy(currentPaneVisual);
+                currentPaneVisual = null;
+            }
+
+            // plate 자체 비주얼은 숨기고, 클릭도 막아줌
+            if (sr != null)
+                sr.enabled = false;
+
+            if (plateCollider != null)
+                plateCollider.enabled = false;
+
+            finishedPasta.OnMovedToPlate();
 
             PrintIngredients();
             return true;
         }
 
+        // 2) 구워진 빠네를 접시에 올릴 때
         if (target is Plate_BakedPane bakedPane)
         {
             if (hasPasta)
             {
-                Debug.Log("지금은 빠네를 추가할 수 없어요ㅠㅜ");
+                Debug.Log("지금은 빠네를 추가할 수 없어요.");
                 return false;
             }
 
             if (hasPane)
             {
-                Debug.Log("이미 빠네가 준비되었어요!");
+                Debug.Log("이미 빠네가 준비되어 있어요!");
                 return false;
             }
 
-            bakedPane.transform.SetParent(paneSpawnPoint);
-            bakedPane.transform.position = paneSpawnPoint.position;
-
-            plateCollider.enabled = false;
-
             IngredientIDs id = bakedPane.GetComponent<IngredientIDs>();
             if (id != null)
-                ingredients.Add(id.GetID());   // 601 추가
+                ingredients.Add(id.GetID());
+            else
+                ingredients.Add(601);
 
             hasPane = true;
+
+            if (paneOnPlatePrefab != null && paneSpawnPoint != null)
+            {
+                currentPaneVisual = Instantiate(paneOnPlatePrefab, paneSpawnPoint);
+                currentPaneVisual.transform.localPosition = Vector3.zero;
+                currentPaneVisual.transform.localRotation = Quaternion.identity;
+                currentPaneVisual.transform.localScale = Vector3.one;
+            }
+            else
+            {
+                Debug.LogWarning("paneOnPlatePrefab 또는 paneSpawnPoint가 비어 있습니다.");
+            }
+
+            Destroy(bakedPane.gameObject);
 
             PrintIngredients();
             return true;
@@ -144,5 +175,6 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
     public void Cancel()
     {
+        isSelected = false;
     }
 }

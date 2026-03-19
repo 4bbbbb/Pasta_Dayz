@@ -6,20 +6,29 @@ using static IInteractableScript;
 public class FinishedPasta : MonoBehaviour, IInteractable
 {
     [System.Serializable]
-    public class PastaPanSpriteEntry
+    public class PanSpriteEntry
     {
-        public int noodleID;      // 100번대
-        public int sauceID; // 201, 202, 203, 204, 205
+        public int noodleID;      
+        public int sauceID; 
         public Sprite sprite;
     }
 
     [System.Serializable]
-    public class PastaPlateSpriteEntry
+    public class BasicPlateSpriteEntry
     {
-        public int noodleID;   // 100번대
-        public int sauceID;    // 201~205
+        public int noodleID;   
+        public int sauceID;   
         public int plateID;
-        public bool hasPane;     // 빠네 여부
+        public bool hasPane;     
+        public Sprite sprite;
+    }
+
+    [System.Serializable]
+    public class OvenPlateSpriteEntry
+    {
+        public int noodleID;   
+        public int sauceID;    
+        public int plateID;        
         public Sprite sprite;
     }
 
@@ -40,13 +49,22 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     [SerializeField] Transform cheeseSpawnPoint;
     [SerializeField] Transform parsleySpawnPoint;
 
-    [SerializeField] private List<PastaPanSpriteEntry> panSpriteEntries = new List<PastaPanSpriteEntry>();
-    [SerializeField] private List<PastaPlateSpriteEntry> plateSpriteEntries = new List<PastaPlateSpriteEntry>();
+    [SerializeField] private List<PanSpriteEntry> panSpriteEntries = new List<PanSpriteEntry>();
+    [SerializeField] private List<BasicPlateSpriteEntry> basicplateSpriteEntries = new List<BasicPlateSpriteEntry>();
+    [SerializeField] private List<OvenPlateSpriteEntry> ovenPlateSpriteEntries = new List<OvenPlateSpriteEntry>();
+
+
+    [Header("<<이펙트 속도>>")]
+    [SerializeField] private float fadeDuration = 0.15f;
 
 
     private SpriteRenderer sr;
+    private Coroutine spriteFadeRoutine;
+
     public bool isSelected { get; private set; }
     public bool CanBeSelected => true;
+
+    private bool hasInitializedSprite = false;
 
     public bool isOnPlate { get; private set; }
     private bool hasCheese = false;
@@ -55,9 +73,9 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
     private Cheese.CheeseType? addedCheeseType = null;
 
-    void Start()
+    void Awake()
     {
-        sr = GetComponent<SpriteRenderer>();       
+        sr = GetComponent<SpriteRenderer>();
     }
 
     public bool Interact(IInteractable target)
@@ -189,35 +207,75 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         gasStove = stove;
     }
 
-    public bool CanMoveToPlate(int plateID)
+    public bool CanMoveToPlate(int plateID, bool targetHasPane)
     {
         int noodleID = GetNoodleID();
         int sauceID = GetSauceID();
-        bool hasPane = HasPane();
 
-        foreach (var entry in plateSpriteEntries)
+        if (noodleID == -1 || sauceID == -1)
+            return false;
+
+        // basic plate
+        if (plateID == 501)
         {
-            if (entry.noodleID == noodleID &&
-                entry.sauceID == sauceID &&
-                entry.plateID == plateID &&
-                entry.hasPane == hasPane)
+            foreach (var entry in basicplateSpriteEntries)
             {
-                return true;
+                if (entry.noodleID == noodleID &&
+                    entry.sauceID == sauceID &&
+                    entry.plateID == plateID &&
+                    entry.hasPane == targetHasPane)
+                {
+                    return true;
+                }
+            }
+        }
+        // oven plate
+        else if (plateID == 502)
+        {
+            foreach (var entry in ovenPlateSpriteEntries)
+            {
+                if (entry.noodleID == noodleID &&
+                    entry.sauceID == sauceID &&
+                    entry.plateID == plateID)
+                {
+                    return true;
+                }
             }
         }
 
         return false;
     }
 
+    public void SetFryingPan(Cooker_FryingPan pan)
+    {
+        fryingPan = pan;
+    }
+
     public void OnMovedToPlate()
     {
+        if (sr == null)
+        {
+            sr = GetComponent<SpriteRenderer>();
+        }
+
+        if (spriteFadeRoutine != null)
+        {
+            StopCoroutine(spriteFadeRoutine);
+            spriteFadeRoutine = null;
+        }
+
+        Color c = sr.color;
+        sr.color = new Color(c.r, c.g, c.b, 1f);
+
+        isOnPlate = true;
+        UpdatePlateSprite();
+
+        fryingPan?.ClearPanAfterServing();
+
         if (gasStove != null)
         {
             gasStove.DestroyFryingPan();
         }
-
-        isOnPlate = true;
-        UpdatePlateSprite();
 
         Debug.Log("완성된 파스타를 그릇에 담았어요 !!");
         PrintIngredients();
@@ -290,7 +348,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     private bool HasPane()
     {
         return ingredientIDs.Contains(601);
-    }
+    }   
 
     public void UpdatePanSprite()
     {
@@ -312,8 +370,26 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             {
                 if (entry.sprite != null)
                 {
-                    sr.sprite = entry.sprite;
-                    Debug.Log($"스프라이트 변경 완료: noodle={noodleID}, sauce={sauceID}");
+                    // 처음 생성됐을 때는 기본 이미지가 보이기 전에 바로 교체
+                    if (!hasInitializedSprite)
+                    {
+                        StopSpriteFadeAndRestoreAlpha();
+                        sr.sprite = entry.sprite;
+                        hasInitializedSprite = true;
+                        Debug.Log($"초기 팬 스프라이트 바로 적용: noodle={noodleID}, sauce={sauceID}");
+                        return;
+                    }
+
+                    if (sr.sprite == entry.sprite)
+                    {
+                        StopSpriteFadeAndRestoreAlpha();
+                        return;
+                    }
+
+                    StopSpriteFadeAndRestoreAlpha();
+                    spriteFadeRoutine = StartCoroutine(FadeChangeSprite(entry.sprite));
+
+                    Debug.Log($"팬 스프라이트 변경 시작: noodle={noodleID}, sauce={sauceID}");
                 }
                 else
                 {
@@ -322,15 +398,115 @@ public class FinishedPasta : MonoBehaviour, IInteractable
                 return;
             }
         }
+
+        Debug.LogWarning($"팬 스프라이트 매칭 실패: noodle={noodleID}, sauce={sauceID}");
+    }
+
+    private IEnumerator FadeChangeSprite(Sprite newSprite)
+    {
+        if (sr == null) yield break;
+
+        Color c = sr.color;
+
+        float t = 0f;
+        while (t < fadeDuration)
+        {
+            t += Time.deltaTime;
+            float a = Mathf.Lerp(1f, 0f, t / fadeDuration);
+            sr.color = new Color(c.r, c.g, c.b, a);
+            yield return null;
+        }
+
+        sr.color = new Color(c.r, c.g, c.b, 0f);
+        sr.sprite = newSprite;
+
+        t = 0f;
+        while (t < fadeDuration)
+        {
+            t += Time.deltaTime;
+            float a = Mathf.Lerp(0f, 1f, t / fadeDuration);
+            sr.color = new Color(c.r, c.g, c.b, a);
+            yield return null;
+        }
+
+        sr.color = new Color(c.r, c.g, c.b, 1f);
+        spriteFadeRoutine = null;
+    }
+
+    public void PreparePanSpriteHidden()
+    {
+        if (sr == null)
+            sr = GetComponent<SpriteRenderer>();
+
+        if (spriteFadeRoutine != null)
+        {
+            StopCoroutine(spriteFadeRoutine);
+            spriteFadeRoutine = null;
+        }
+
+        int noodleID = GetNoodleID();
+        int sauceID = GetSauceID();
+
+        if (noodleID == -1 || sauceID == -1)
+        {
+            Debug.LogWarning($"면 또는 소스 ID를 찾지 못함. noodleID={noodleID}, sauceID={sauceID}");
+            return;
+        }
+
+        foreach (var entry in panSpriteEntries)
+        {
+            if (entry.noodleID == noodleID && entry.sauceID == sauceID)
+            {
+                if (entry.sprite != null)
+                {
+                    sr.sprite = entry.sprite;
+
+                    Color c = sr.color;
+                    sr.color = new Color(c.r, c.g, c.b, 0f); // 안 보이게 숨김
+                }
+                else
+                {
+                    Debug.LogWarning($"매칭은 됐지만 sprite가 비어있음: noodle={noodleID}, sauce={sauceID}");
+                }
+                return;
+            }
+        }
+
+        Debug.LogWarning($"팬 스프라이트 매칭 실패: noodle={noodleID}, sauce={sauceID}");
+    }
+
+    public IEnumerator FadeInCurrentSprite()
+    {
+        if (sr == null)
+            sr = GetComponent<SpriteRenderer>();
+
+        Color c = sr.color;
+
+        float t = 0f;
+        while (t < fadeDuration)
+        {
+            t += Time.deltaTime;
+            float a = Mathf.Lerp(0f, 1f, t / fadeDuration);
+            sr.color = new Color(c.r, c.g, c.b, a);
+            yield return null;
+        }
+
+        sr.color = new Color(c.r, c.g, c.b, 1f);
     }
 
     public void UpdatePlateSprite()
     {
         if (sr == null)
-        {
             sr = GetComponent<SpriteRenderer>();
 
+        if (spriteFadeRoutine != null)
+        {
+            StopCoroutine(spriteFadeRoutine);
+            spriteFadeRoutine = null;
         }
+
+        Color c = sr.color;
+        sr.color = new Color(c.r, c.g, c.b, 1f);
 
         int noodleID = GetNoodleID();
         int sauceID = GetSauceID();
@@ -343,30 +519,70 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             return;
         }
 
-        foreach (var entry in plateSpriteEntries)
+        // basic plate
+        if (plateID == 501)
         {
-            Debug.Log($"Entry: noodle={entry.noodleID}, sauce={entry.sauceID}, plate={entry.plateID}, pane={entry.hasPane}");
-
-            if (entry.noodleID == noodleID &&
-                entry.sauceID == sauceID &&
-                entry.plateID == plateID &&
-                entry.hasPane == hasPane)
+            foreach (var entry in basicplateSpriteEntries)
             {
-                if (entry.sprite != null)
+                if (entry.noodleID == noodleID &&
+                    entry.sauceID == sauceID &&
+                    entry.plateID == plateID &&
+                    entry.hasPane == hasPane)
                 {
-                    sr.sprite = entry.sprite;
-                    Debug.Log($"접시 스프라이트 변경 완료: noodle={noodleID}, sauce={sauceID}, plate={plateID}, hasPane={hasPane}");
+                    if (entry.sprite != null)
+                    {
+                        sr.sprite = entry.sprite;
+                        hasInitializedSprite = true;
+                        Debug.Log($"basic plate 스프라이트 변경 완료: noodle={noodleID}, sauce={sauceID}, plate={plateID}, hasPane={hasPane}");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"basic plate 스프라이트가 비어있음: noodle={noodleID}, sauce={sauceID}, plate={plateID}, hasPane={hasPane}");
+                    }
+                    return;
                 }
-                else
+            }
+        }
+        // oven plate
+        else if (plateID == 502)
+        {
+            foreach (var entry in ovenPlateSpriteEntries)
+            {
+                if (entry.noodleID == noodleID &&
+                    entry.sauceID == sauceID &&
+                    entry.plateID == plateID)
                 {
-                    Debug.LogWarning($"접시 스프라이트가 비어있음: noodle={noodleID}, sauce={sauceID}, plate={plateID}, hasPane={hasPane}");
+                    if (entry.sprite != null)
+                    {
+                        sr.sprite = entry.sprite;
+                        hasInitializedSprite = true;
+                        Debug.Log($"oven plate 스프라이트 변경 완료: noodle={noodleID}, sauce={sauceID}, plate={plateID}");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"oven plate 스프라이트가 비어있음: noodle={noodleID}, sauce={sauceID}, plate={plateID}");
+                    }
+                    return;
                 }
-                return;
             }
         }
 
         Debug.LogWarning($"접시 스프라이트 매칭 실패: noodle={noodleID}, sauce={sauceID}, plate={plateID}, hasPane={hasPane}");
-        Debug.Log("plateSpriteEntries count = " + plateSpriteEntries.Count);
+    }
+
+    private void StopSpriteFadeAndRestoreAlpha()
+    {
+        if (spriteFadeRoutine != null)
+        {
+            StopCoroutine(spriteFadeRoutine);
+            spriteFadeRoutine = null;
+        }
+
+        if (sr == null)
+            sr = GetComponent<SpriteRenderer>();
+
+        Color c = sr.color;
+        sr.color = new Color(c.r, c.g, c.b, 1f);
     }
 
     public void PrintIngredients()

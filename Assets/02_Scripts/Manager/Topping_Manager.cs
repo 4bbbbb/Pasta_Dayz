@@ -1,8 +1,9 @@
-﻿using System.Linq;
+﻿﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ToppingManager : MonoBehaviour
-{       
+{
     public GameObject sixToppingGroup;
     public GameObject tenToppingGroup;
     public GameObject thirteenToppingGroup;
@@ -18,8 +19,11 @@ public class ToppingManager : MonoBehaviour
         // 토핑 그룹의 자식 게임오브젝트 Topping들에 적용
 
         // 2. 구매한 토핑 리스트 가져오기
-        var list = IngredientDatabase.Instance.ingredientList
+        List<IngredientData> list = IngredientDatabase.Instance.ingredientList
             .Where(t => t.isUnlocked && t.categoryType == IngredientData.CategoryType.Topping).ToList();
+
+        // 모짜렐라 치즈 언락 시 가져오기
+        list.AddRange(IngredientDatabase.Instance.ingredientList.Where(t => t.isUnlocked && t.id == 402));
 
         // 3️. 토핑 개수에 따라 그룹 활성화
         GameObject activeGroup;
@@ -45,7 +49,7 @@ public class ToppingManager : MonoBehaviour
         }
 
         // 5. Unlocked된 토핑만 켜기
-        var toppings = activeGroup.GetComponentsInChildren<Topping>(true);
+        Topping[] toppings = activeGroup.GetComponentsInChildren<Topping>(true);
 
         for (int i = 0; i < list.Count; i++)
         {

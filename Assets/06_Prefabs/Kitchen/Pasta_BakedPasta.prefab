@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 8297325999630195915}
   - component: {fileID: -3131851512186932931}
   m_Layer: 0
-  m_Name: bakedPasta
+  m_Name: Pasta_BakedPasta
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -60,7 +60,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 24.85, y: 0.74, z: 0}
-  m_LocalScale: {x: 0.53154, y: 0.53154, z: 0.53154}
+  m_LocalScale: {x: 0.7, y: 1, z: 0.53154}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 9196670544973216652}
@@ -153,3 +153,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   parsleyPrefab: {fileID: 4456431008458272939, guid: fbb71ae443d45644b9f8aef2c4b6aafd, type: 3}
   parsleySpawnPoint: {fileID: 9196670544973216652}
+  bakedCheeseEntries:
+  - sauceID: 202
+    plateID: 502
+    cheeseID: 402
+    state: 1
+    sprite: {fileID: 21300000, guid: fcb63b6fe6f994b4b84a6b1b59476bb0, type: 3}
+  - sauceID: 203
+    plateID: 502
+    cheeseID: 402
+    state: 1
+    sprite: {fileID: 21300000, guid: e2b94ec826801774c95c827ab1d4dd0f, type: 3}
+  - sauceID: 203
+    plateID: 502
+    cheeseID: 402
+    state: 0
+    sprite: {fileID: 21300000, guid: 52d59eb7d7645024aaebb5e1829380da, type: 3}
+  - sauceID: 203
+    plateID: 502
+    cheeseID: 402
+    state: 0
+    sprite: {fileID: 21300000, guid: 52d59eb7d7645024aaebb5e1829380da, type: 3}

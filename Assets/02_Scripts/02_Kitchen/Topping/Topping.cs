@@ -5,7 +5,7 @@ using static IInteractableScript;
 
 public class Topping : MonoBehaviour, IInteractable
 {
-    public bool isOliveOil;    
+    public bool isOliveOil;
 
     private SpriteRenderer sr;
     private IngredientIDs ingredientIDs;
@@ -40,7 +40,8 @@ public class Topping : MonoBehaviour, IInteractable
     {
         if (id < 301 || id > 313)
         {
-            Debug.Log($"{id}번 토핑은 존재하지 않습니다.");
+            if (id != 402)
+                Debug.Log($"{id}번 토핑은 존재하지 않습니다.");
             return ToppingType.Tomato;
         }
         return (ToppingType)(id - 301);
@@ -64,6 +65,13 @@ public class Topping : MonoBehaviour, IInteractable
         ingredientIDs.ingredientID = data.id;
         toppingType = GetToppingType(data.id);
         sr.sprite = data.icon;
+
+        if (data.id == 402)
+        {
+            Cheese cheese = gameObject.AddComponent<Cheese>();
+            cheese.cheeseType = Cheese.CheeseType.Mozzarella;
+            Destroy(this);
+        }
     }
 
 
@@ -74,7 +82,7 @@ public class Topping : MonoBehaviour, IInteractable
             Debug.Log($"{name} 선택!");
             Select();
             return true;
-        }        
+        }
 
         return false;
     }

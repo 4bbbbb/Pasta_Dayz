@@ -1,4 +1,4 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static IInteractableScript;
@@ -6,11 +6,33 @@ using static Sauces;
 
 public class BakedPasta : MonoBehaviour, IInteractable
 {
-    [Header("<<∆ƒΩΩ∏Æ «¡∏Æ∆’>>")]
+    [Header("<<ÌååÏä¨Î¶¨ ÌîÑÎ¶¨Ìåπ>>")]
     [SerializeField] private GameObject parsleyPrefab;
 
-    [Header("<<∆ƒΩΩ∏Æ Ω∫∆˘ ¿ßƒ°>>")]
-    [SerializeField] Transform parsleySpawnPoint; 
+    [Header("<<ÌååÏä¨Î¶¨ Ïä§Ìè∞ ÏúÑÏπò>>")]
+    [SerializeField] Transform parsleySpawnPoint;
+
+    public enum BakedState
+    {
+        InOven,   // Ïò§Î∏ê Ïïà
+        Plated    // Ï†ëÏãú ÏúÑ
+    }
+
+    private BakedState currentState;
+
+    [System.Serializable]
+
+    public class BakedCheeseSpriteEntry
+    {
+        public int sauceID;
+        public int plateID;
+        public int cheeseID;
+        public BakedState state;
+        public Sprite sprite;
+    }
+
+    [SerializeField] private List<BakedCheeseSpriteEntry> bakedCheeseEntries =  new List<BakedCheeseSpriteEntry>();
+
 
     private SpriteRenderer sr;
     public bool isSelected { get; private set; }
@@ -18,7 +40,7 @@ public class BakedPasta : MonoBehaviour, IInteractable
 
     private HashSet<int> ingredientIDs = new HashSet<int>();
 
-    void Start()
+    void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
     }
@@ -26,6 +48,8 @@ public class BakedPasta : MonoBehaviour, IInteractable
     public void SetIngredients(HashSet<int> ids)
     {
         ingredientIDs = new HashSet<int>(ids);
+
+        UpdateBakedSprite();
     }
     public HashSet<int> GetIngredientSet()
     {
@@ -36,31 +60,91 @@ public class BakedPasta : MonoBehaviour, IInteractable
     {
         if (target == null)
         {
-            Debug.Log("¿ﬂ ±∏øˆ¡¯ ∆ƒΩ∫≈∏ º±≈√!");
+            Debug.Log("Ïûò Íµ¨ÏõåÏßÑ ÌååÏä§ÌÉÄ ÏÑ†ÌÉù!");
             Select();
             return true;
         }
 
         if (target is Topping_Parsley parsley)
         {
-            Debug.Log("∆ƒΩΩ∏Æ∏¶ ª—∑»æÓø‰");
-            Instantiate(
-                parsleyPrefab,
-                parsleySpawnPoint.position,
-                Quaternion.identity,
-                parsleySpawnPoint
+            Debug.Log("ÌååÏä¨Î¶¨Î•º ÎøåÎ†∏Ïñ¥Ïöî");
+            parsley.Sprinkle(parsleySpawnPoint, () =>
+            {
+                Instantiate(
+                    parsleyPrefab,
+                    parsleySpawnPoint.position,
+                    Quaternion.identity,
+                    parsleySpawnPoint
                 );
+            });
 
             IngredientIDs id = parsley.GetComponent<IngredientIDs>();
             if (id != null)
             {
-                ingredientIDs.Add(id.GetID());   // ∆ƒΩΩ∏Æ ID √ﬂ∞°
+                ingredientIDs.Add(id.GetID());
             }
 
             return true;
+
         }
 
         return false;
+    }
+
+    public void SetState(BakedState state)
+    {
+        currentState = state;
+        UpdateBakedSprite();
+    }
+
+    public void AddIngredient(int id)
+    {
+        ingredientIDs.Add(id);
+    }
+
+    private int GetSauceID()
+    {
+        if (ingredientIDs.Contains(202)) return 202;
+        if (ingredientIDs.Contains(203)) return 203;
+        if (ingredientIDs.Contains(204)) return 204;
+        if (ingredientIDs.Contains(205)) return 205;
+        if (ingredientIDs.Contains(201)) return 201;
+
+        return -1;
+    }
+
+    private int GetPlateID()
+    {
+        if (ingredientIDs.Contains(502)) return 502;
+        return -1;
+    }
+
+    private int GetCheeseID()
+    {
+        if (ingredientIDs.Contains(402)) return 402; // Î™®ÏßúÎ†êÎùº
+        return -1;
+    }
+
+    private void UpdateBakedSprite()
+    {
+        int sauceID = GetSauceID();
+        int plateID = GetPlateID();
+        int cheeseID = GetCheeseID();
+
+        if (sauceID == -1) return;
+
+        foreach (var entry in bakedCheeseEntries)
+        {
+            if (entry.sauceID == sauceID &&
+                entry.plateID == plateID &&
+                entry.cheeseID == cheeseID &&
+                entry.state == currentState) // ‚≠ê Ïù¥Í±∞ Ï∂îÍ∞Ä
+            {
+                sr.sprite = entry.sprite;
+                return;
+            }
+        }
+        Debug.Log($"state={currentState}, sauce={sauceID}, plate={plateID}, cheese={cheeseID}");
     }
 
     void Select()

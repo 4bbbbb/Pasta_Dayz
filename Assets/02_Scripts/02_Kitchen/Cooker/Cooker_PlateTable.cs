@@ -1,15 +1,18 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static IInteractableScript;
 
 public class Cooker_PlateTable : MonoBehaviour, IInteractable
 {
-    [Header("<<±◊∏© «¡∏Æ∆’>>")]
+    [Header("<<Í∑∏Î¶á ÌîÑÎ¶¨Ìåπ>>")]
     [SerializeField] private GameObject basicPlatePrefab;
-    [SerializeField] private GameObject ovenPlatePrefab;     
+    [SerializeField] private GameObject ovenPlatePrefab;
 
-    [Header("<<Ω∫∆˘¿ßƒ°>>")]
+    [Header("<<Í∑∏Î¶á ÌîÑÎ¶¨Ìåπ>>")]
+    [SerializeField] private GameObject bakedPastaPrefab;
+
+    [Header("<<Ïä§Ìè∞ÏúÑÏπò>>")]
     [SerializeField] private Transform plateSpawnPoint;
     
     public bool CanBeSelected => false;
@@ -19,13 +22,13 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
     {
         if (plateSpawnPoint.childCount > 0)
         {
-            Debug.Log("¿ÃπÃ ±◊∏©¿Ã ¿÷Ω¿¥œ¥Ÿ!");
+            Debug.Log("Ïù¥ÎØ∏ Í∑∏Î¶áÏù¥ ÏûàÏäµÎãàÎã§!");
             return false;
         }
 
         if (target == null)
         {
-            Debug.Log("±◊∏©¿ª º±≈√«ÿ¡÷ººø‰ !!");   
+            Debug.Log("Í∑∏Î¶áÏùÑ ÏÑ†ÌÉùÌï¥Ï£ºÏÑ∏Ïöî !!");   
             return true;
         }        
 
@@ -38,7 +41,7 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
                 _ => null
             };
 
-            Debug.Log("±◊∏©¿Ã ¡ÿ∫Òµ«æ˙æÓø‰ !");
+            Debug.Log("Í∑∏Î¶áÏù¥ Ï§ÄÎπÑÎêòÏóàÏñ¥Ïöî !");
             Instantiate(
                 platePrefab,
                 plateSpawnPoint.position,
@@ -50,14 +53,12 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
 
         if (target is BakedPasta bakedPasta)
         {
-            if (plateSpawnPoint.childCount > 0)
-            {
-                Debug.Log("¿ÃπÃ ±◊∏©¿Ã ¿÷Ω¿¥œ¥Ÿ!");
-                return false;
-            }
-
             bakedPasta.transform.SetParent(plateSpawnPoint);
             bakedPasta.transform.position = plateSpawnPoint.position;
+
+            bakedPasta.AddIngredient(502); //‚≠ê Ïù¥Í±∞ Ï∂îÍ∞Ä
+
+            bakedPasta.SetState(BakedPasta.BakedState.Plated);
 
             return true;
         }

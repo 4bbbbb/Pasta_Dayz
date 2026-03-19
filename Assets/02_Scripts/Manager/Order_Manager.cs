@@ -10,13 +10,13 @@ public class Order_Manager : MonoBehaviour
     public static Order_Manager Instance;
 
     [SerializeField] public OrderGenerator generator;
-    [SerializeField] public Day_Manager dayManager;    
+    [SerializeField] public Day_Manager dayManager;
     [SerializeField] public IngredientDatabase ingredientDB;
     [SerializeField] public ServeMessageDatabase serveMessageDB;
 
     [Header("UI")]
     public GameObject customerUIPrefab;
-    private Transform canvasTransform;    
+    private Transform canvasTransform;
 
     [Header("손님 프리팹")]
     private CustomerUI currentCustomer;
@@ -82,7 +82,7 @@ public class Order_Manager : MonoBehaviour
             case ServiceState.ServingDish:
                 break;
 
-            case ServiceState.DayEnded:                
+            case ServiceState.DayEnded:
                 break;
         }
     }
@@ -118,7 +118,7 @@ public class Order_Manager : MonoBehaviour
                 currentCustomer.transform.SetAsFirstSibling();
             }
             else // 기존 손님 재사용
-            {               
+            {
                 currentCustomer.transform.SetParent(canvasTransform, false);
                 currentCustomer.transform.SetAsFirstSibling();
                 currentCustomer.gameObject.SetActive(true);
@@ -145,13 +145,13 @@ public class Order_Manager : MonoBehaviour
                 pendingResult = null;
             }
             else
-            {               
+            {
                 if (currentOrder == null)
                 {
                     StartService();
                 }
             }
-        }        
+        }
     }
 
     public void StartService()
@@ -167,7 +167,7 @@ public class Order_Manager : MonoBehaviour
             return;
         }
 
-        currentState = ServiceState.TakingOrder;        
+        currentState = ServiceState.TakingOrder;
 
         // Canvas 찾기
         if (canvasTransform == null)
@@ -177,7 +177,7 @@ public class Order_Manager : MonoBehaviour
             if (canvas != null)
             {
                 canvasTransform = canvas.transform;
-            }                
+            }
             else
             {
                 Debug.LogError("Canvas를 찾을 수 없음!");
@@ -283,8 +283,8 @@ public class Order_Manager : MonoBehaviour
     {
         if (currentOrder == null)
         {
-            return; 
-        }            
+            return;
+        }
 
         // Price 계산
         float menuPrice = currentOrder.Price(generator.ingredientDB);
@@ -324,7 +324,7 @@ public class Order_Manager : MonoBehaviour
             return;
         }
 
-        bool success = IsCorrect(pastaBox, currentOrder);        
+        bool success = IsCorrect(pastaBox, currentOrder);
 
         if (success)
         {
@@ -334,7 +334,7 @@ public class Order_Manager : MonoBehaviour
                 satisfactionRatio = CustomerSatisfaction_Manager.Instance.GetSatisfactionRatio();
             }
 
-            float tip = 0f;            
+            float tip = 0f;
 
             if (satisfactionRatio >= 0.8f)
             {
@@ -408,7 +408,7 @@ public class Order_Manager : MonoBehaviour
 
     IEnumerator ServeDishAndGoToNextCustomer(bool success)
     {
-        yield return new WaitForSeconds(1f);        
+        yield return new WaitForSeconds(1f);
 
         // PastaBox 생성
         GameObject box = Instantiate(serveBoxPrefab, canvasTransform);
@@ -420,9 +420,9 @@ public class Order_Manager : MonoBehaviour
             currentCustomer.SetEmotion(success);
         }
         // 결과 연출
-        string resultMessage = serveMessageDB.GetRandomMessage(success);  
+        string resultMessage = serveMessageDB.GetRandomMessage(success);
 
-        currentCustomer.ShowResult(resultMessage);                   
+        currentCustomer.ShowResult(resultMessage);
 
         yield return new WaitForSeconds(2f);
 
@@ -434,7 +434,7 @@ public class Order_Manager : MonoBehaviour
         }
 
         currentCustomerSpriteIndex = -1;
-        
+
         Destroy(box);
 
         yield return new WaitForSeconds(2f);
@@ -442,7 +442,7 @@ public class Order_Manager : MonoBehaviour
         // 새 손님
         SpawnCustomer();
 
-        CheckDayEndCondition();        
+        CheckDayEndCondition();
     }
 
     public void SatisfactionZero()
@@ -462,7 +462,7 @@ public class Order_Manager : MonoBehaviour
     }
 
     IEnumerator DontSubmitDish()
-    {           
+    {
         if (currentCustomer == null)
         {
             GameObject obj = Instantiate(customerUIPrefab, canvasTransform);
@@ -481,7 +481,7 @@ public class Order_Manager : MonoBehaviour
 
         currentCustomer.SetEmotion(false);
 
-        currentCustomer.ShowResult(resultMessage);         
+        currentCustomer.ShowResult(resultMessage);
 
         // 2️. 전체 환불
         if (currentOrder != null)
@@ -524,7 +524,7 @@ public class Order_Manager : MonoBehaviour
 
         // 아직 yes 안 누른 상태라면
         if (currentState == ServiceState.TakingOrder)
-        {            
+        {
             Destroy(currentCustomer.gameObject);
             currentCustomer = null;
             currentOrder = null;

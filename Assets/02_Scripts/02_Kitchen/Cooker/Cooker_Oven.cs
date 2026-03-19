@@ -90,7 +90,7 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
     }
 
     private bool TryInsert(IInteractable target)
-    {
+    {     
         if (target == null)
         {
             Debug.Log("어떤걸 구울건가요?");
@@ -106,13 +106,15 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
 
             case FinishedPasta pasta:
 
-                if (!pasta.IsOnOvenPlate())
+                HashSet<int> ids = pasta.GetIngredientSet();
+
+                if (!ids.Contains(502))
                 {
                     Debug.Log("오븐 전용 그릇에 담겨야 합니다!");
                     return false;
                 }
 
-                if (!pasta.HasMozzarella())
+                if (!ids.Contains(402))
                 {
                     Debug.Log("모짜렐라 치즈가 필요합니다!");
                     return false;
@@ -218,6 +220,8 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
         {
             BakedPasta baked = obj.GetComponent<BakedPasta>();
             baked.SetIngredients(savedIngredientIDs);
+
+            baked.SetState(BakedPasta.BakedState.InOven); 
         }
     }
 

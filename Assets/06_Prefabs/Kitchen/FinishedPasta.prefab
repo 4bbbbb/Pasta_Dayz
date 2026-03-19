@@ -155,7 +155,6 @@ MonoBehaviour:
   fryingPan: {fileID: 0}
   gasStove: {fileID: 0}
   parmesanCheesePrefab: {fileID: 2549163354370598925, guid: 1bf7c548bba527f4badc8bcdc9054d35, type: 3}
-  mozzarellaCheesePrefab: {fileID: 2126654881342353006, guid: 6e1ea736a3ade7744b41b6747802f552, type: 3}
   parsleyPrefab: {fileID: 4456431008458272939, guid: fbb71ae443d45644b9f8aef2c4b6aafd, type: 3}
   cheeseSpawnPoint: {fileID: 905166858084659127}
   parsleySpawnPoint: {fileID: 1589834203138197831}
@@ -220,7 +219,7 @@ MonoBehaviour:
   - noodleID: 104
     sauceID: 205
     sprite: {fileID: 21300000, guid: db6a9d9ba22116e4d980d840b0a3a5fc, type: 3}
-  plateSpriteEntries:
+  basicplateSpriteEntries:
   - noodleID: 101
     sauceID: 201
     plateID: 501
@@ -322,46 +321,6 @@ MonoBehaviour:
     hasPane: 0
     sprite: {fileID: 21300000, guid: a66612b53fbb6a1429d7487ff313fc84, type: 3}
   - noodleID: 101
-    sauceID: 202
-    plateID: 502
-    hasPane: 0
-    sprite: {fileID: 21300000, guid: 9e9f419671e9ff9489c103af5685f51f, type: 3}
-  - noodleID: 102
-    sauceID: 202
-    plateID: 502
-    hasPane: 0
-    sprite: {fileID: 21300000, guid: 7c39f7051345c6d42aebe3cd39d7c666, type: 3}
-  - noodleID: 103
-    sauceID: 202
-    plateID: 502
-    hasPane: 0
-    sprite: {fileID: 21300000, guid: f61b0579078effe4db86c129e087b631, type: 3}
-  - noodleID: 104
-    sauceID: 202
-    plateID: 502
-    hasPane: 0
-    sprite: {fileID: 21300000, guid: 6ca9e56659f179d47817ffd77c63fb58, type: 3}
-  - noodleID: 101
-    sauceID: 203
-    plateID: 502
-    hasPane: 0
-    sprite: {fileID: 21300000, guid: db611a42fa96a744199e1b12f0c1c63c, type: 3}
-  - noodleID: 102
-    sauceID: 203
-    plateID: 502
-    hasPane: 0
-    sprite: {fileID: 21300000, guid: 5d65747f9bb043a4fb54844faab5150c, type: 3}
-  - noodleID: 103
-    sauceID: 203
-    plateID: 502
-    hasPane: 0
-    sprite: {fileID: 21300000, guid: 4c9256bec7628264d847136c687f572f, type: 3}
-  - noodleID: 104
-    sauceID: 203
-    plateID: 502
-    hasPane: 0
-    sprite: {fileID: 21300000, guid: 085742993ff79664fb80123e31481a2f, type: 3}
-  - noodleID: 101
     sauceID: 203
     plateID: 501
     hasPane: 1
@@ -401,6 +360,48 @@ MonoBehaviour:
     plateID: 501
     hasPane: 1
     sprite: {fileID: 21300000, guid: c7677e43bcb43954cbb8b397c0826089, type: 3}
+  ovenPlateSpriteEntries:
+  - noodleID: 101
+    sauceID: 202
+    plateID: 502
+    sprite: {fileID: 21300000, guid: 9e9f419671e9ff9489c103af5685f51f, type: 3}
+  - noodleID: 102
+    sauceID: 202
+    plateID: 502
+    sprite: {fileID: 21300000, guid: 7c39f7051345c6d42aebe3cd39d7c666, type: 3}
+  - noodleID: 103
+    sauceID: 202
+    plateID: 502
+    sprite: {fileID: 21300000, guid: f61b0579078effe4db86c129e087b631, type: 3}
+  - noodleID: 104
+    sauceID: 202
+    plateID: 502
+    sprite: {fileID: 21300000, guid: 6ca9e56659f179d47817ffd77c63fb58, type: 3}
+  - noodleID: 101
+    sauceID: 203
+    plateID: 502
+    sprite: {fileID: 21300000, guid: db611a42fa96a744199e1b12f0c1c63c, type: 3}
+  - noodleID: 102
+    sauceID: 203
+    plateID: 502
+    sprite: {fileID: 21300000, guid: 5d65747f9bb043a4fb54844faab5150c, type: 3}
+  - noodleID: 103
+    sauceID: 203
+    plateID: 502
+    sprite: {fileID: 21300000, guid: 4c9256bec7628264d847136c687f572f, type: 3}
+  - noodleID: 104
+    sauceID: 203
+    plateID: 502
+    sprite: {fileID: 21300000, guid: 085742993ff79664fb80123e31481a2f, type: 3}
+  cheeseSpriteEntries:
+  - sauceID: 202
+    plateID: 502
+    cheeseID: 402
+    sprite: {fileID: 21300000, guid: 0f76178ade4d14a4abadd940fa3241b0, type: 3}
+  - sauceID: 203
+    plateID: 502
+    cheeseID: 402
+    sprite: {fileID: 21300000, guid: e25aa6d8f6b0e5145a3bd2f666bad58f, type: 3}
   fadeDuration: 0.35
 --- !u!1 &8878154433793611343
 GameObject:

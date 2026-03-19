@@ -32,6 +32,16 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         public Sprite sprite;
     }
 
+    [System.Serializable]
+
+    public class OvenPlateCheeseSpriteEntry
+    {
+        public int sauceID;
+        public int plateID;
+        public int cheeseID;
+        public Sprite sprite;
+    }
+
     [Header("<<후라이팬>>")]
     [SerializeField] private Cooker_FryingPan fryingPan;
 
@@ -40,7 +50,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
     [Header("<<치즈 프리팹>>")]
     [SerializeField] private GameObject parmesanCheesePrefab;
-    [SerializeField] private GameObject mozzarellaCheesePrefab;
 
     [Header("<<파슬리 프리팹>>")]
     [SerializeField] private GameObject parsleyPrefab;
@@ -52,7 +61,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     [SerializeField] private List<PanSpriteEntry> panSpriteEntries = new List<PanSpriteEntry>();
     [SerializeField] private List<BasicPlateSpriteEntry> basicplateSpriteEntries = new List<BasicPlateSpriteEntry>();
     [SerializeField] private List<OvenPlateSpriteEntry> ovenPlateSpriteEntries = new List<OvenPlateSpriteEntry>();
-
+    [SerializeField] private List<OvenPlateCheeseSpriteEntry> cheeseSpriteEntries = new List<OvenPlateCheeseSpriteEntry>();
 
     [Header("<<이펙트 속도>>")]
     [SerializeField] private float fadeDuration = 0.15f;
@@ -65,6 +74,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     public bool CanBeSelected => true;
 
     private bool hasInitializedSprite = false;
+    
 
     public bool isOnPlate { get; private set; }
     private bool hasCheese = false;
@@ -86,8 +96,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             Select();
             return true;
         }
-
-        // 치즈
+       
         if (target is Cheese cheese)
         {
             if (!isOnPlate)
@@ -96,60 +105,47 @@ public class FinishedPasta : MonoBehaviour, IInteractable
                 return false;
             }
 
-            if (hasCheese)
+            if (addedCheeseType != null)
             {
                 Debug.Log("이미 치즈가 추가되어 있어요!");
                 return false;
             }
 
-            GameObject cheesePrefab = cheese.cheeseType switch
+            //  ID 먼저 추가
+            IngredientIDs id = cheese.GetComponent<IngredientIDs>();
+            if (id != null)
             {
-                Cheese.CheeseType.Parmesan => parmesanCheesePrefab,
-                Cheese.CheeseType.Mozzarella => mozzarellaCheesePrefab,
-                _ => null
-            };
-
-            if (cheesePrefab == null)
-            {
-                return false;
+                ingredientIDs.Add(id.GetID());
             }
 
+            hasCheese = true;
+            addedCheeseType = cheese.cheeseType;
+
+            //  치즈 타입별 처리
             if (cheese.cheeseType == Cheese.CheeseType.Parmesan)
             {
                 cheese.Sprinkle(cheeseSpawnPoint, () =>
                 {
                     Instantiate(
-                        cheesePrefab,
+                        parmesanCheesePrefab,
                         cheeseSpawnPoint.position,
                         Quaternion.identity,
                         cheeseSpawnPoint
                     );
                 });
             }
-
-            else
+            else if (cheese.cheeseType == Cheese.CheeseType.Mozzarella)
             {
-                //  모짜렐라
-                Instantiate(
-                    cheesePrefab,
-                    cheeseSpawnPoint.position,
-                    Quaternion.identity,
-                    cheeseSpawnPoint
-                );
+                //  스프라이트 변경
+                UpdatePlateSprite();
             }
-
-            IngredientIDs id = cheese.GetComponent<IngredientIDs>();
-            if (id != null)
-            {
-                ingredientIDs.Add(id.GetID());   // 치즈 ID 추가
-            }
-
-            hasCheese = true;
-            addedCheeseType = cheese.cheeseType;
 
             return true;
         }
 
+        // =========================
+        //  접시 관련
+        // =========================
         if (isOnPlate && target is Plates_BasicPlate)
         {
             return false;
@@ -160,6 +156,9 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             return false;
         }
 
+        // =========================
+        //  파슬리
+        // =========================
         if (target is Topping_Parsley parsley)
         {
             if (!isOnPlate)
@@ -168,7 +167,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
                 return false;
             }
 
-            if (!hasCheese)
+            if (!ingredientIDs.Contains(401) && !ingredientIDs.Contains(402))
             {
                 Debug.Log("치즈를 먼저 뿌려주세요!");
                 return false;
@@ -189,13 +188,16 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             IngredientIDs id = parsley.GetComponent<IngredientIDs>();
             if (id != null)
             {
-                ingredientIDs.Add(id.GetID());   // 파슬리 ID 추가
+                ingredientIDs.Add(id.GetID());
             }
+
             return true;
         }
 
         return false;
     }
+
+
     void Select()
     {
         isSelected = true;
@@ -283,12 +285,19 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
     public bool IsOnOvenPlate()
     {
-        return isOnPlate && GetComponentInParent<Plates_OvenPlate>() != null;
+        return ingredientIDs.Contains(502);
     }
 
     public bool HasMozzarella()
     {
-        return addedCheeseType == Cheese.CheeseType.Mozzarella;
+        return ingredientIDs.Contains(402);
+    }
+
+    private int GetCheeseID()
+    {
+        if (ingredientIDs.Contains(401)) return 401; // 파마산
+        if (ingredientIDs.Contains(402)) return 402; // 모짜렐라
+        return -1;
     }
 
     public void SetIngredients(HashSet<int> ids)
@@ -496,6 +505,8 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
     public void UpdatePlateSprite()
     {
+        int cheeseID = GetCheeseID();
+
         if (sr == null)
             sr = GetComponent<SpriteRenderer>();
 
@@ -546,6 +557,28 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         // oven plate
         else if (plateID == 502)
         {
+            // ⭐ 모짜렐라 먼저 체크
+            if (cheeseID == 402)
+            {
+                foreach (var entry in cheeseSpriteEntries)
+                {
+                    if (
+                        entry.sauceID == sauceID &&
+                        entry.plateID == plateID &&
+                        entry.cheeseID == cheeseID)
+                    {
+                        if (entry.sprite != null)
+                        {
+                            sr.sprite = entry.sprite;
+                            hasInitializedSprite = true;
+                            Debug.Log("모짜렐라 스프라이트 적용");
+                            return;
+                        }
+                    }
+                }
+            }
+
+            // 👉 기존 기본 스프라이트
             foreach (var entry in ovenPlateSpriteEntries)
             {
                 if (entry.noodleID == noodleID &&
@@ -558,16 +591,10 @@ public class FinishedPasta : MonoBehaviour, IInteractable
                         hasInitializedSprite = true;
                         Debug.Log($"oven plate 스프라이트 변경 완료: noodle={noodleID}, sauce={sauceID}, plate={plateID}");
                     }
-                    else
-                    {
-                        Debug.LogWarning($"oven plate 스프라이트가 비어있음: noodle={noodleID}, sauce={sauceID}, plate={plateID}");
-                    }
                     return;
                 }
             }
         }
-
-        Debug.LogWarning($"접시 스프라이트 매칭 실패: noodle={noodleID}, sauce={sauceID}, plate={plateID}, hasPane={hasPane}");
     }
 
     private void StopSpriteFadeAndRestoreAlpha()

@@ -150,7 +150,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1784594221}
-  - {fileID: 476927714}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &24670052
@@ -2089,11 +2088,11 @@ Transform:
   m_GameObject: {fileID: 476927713}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 11.799999, y: -4.4500003, z: 0}
+  m_LocalPosition: {x: 10.289999, y: -4.2400002, z: 0}
   m_LocalScale: {x: 0.300503, y: 0.300503, z: 0.7179354}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 22726930}
+  m_Father: {fileID: 1599888602}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &476927715
 SpriteRenderer:
@@ -6240,6 +6239,7 @@ MonoBehaviour:
   creamEffect: {fileID: 1219466526}
   vongoleEffect: {fileID: 1123529366}
   finishedPastaPrefab: {fileID: 4694056737463563437, guid: e6da68b172f64dd4aa5deed5495a531c, type: 3}
+  noodleFadeDuration: 0.25
 --- !u!65 &1229255783
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7545,6 +7545,7 @@ Transform:
   - {fileID: 979981733}
   - {fileID: 597855236}
   - {fileID: 210505021}
+  - {fileID: 476927714}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1604107953
@@ -8294,6 +8295,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   basicPlatePrefab: {fileID: 5770096613321151578, guid: dec9c6fbddf99a143b1cfe25572f57d6, type: 3}
   ovenPlatePrefab: {fileID: 8175578171079825132, guid: a157dac6400013d45b7a870b787933e7, type: 3}
+  bakedPastaPrefab: {fileID: 0}
   plateSpawnPoint: {fileID: 1778278149}
 --- !u!1 &1764266563
 GameObject:
@@ -10069,6 +10071,7 @@ MonoBehaviour:
   unbakedPanePrefab: {fileID: 614694413020946341, guid: 29e42dddf41fd2a4fb0665120c1d98b3, type: 3}
   bakedPanePrefab: {fileID: 614694413020946341, guid: 84036e5f313e7364aaf13893596b83bd, type: 3}
   burnedPanePrefab: {fileID: 4529244966350777480, guid: c99ddb541f65b124886d90c9be1a1a33, type: 3}
+  unbakedPastaPrefab: {fileID: 614694413020946341, guid: 4e5cedcb225fb5542b566c32c03b3f86, type: 3}
   bakedPastaPrefab: {fileID: 4934322642545547846, guid: d122190525a6e4e42a84800090dcf76e, type: 3}
   burnedPastaPrefab: {fileID: 4529244966350777480, guid: c99ddb541f65b124886d90c9be1a1a33, type: 3}
   bakedSpawnPoint: {fileID: 24670053}

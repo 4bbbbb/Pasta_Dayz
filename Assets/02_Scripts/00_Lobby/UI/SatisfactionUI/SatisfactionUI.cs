@@ -3,7 +3,9 @@ using UnityEngine.UI;
 
 public class SatisfactionUI : MonoBehaviour
 {
-    public Image satisfactionBar;
+    public Image satisfactionImage;
+
+    public Sprite[] satisfactionSprites; 
 
     void Update()
     {
@@ -13,23 +15,22 @@ public class SatisfactionUI : MonoBehaviour
         }
 
         float ratio = CustomerSatisfaction_Manager.Instance.GetSatisfactionRatio();
-        satisfactionBar.fillAmount = ratio;
 
         if (ratio >= 0.8f)
         {
-            satisfactionBar.color = Color.green;
+            satisfactionImage.sprite = satisfactionSprites[0];
         }
         else if (ratio >= 0.6f)
         {
-            satisfactionBar.color = Color.yellow;
+            satisfactionImage.sprite = satisfactionSprites[1];
         }
         else if (ratio >= 0.4f)
         {
-            satisfactionBar.color = new Color(1, 0.65f, 0);
+            satisfactionImage.sprite = satisfactionSprites[2];
         }
         else
         {
-            satisfactionBar.color = Color.red;
+            satisfactionImage.sprite = satisfactionSprites[3];
         }
     }
 }

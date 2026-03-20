@@ -529,6 +529,7 @@ GameObject:
   - component: {fileID: 73924306}
   - component: {fileID: 73924308}
   - component: {fileID: 73924307}
+  - component: {fileID: 73924309}
   m_Layer: 5
   m_Name: Text_Day
   m_TagString: Untagged
@@ -597,6 +598,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 73924305}
   m_CullTransparentMesh: 1
+--- !u!114 &73924309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 73924305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627b3a6b545f1074099128f94e3c28b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dayText: {fileID: 73924307}
 --- !u!1 &75825446
 GameObject:
   m_ObjectHideFlags: 0
@@ -1672,10 +1686,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac42c6f9836d89746b9c1eb26f610492, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lvText: {fileID: 1155516888}
-  xpText: {fileID: 162763869}
-  dayText: {fileID: 73924307}
-  xpImage: {fileID: 1198851122}
 --- !u!225 &247427578
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -1798,7 +1808,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   orderManager: {fileID: 1584618187}
   levelData: {fileID: 11400000, guid: 9698407562afcf841aae6f8d3a860c8a, type: 2}
-  profileUI: {fileID: 0}
   currentLevel: 5
   currentXP: 0
 --- !u!4 &311408967
@@ -4445,7 +4454,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f503e50f7d56a4143961758ba32f7ae7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  profileUI: {fileID: 0}
   orderManager: {fileID: 1584618187}
   dayDuration: 60
   day: 0
@@ -9525,6 +9533,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2001823572}
+  - component: {fileID: 2001823573}
   m_Layer: 5
   m_Name: XP
   m_TagString: Untagged
@@ -9555,6 +9564,21 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2001823573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2001823571}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ae19f27c1bb69b4baafbf28f45177e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lvText: {fileID: 1155516888}
+  xpText: {fileID: 162763869}
+  xpImage: {fileID: 1198851122}
 --- !u!1 &2032780358
 GameObject:
   m_ObjectHideFlags: 0

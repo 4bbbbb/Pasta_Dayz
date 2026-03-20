@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
+ï»¿using UnityEngine;
 
 public class Level_Manager : MonoBehaviour
 {
@@ -11,11 +7,9 @@ public class Level_Manager : MonoBehaviour
     public Order_Manager orderManager;
     public LevelData levelData;
 
-    public ProfileUI profileUI;     
-
     [Header("LV, XP")]
     public int currentLevel = 1;
-    public float currentXP = 0f;    
+    public float currentXP = 0f;
 
     void Awake()
     {
@@ -27,8 +21,8 @@ public class Level_Manager : MonoBehaviour
         else
         {
             Destroy(gameObject);
-        }        
-    }   
+        }
+    }
 
     public void EarnXP(float amount)
     {
@@ -39,31 +33,19 @@ public class Level_Manager : MonoBehaviour
         {
             currentLevel++;
         }
-
-
-        UpdateUI();
     }
 
-    public void RegisterXPUI(ProfileUI ui)
+    // UIìš© ë°ì´í„°ë§Œ ë°˜í™˜
+    public void GetXPInfo(out int level, out float current, out float max)
     {
-        profileUI = ui;
-    }
+        level = currentLevel;
 
-    public void UpdateUI()
-    {
-        if (profileUI == null || levelData == null || levelData.levelXPRequirements.Count == 0) return;
-
-        // ÀÌÀü ·¹º§ XP (·¹º§ 1ÀÌ¸é 0)
         int prevLevelXP = (currentLevel > 1) ? levelData.levelXPRequirements[currentLevel - 1] : 0;
-        // ÇöÀç ·¹º§ XP (¸®½ºÆ® ¹üÀ§ Ã¼Å©)
         int nextLevelXP = (currentLevel < levelData.levelXPRequirements.Count)
-                          ? levelData.levelXPRequirements[currentLevel]
-                          : prevLevelXP + 1;
+            ? levelData.levelXPRequirements[currentLevel]
+            : prevLevelXP + 1;
 
-        // UI Ç¥½Ã
-        profileUI.lvText.text = $"Lv {currentLevel}";          // ±×´ë·Î Ãâ·Â
-        profileUI.xpText.text = $"{currentXP - prevLevelXP}/{nextLevelXP - prevLevelXP}";
-        profileUI.xpImage.fillAmount = (currentXP - prevLevelXP) / (float)(nextLevelXP - prevLevelXP);
+        current = currentXP - prevLevelXP;
+        max = nextLevelXP - prevLevelXP;
     }
-
 }

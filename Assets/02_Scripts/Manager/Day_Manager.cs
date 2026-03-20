@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class Day_Manager : MonoBehaviour
 {
-    public ProfileUI profileUI;
     public Order_Manager orderManager;
     public static Day_Manager Instance;
 
@@ -80,7 +79,6 @@ public class Day_Manager : MonoBehaviour
         return timer;
     }
 
-
     void StartDay()
     {
         day++;
@@ -88,7 +86,12 @@ public class Day_Manager : MonoBehaviour
         isDayActive = true;
         isTakingOrder = true;        
         orderManager.SetState(Order_Manager.ServiceState.WaitingForOrder);
-    }         
+    }
+
+    public int GetDay()
+    {
+        return day;
+    }
 
     public void EndDay()
     {
@@ -124,16 +127,5 @@ public class Day_Manager : MonoBehaviour
         orderManager.SetState(Order_Manager.ServiceState.WaitingForOrder);
     }
 
-    public void RegisterDayUI(ProfileUI ui)
-    {
-        profileUI = ui;
-    }
-
-    public void UpdateUI()
-    {
-        if (profileUI != null)
-        {
-            profileUI.dayText.text = $"{day}ÀÏÂ÷";
-        }
-    }
+   
 }

@@ -4,18 +4,22 @@ using UnityEngine;
 
 public class PastaBox : MonoBehaviour, IHasIngredients
 {
-    private HashSet<int> finalingredientSet;
+    private HashSet<int> finalingredientSet = new HashSet<int>();
 
-    // 이 메서드를 사용해 finalSet을 DeliveryBox에 넣어준다.
+    public bool IsBaked { get; private set; }
+
     public void SetIngredients(HashSet<int> set)
     {
         finalingredientSet = new HashSet<int>(set);
     }
 
-    // GetIngredientSet을 통해 finalSet을 가져올 수 있다.
     public HashSet<int> GetIngredientSet()
     {
-        return finalingredientSet;
+        return new HashSet<int>(finalingredientSet);
     }
 
+    public void SetBaked(bool baked)
+    {
+        IsBaked = baked;
+    }
 }

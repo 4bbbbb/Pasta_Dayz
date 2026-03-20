@@ -68,17 +68,14 @@ public class Cooker_PassTable : MonoBehaviour, IInteractable
     // PastaBox를 생성하고 1초 뒤에 씬 전환
     IEnumerator ServePastaWithDelay(Transform plateTransform, FinishedPasta finishedPasta)
     {
-        // 음식 올리기
         plateTransform.SetParent(plateSpawnPoint);
         plateTransform.localPosition = Vector3.zero;
         Debug.Log("음식을 올렸습니다.");
 
-        // 1초 대기 후 PastaBox 생성
         yield return new WaitForSeconds(1f);
 
         HashSet<int> finalSet = new HashSet<int>(finishedPasta.GetIngredientSet());
 
-        // Plate ID 추가
         IngredientIDs plateID = plateTransform.GetComponent<IngredientIDs>();
         if (plateID != null)
         {
@@ -93,60 +90,51 @@ public class Cooker_PassTable : MonoBehaviour, IInteractable
             }
         }
 
-        // 빠네 ID 추가
         Plates_BasicPlate basicPlateComponent = plateTransform.GetComponent<Plates_BasicPlate>();
-
         if (basicPlateComponent != null)
         {
             finalSet.UnionWith(basicPlateComponent.GetIngredientSet());
         }
 
-        // PastaBox 생성
         PastaBox box = Instantiate(boxPrefab).GetComponent<PastaBox>();
         box.SetIngredients(finalSet);
+        box.SetBaked(false);   // 추가
 
         DebugFinalSet(box.GetIngredientSet(), "PastaBox 재료");
 
-        // OrderManager에 전달
         Order_Manager orderManager = FindObjectOfType<Order_Manager>();
         orderManager.SubmitDish(box);
 
         Debug.Log("완성된 파스타를 서빙합니다!");
 
-        // 1초 대기 후 씬 전환
         yield return new WaitForSeconds(1f);
 
-        // 씬 전환 (1번 씬으로 돌아가기)
-        SceneManager.LoadScene(1); 
+        SceneManager.LoadScene(1);
     }
 
     // BakedPasta의 경우 1초 후에 PastaBox 생성하고 씬 전환
     IEnumerator ServeBakedPastaWithDelay(BakedPasta bakedPasta)
     {
-        // BakedPasta 올리기
         bakedPasta.transform.SetParent(plateSpawnPoint);
         bakedPasta.transform.position = plateSpawnPoint.position;
 
         Debug.Log("BakedPasta를 올렸습니다.");
 
-        // 1초 대기 후 PastaBox 생성
         yield return new WaitForSeconds(1f);
 
-        HashSet<int> finalSet = bakedPasta.GetIngredientSet();
+        HashSet<int> finalSet = new HashSet<int>(bakedPasta.GetIngredientSet());
         DebugFinalSet(finalSet, "최종 서빙 파스타");
 
-        // PastaBox 생성 후 OrderManager에 전달
-        PastaBox pastaBox = Instantiate(boxPrefab).GetComponent<PastaBox>();  // 여기서 box로 생성
+        PastaBox pastaBox = Instantiate(boxPrefab).GetComponent<PastaBox>();
         pastaBox.SetIngredients(finalSet);
+        pastaBox.SetBaked(true);   // 추가
 
         Order_Manager orderManager = FindObjectOfType<Order_Manager>();
         orderManager.SubmitDish(pastaBox);
 
-        // 1초 대기 후 씬 전환
         yield return new WaitForSeconds(1f);
 
-        // 씬 전환 (1번 씬으로 돌아가기)
-        SceneManager.LoadScene(1);  // "Scene1"은 1번 씬의 이름
+        SceneManager.LoadScene(1);
     }
 
     void DebugFinalSet(HashSet<int> set, string label)

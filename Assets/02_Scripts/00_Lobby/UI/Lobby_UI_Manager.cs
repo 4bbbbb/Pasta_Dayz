@@ -41,6 +41,9 @@ public class Lobby_UI_Manager : MonoBehaviour
     [SerializeField] private CanvasGroup profileCanvasGroup;
     [SerializeField] private RectTransform profilePanel;
 
+    [Header("»ç¿îµå")]
+    [SerializeField] private AudioClip buttonClickSFX;
+
     private Dictionary<RectTransform, Vector3> originalScales = new Dictionary<RectTransform, Vector3>();
 
     void Awake()
@@ -86,6 +89,12 @@ public class Lobby_UI_Manager : MonoBehaviour
         {
             return;
         }
+
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlaySFX(buttonClickSFX);
+        }
+
 
         if (!originalScales.TryGetValue(target, out Vector3 originalScale))
             originalScale = target.localScale;

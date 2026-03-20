@@ -11,7 +11,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     [SerializeField] private Cooker_GasStove gasStove;
 
     [Header("<<스폰 위치>>")]
-    [SerializeField] private Transform[] toppingSpawnPoints;    
+    [SerializeField] private Transform[] toppingSpawnPoints;
     [SerializeField] private Transform finishedPastaSpawnPoint;
     [SerializeField] private Transform noodleSpawnPoint;
 
@@ -21,19 +21,25 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     [SerializeField] private Shader_Spread oilSpreadEffect;
 
     [Header("<<소스 스프라이트>>")]
-    [SerializeField] private GameObject tomatoSauceSprite;   
-    [SerializeField] private GameObject creamSauceSprite;    
-    [SerializeField] private GameObject roseSauceSprite;     
-    [SerializeField] private GameObject vongoleSauceSprite;  
+    [SerializeField] private GameObject tomatoSauceSprite;
+    [SerializeField] private GameObject creamSauceSprite;
+    [SerializeField] private GameObject roseSauceSprite;
+    [SerializeField] private GameObject vongoleSauceSprite;
     [SerializeField] public Shader_Spread tomatoEffect;
     [SerializeField] public Shader_Spread creamEffect;
-    [SerializeField] public Shader_Spread vongoleEffect;    
+    [SerializeField] public Shader_Spread vongoleEffect;
 
     [Header("<<완성 파스타>>")]
     [SerializeField] private GameObject finishedPastaPrefab;
 
     [Header("<<면 프리팹 삭제 이펙트 속도>>")]
     [SerializeField] private float noodleFadeDuration = 0.25f;
+
+    [Header("<<프라잉 사운드>>")]
+    [SerializeField] private AudioSource fryingAudioSource;
+    [SerializeField] private AudioClip fryingLoopClip;
+    [SerializeField] private float fryingFadeOutDuration = 0.7f;
+    [SerializeField] private float fryingSoundEndEarly = 0.6f;
 
     private bool hasOil = false;
     private bool isCooking = false;
@@ -46,10 +52,34 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
     private bool hasFinishedPastaOnPan = false;
 
+    private Coroutine fryingSoundFadeRoutine;
+
     void Start()
     {
         ResetState();
+
+        if (fryingAudioSource == null)
+            fryingAudioSource = GetComponent<AudioSource>();
+
+        if (fryingAudioSource == null)
+            fryingAudioSource = gameObject.AddComponent<AudioSource>();
+
+        fryingAudioSource.playOnAwake = false;
+        fryingAudioSource.loop = true;
+        fryingAudioSource.clip = fryingLoopClip;
+
+        SyncSfxVolume();
+
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.OnSfxVolumeChanged += OnSfxVolumeChanged;
     }
+
+    void OnDestroy()
+    {
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.OnSfxVolumeChanged -= OnSfxVolumeChanged;
+    }
+   
 
     public bool Interact(IInteractable target)
     {
@@ -87,9 +117,8 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
         hasOil = true;
         gasStove.TurnOn();
-        
+
         oilSpreadEffect.PlayOilSpread();
-        //oilOffSprite.SetActive(false);
 
         IngredientIDs id = oil.GetComponent<IngredientIDs>();
         if (id != null)
@@ -122,14 +151,13 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
         int newID = id.GetID();
 
-        // 토마토 + 크림 -> 로제
         if (ingredientIDs.Contains(202) && newID == 203)
         {
             ingredientIDs.Remove(202);
             ingredientIDs.Add(204);
 
             addedSauces.Clear();
-            addedSauces.Add(SauceType.Rose);            
+            addedSauces.Add(SauceType.Rose);
 
             ShowSauceSprite(204);
             oilOffSprite.SetActive(false);
@@ -138,7 +166,6 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             return true;
         }
 
-        // 크림 + 토마토 -> 로제
         if (ingredientIDs.Contains(203) && newID == 202)
         {
             ingredientIDs.Remove(203);
@@ -154,13 +181,11 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             return true;
         }
 
-        // 로제 이미 있으면 추가 불가
         if (ingredientIDs.Contains(204))
         {
             return false;
         }
 
-        // 일반 소스
         if (addedSauces.Count >= 1)
         {
             return false;
@@ -170,8 +195,6 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         ingredientIDs.Add(newID);
 
         ShowSauceSprite(newID);
-        //oilOffSprite.SetActive(false);
-        //oilOnSprite.SetActive(false);
 
         return true;
     }
@@ -252,6 +275,8 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     IEnumerator CookRoutine()
     {
         isCooking = true;
+        PlayFryingSound();
+
         Vector3 originalPanPos = transform.localPosition;
         Vector3 panMoveDir = transform.localRotation * Vector3.up;
 
@@ -277,9 +302,18 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             ingredientOriginalLocalPos[child] = child.localPosition;
         }
 
+        bool fryingStopped = false;
+
         while (elapsed < totalTime)
         {
             elapsed += Time.deltaTime;
+
+            if (!fryingStopped && elapsed >= totalTime - fryingSoundEndEarly)
+            {
+                StopFryingSoundWithFade();
+                fryingStopped = true;
+            }
+
             float t = Mathf.Clamp01(elapsed / totalTime);
 
             float angle = t * cycleCount * Mathf.PI * 2f;
@@ -291,19 +325,15 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
                 envelope = Mathf.SmoothStep(1f, 0f, fadeT);
             }
 
-            // 팬 본체 흔들기
             float panOffset = Mathf.Sin(angle) * panMoveAmount * envelope;
             transform.localPosition = originalPanPos + panMoveDir * panOffset;
 
-            // 토핑 + 면만 살짝 출렁이기
             foreach (var pair in ingredientOriginalLocalPos)
             {
                 Transform ingredient = pair.Key;
                 if (ingredient == null) continue;
 
                 Vector3 basePos = pair.Value;
-
-                // 각 재료마다 미세하게 다르게
                 float phase = ingredient.GetInstanceID() * 0.01f;
 
                 float offsetY = Mathf.Sin(angle - 0.6f + phase) * 0.05f * envelope;
@@ -315,7 +345,6 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             yield return null;
         }
 
-        // 자연스럽게 끝난 뒤 정확히 원위치 복귀
         transform.localPosition = originalPanPos;
 
         foreach (var pair in ingredientOriginalLocalPos)
@@ -323,7 +352,6 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             if (pair.Key != null)
                 pair.Key.localPosition = pair.Value;
         }
-
 
         GameObject finishedPasta = Instantiate(finishedPastaPrefab, finishedPastaSpawnPoint);
         finishedPasta.transform.localPosition = Vector3.zero;
@@ -335,12 +363,11 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         pasta.SetIngredients(new HashSet<int>(ingredientIDs));
         pasta.Init(gasStove);
         pasta.SetFryingPan(this);
-
-        // 정답 pan sprite를 먼저 숨겨놓고
         pasta.PreparePanSpriteHidden();
 
         StartCoroutine(FadeOutAndDestroyNoodle());
         yield return StartCoroutine(pasta.FadeInCurrentSprite());
+
         ClearPanForFinishedPasta();
 
         hasFinishedPastaOnPan = true;
@@ -380,15 +407,14 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     }
 
     void ClearPanForFinishedPasta()
-    {                     
-        // 소스/오일 비주얼만 초기화
+    {
         oilOffSprite.SetActive(true);
         oilOnSprite.SetActive(false);
 
         tomatoSauceSprite.SetActive(false);
         creamSauceSprite.SetActive(false);
         roseSauceSprite.SetActive(false);
-        vongoleSauceSprite.SetActive(false);        
+        vongoleSauceSprite.SetActive(false);
     }
 
     public void ClearPanAfterServing()
@@ -397,14 +423,14 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         {
             foreach (Transform child in point)
                 Destroy(child.gameObject);
-        }        
+        }
 
         if (finishedPastaSpawnPoint.childCount > 0)
         {
             Transform child = finishedPastaSpawnPoint.GetChild(0);
             if (child != null)
             {
-                child.SetParent(null, true); // 혹시 아직 남아있으면 분리
+                child.SetParent(null, true);
             }
         }
 
@@ -427,9 +453,81 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         creamSauceSprite.SetActive(false);
         roseSauceSprite.SetActive(false);
         vongoleSauceSprite.SetActive(false);
+
     }
 
-    public void Cancel() 
+    private void PlayFryingSound()
+    {
+        if (fryingAudioSource == null || fryingLoopClip == null)
+            return;
+
+        if (fryingSoundFadeRoutine != null)
+        {
+            StopCoroutine(fryingSoundFadeRoutine);
+            fryingSoundFadeRoutine = null;
+        }
+
+        fryingAudioSource.clip = fryingLoopClip;
+        fryingAudioSource.loop = true;
+
+        SyncSfxVolume();
+
+        if (!fryingAudioSource.isPlaying)
+            fryingAudioSource.Play();
+    }
+
+    private void StopFryingSoundWithFade()
+    {
+        if (fryingAudioSource == null || !fryingAudioSource.isPlaying)
+            return;
+
+        if (fryingSoundFadeRoutine != null)
+            StopCoroutine(fryingSoundFadeRoutine);
+
+        fryingSoundFadeRoutine = StartCoroutine(FadeOutFryingSound());
+    }
+
+    private IEnumerator FadeOutFryingSound()
+    {
+        float startVolume = fryingAudioSource.volume;
+        float time = 0f;
+
+        while (time < fryingFadeOutDuration)
+        {
+            time += Time.deltaTime;
+            float t = Mathf.Clamp01(time / fryingFadeOutDuration);
+            fryingAudioSource.volume = Mathf.Lerp(startVolume, 0f, t);
+            yield return null;
+        }
+
+        fryingAudioSource.Stop();
+        SyncSfxVolume();
+        fryingSoundFadeRoutine = null;
+    }
+
+    
+
+    private void OnSfxVolumeChanged(float value)
+    {
+        if (fryingAudioSource == null)
+            return;
+
+        if (fryingSoundFadeRoutine == null)
+            fryingAudioSource.volume = value;
+    }
+
+    private void SyncSfxVolume()
+    {
+        if (fryingAudioSource == null)
+            return;
+
+        if (SoundManager.Instance != null)
+            fryingAudioSource.volume = SoundManager.Instance.SfxVolume;
+        else
+            fryingAudioSource.volume = 1f;
+    }
+
+    public void Cancel()
     {
     }
 }

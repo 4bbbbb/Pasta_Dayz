@@ -53,7 +53,7 @@ public class BakedPasta : MonoBehaviour, IInteractable
     }
     public HashSet<int> GetIngredientSet()
     {
-        return ingredientIDs;
+        return new HashSet<int>(ingredientIDs);
     }
 
     public bool Interact(IInteractable target)

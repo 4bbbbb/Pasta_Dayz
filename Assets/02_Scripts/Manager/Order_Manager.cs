@@ -263,7 +263,7 @@ public class Order_Manager : MonoBehaviour
         }
 
         Vector2 endPos = new Vector2(0f, -100f);
-        Vector2 startPos = new Vector2(0f, endPos.y - 600f);
+        Vector2 startPos = new Vector2(0f, endPos.y - 650f);
         Vector2 overshootPos = endPos + new Vector2(0f, 35f);
 
         rect.DOKill();
@@ -426,7 +426,7 @@ public class Order_Manager : MonoBehaviour
             Level_Manager.Instance.EarnXP(5);
             Debug.Log("성공 +5");
             Debug.Log($"팁 지급: {tip}, 현재 골드: {Gold_Manager.Instance.totalGold}");
-            Debug.Log($"현재 XP : {Level_Manager.Instance.currentXP}");
+            Debug.Log($"현재 XP : {Level_Manager.Instance.currentXP}");            
         }
 
         HashSet<int> usedIngredients = pastaBox.GetIngredientSet();
@@ -465,7 +465,7 @@ public class Order_Manager : MonoBehaviour
         Debug.Log($"재료비 차감: {totalingredientCost}, 현재 골드: {Gold_Manager.Instance.totalGold}");
 
         pendingResult = success;
-        SetState(ServiceState.ServingDish);
+        SetState(ServiceState.ServingDish);        
 
         currentOrder = null;
     }
@@ -566,7 +566,7 @@ public class Order_Manager : MonoBehaviour
         currentCustomerSpriteIndex = -1;
         currentOrder = null;
 
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(2f);        
 
         SpawnCustomer();
     }

@@ -1508,7 +1508,8 @@ Transform:
   m_LocalPosition: {x: -932.87, y: -542.86, z: 0}
   m_LocalScale: {x: 0.90277, y: 0.90277, z: 0.90277}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 304086232}
   m_Father: {fileID: 1930821082}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &301801719
@@ -1583,11 +1584,11 @@ Transform:
   m_GameObject: {fileID: 304086231}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -932.94, y: -543.79, z: 0}
-  m_LocalScale: {x: 0.9247003, y: 0.98565304, z: 0.98565304}
+  m_LocalPosition: {x: -0.07754724, y: -1.0301546, z: 0}
+  m_LocalScale: {x: 1.0242922, y: 1.0918096, z: 1.0918096}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 600024877}
+  m_Father: {fileID: 301801718}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &304086233
 SpriteRenderer:
@@ -2459,7 +2460,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1726168049}
-  - {fileID: 304086232}
   - {fileID: 1373503890}
   - {fileID: 894821513}
   m_Father: {fileID: 0}
@@ -6444,6 +6444,7 @@ MonoBehaviour:
   fryingAudioSource: {fileID: 1229255784}
   fryingLoopClip: {fileID: 8300000, guid: 0b364cccc4183804496956a855e1ffd2, type: 3}
   fryingFadeOutDuration: 0.7
+  fryingSoundEndEarly: 0.6
 --- !u!65 &1229255783
 BoxCollider:
   m_ObjectHideFlags: 0

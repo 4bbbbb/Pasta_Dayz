@@ -243,6 +243,7 @@ MonoBehaviour:
     angry: {fileID: 21300000, guid: c10609c26f2f6474f827d1c9626fcbb6, type: 3}
   customerImage: {fileID: 8212584834808944021}
   bubbleObject: {fileID: 1064558440478034213}
+  cg: {fileID: 0}
   orderText: {fileID: 8237271978762008672}
   yesButton: {fileID: 5204705485384134479}
   autoButton: {fileID: 6580088266946054889}
@@ -584,7 +585,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -213, y: -44}
+  m_AnchoredPosition: {x: -195, y: -44}
   m_SizeDelta: {x: 207.5424, y: 298.707}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7109311789042877340
@@ -615,7 +616,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4baad0903afeee74c80f97d0e930c08e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6664eb5f53ceb2d429aac08ec44ce364, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

@@ -20,7 +20,6 @@ public class Topping_OliveOil : MonoBehaviour, IInteractable
     public bool CanBeSelected => true;
 
 
-
     void Awake()
     {
         sr = GetComponent<SpriteRenderer>();

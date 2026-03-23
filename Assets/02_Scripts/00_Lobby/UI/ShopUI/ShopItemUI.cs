@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using static IngredientData;
 
 public class ShopItemUI : MonoBehaviour
@@ -7,9 +8,9 @@ public class ShopItemUI : MonoBehaviour
     public Image iconImage;
     public Image ownedImage;
     public Image lockedImage;
-    public Text nameText;
-    public Text priceText;
-    public Text statusText;
+    public TextMeshProUGUI nameText;
+    public TextMeshProUGUI priceText;
+    public TextMeshProUGUI statusText;
     public Button purchaseButton;
 
     [Header("SFX")]

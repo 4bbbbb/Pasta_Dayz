@@ -3,17 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.UI;
+using TMPro;
+
 
 public class TextUI : MonoBehaviour
 {
     public static Day_Manager Instance;
 
-    public Text dayText;
-    public Text revenueText;
-    public Text costText;
-    public Text refundText;
-    public Text tipText;
-    public Text netProfitText;
+    public TextMeshProUGUI dayText;
+    public TextMeshProUGUI revenueText;
+    public TextMeshProUGUI costText;
+    public TextMeshProUGUI refundText;
+    public TextMeshProUGUI tipText;
+    public TextMeshProUGUI netProfitText;
 
     void Start()
     {

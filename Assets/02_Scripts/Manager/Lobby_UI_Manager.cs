@@ -61,6 +61,7 @@ public class Lobby_UI_Manager : MonoBehaviour
         InitPanel(shopCanvasGroup, shopPanel);
         InitPanel(profileCanvasGroup, profilePanel);
     }
+
     void CacheButtonScale(RectTransform button)
     {
         if (button == null) return;

@@ -66,6 +66,17 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
         return false;
     }
 
+    public void ClearPlateTable()
+    {
+        if (plateSpawnPoint == null)
+            return;
+
+        for (int i = plateSpawnPoint.childCount - 1; i >= 0; i--)
+        {
+            Destroy(plateSpawnPoint.GetChild(i).gameObject);
+        }
+    }
+
     public void Cancel()
     {
 

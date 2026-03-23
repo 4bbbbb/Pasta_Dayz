@@ -9,15 +9,19 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioSource sfxSource;
 
     [Header("º¼·ý")]
+    [Range(0f, 1f)][SerializeField] private float masterVolume = 1f;
     [Range(0f, 1f)][SerializeField] private float bgmVolume = 1f;
     [Range(0f, 1f)][SerializeField] private float sfxVolume = 1f;
 
+    public float MasterVolume => masterVolume;
     public float BgmVolume => bgmVolume;
     public float SfxVolume => sfxVolume;
 
-    public System.Action<float> OnSfxVolumeChanged;
+    public System.Action<float> OnMasterVolumeChanged;
     public System.Action<float> OnBgmVolumeChanged;
+    public System.Action<float> OnSfxVolumeChanged;
 
+    private const string MASTER_KEY = "MASTER_VOLUME";
     private const string BGM_KEY = "BGM_VOLUME";
     private const string SFX_KEY = "SFX_VOLUME";
 
@@ -36,11 +40,23 @@ public class SoundManager : MonoBehaviour
         }
     }
 
+    public void SetMasterVolume(float value)
+    {
+        masterVolume = Mathf.Clamp01(value);
+
+        ApplyVolume();
+
+        PlayerPrefs.SetFloat(MASTER_KEY, masterVolume);
+        PlayerPrefs.Save();
+
+        OnMasterVolumeChanged?.Invoke(masterVolume);
+    }
+
     public void SetBgmVolume(float value)
     {
         bgmVolume = Mathf.Clamp01(value);
-        if (bgmSource != null)
-            bgmSource.volume = bgmVolume;
+
+        ApplyVolume();
 
         PlayerPrefs.SetFloat(BGM_KEY, bgmVolume);
         PlayerPrefs.Save();
@@ -52,8 +68,7 @@ public class SoundManager : MonoBehaviour
     {
         sfxVolume = Mathf.Clamp01(value);
 
-        if (sfxSource != null)
-            sfxSource.volume = sfxVolume;
+        ApplyVolume();
 
         PlayerPrefs.SetFloat(SFX_KEY, sfxVolume);
         PlayerPrefs.Save();
@@ -64,7 +79,7 @@ public class SoundManager : MonoBehaviour
     public void PlaySFX(AudioClip clip)
     {
         if (clip == null || sfxSource == null) return;
-        sfxSource.PlayOneShot(clip, sfxVolume);
+        sfxSource.PlayOneShot(clip);
     }
 
     public void PlayBGM(AudioClip clip, bool loop = true)
@@ -73,8 +88,9 @@ public class SoundManager : MonoBehaviour
 
         bgmSource.clip = clip;
         bgmSource.loop = loop;
-        bgmSource.volume = bgmVolume;
         bgmSource.Play();
+
+        ApplyVolume();
     }
 
     public void StopBGM()
@@ -85,6 +101,7 @@ public class SoundManager : MonoBehaviour
 
     private void LoadVolume()
     {
+        masterVolume = PlayerPrefs.GetFloat(MASTER_KEY, 1f);
         bgmVolume = PlayerPrefs.GetFloat(BGM_KEY, 1f);
         sfxVolume = PlayerPrefs.GetFloat(SFX_KEY, 1f);
     }
@@ -92,9 +109,9 @@ public class SoundManager : MonoBehaviour
     private void ApplyVolume()
     {
         if (bgmSource != null)
-            bgmSource.volume = bgmVolume;
+            bgmSource.volume = masterVolume * bgmVolume;
 
         if (sfxSource != null)
-            sfxSource.volume = sfxVolume;
+            sfxSource.volume = masterVolume * sfxVolume;
     }
 }

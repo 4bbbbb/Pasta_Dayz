@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using DG.Tweening;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static IInteractableScript;
@@ -41,6 +42,11 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     [SerializeField] private float fryingFadeOutDuration = 0.7f;
     [SerializeField] private float fryingSoundEndEarly = 0.6f;
 
+    [Header("<<소스 붓기 타겟>>")]
+    [SerializeField] private Transform saucePourTarget;
+
+    private bool isSauceAnimating = false;
+
     private bool hasOil = false;
     private bool isCooking = false;
 
@@ -71,15 +77,19 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         SyncSfxVolume();
 
         if (SoundManager.Instance != null)
+        {
             SoundManager.Instance.OnSfxVolumeChanged += OnSfxVolumeChanged;
+            SoundManager.Instance.OnMasterVolumeChanged += OnMasterVolumeChanged;
+        }
     }
-
     void OnDestroy()
     {
         if (SoundManager.Instance != null)
+        {
             SoundManager.Instance.OnSfxVolumeChanged -= OnSfxVolumeChanged;
+            SoundManager.Instance.OnMasterVolumeChanged -= OnMasterVolumeChanged;
+        }
     }
-   
 
     public bool Interact(IInteractable target)
     {
@@ -151,6 +161,82 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
         int newID = id.GetID();
 
+        if (!CanAcceptSauce(newID))
+            return false;
+
+        // 데이터는 먼저 반영
+        ApplySauceDataByID(newID, sauce.sauceType);
+
+        // 국자 애니메이션 재생
+        sauce.PlayPourToPanAnimation(GetSaucePourWorldPos());
+
+        // 팬 스프라이트는 조금 늦게 표시
+        DOVirtual.DelayedCall(1.15f, () =>
+        {
+            if (this != null && gameObject.activeInHierarchy)
+            {
+                int showID = ingredientIDs.Contains(204) ? 204 : newID;
+                ShowSauceSprite(showID);
+            }
+        });
+
+        return true;
+    }
+
+    void ApplySauceDataByID(int newID, SauceType sauceType)
+    {
+        if (ingredientIDs.Contains(202) && newID == 203)
+        {
+            ingredientIDs.Remove(202);
+            ingredientIDs.Add(204);
+
+            addedSauces.Clear();
+            addedSauces.Add(SauceType.Rose);
+
+            oilOffSprite.SetActive(false);
+            oilOnSprite.SetActive(false);
+            return;
+        }
+
+        if (ingredientIDs.Contains(203) && newID == 202)
+        {
+            ingredientIDs.Remove(203);
+            ingredientIDs.Add(204);
+
+            addedSauces.Clear();
+            addedSauces.Add(SauceType.Rose);
+
+            oilOffSprite.SetActive(false);
+            oilOnSprite.SetActive(false);
+            return;
+        }
+
+        addedSauces.Add(sauceType);
+        ingredientIDs.Add(newID);
+    }
+
+    bool CanAcceptSauce(int newID)
+    {
+        // 로제 완성 상태면 더 이상 추가 불가
+        if (ingredientIDs.Contains(204))
+            return false;
+
+        // 토마토 + 크림 / 크림 + 토마토 조합은 허용
+        if ((ingredientIDs.Contains(202) && newID == 203) ||
+            (ingredientIDs.Contains(203) && newID == 202))
+        {
+            return true;
+        }
+
+        // 일반 소스는 1개만 허용
+        if (addedSauces.Count >= 1)
+            return false;
+
+        return true;
+    }
+
+    void ApplySauceByID(int newID, SauceType sauceType)
+    {
         if (ingredientIDs.Contains(202) && newID == 203)
         {
             ingredientIDs.Remove(202);
@@ -162,8 +248,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             ShowSauceSprite(204);
             oilOffSprite.SetActive(false);
             oilOnSprite.SetActive(false);
-
-            return true;
+            return;
         }
 
         if (ingredientIDs.Contains(203) && newID == 202)
@@ -177,26 +262,21 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             ShowSauceSprite(204);
             oilOffSprite.SetActive(false);
             oilOnSprite.SetActive(false);
-
-            return true;
+            return;
         }
 
-        if (ingredientIDs.Contains(204))
-        {
-            return false;
-        }
-
-        if (addedSauces.Count >= 1)
-        {
-            return false;
-        }
-
-        addedSauces.Add(sauce.sauceType);
+        addedSauces.Add(sauceType);
         ingredientIDs.Add(newID);
 
         ShowSauceSprite(newID);
+    }
 
-        return true;
+    Vector3 GetSaucePourWorldPos()
+    {
+        if (saucePourTarget != null)
+            return saucePourTarget.position;
+
+        return transform.position;
     }
 
     void ShowSauceSprite(int sauceID)
@@ -209,16 +289,25 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         switch (sauceID)
         {
             case 202:
-                tomatoEffect.PlayOilSpread();
+                tomatoSauceSprite.SetActive(true);
+                if (tomatoEffect != null)
+                    tomatoEffect.PlayOilSpread();
                 break;
+
             case 203:
-                creamEffect.PlayOilSpread();
+                creamSauceSprite.SetActive(true);
+                if (creamEffect != null)
+                    creamEffect.PlayOilSpread();
                 break;
+
             case 204:
                 roseSauceSprite.SetActive(true);
                 break;
+
             case 205:
-                vongoleEffect.PlayOilSpread();
+                vongoleSauceSprite.SetActive(true);
+                if (vongoleEffect != null)
+                    vongoleEffect.PlayOilSpread();
                 break;
         }
     }
@@ -505,15 +594,22 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         fryingSoundFadeRoutine = null;
     }
 
-    
-
     private void OnSfxVolumeChanged(float value)
     {
         if (fryingAudioSource == null)
             return;
 
         if (fryingSoundFadeRoutine == null)
-            fryingAudioSource.volume = value;
+            SyncSfxVolume();
+    }
+
+    private void OnMasterVolumeChanged(float value)
+    {
+        if (fryingAudioSource == null)
+            return;
+
+        if (fryingSoundFadeRoutine == null)
+            SyncSfxVolume();
     }
 
     private void SyncSfxVolume()
@@ -522,7 +618,8 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             return;
 
         if (SoundManager.Instance != null)
-            fryingAudioSource.volume = SoundManager.Instance.SfxVolume;
+            fryingAudioSource.volume =
+                SoundManager.Instance.MasterVolume * SoundManager.Instance.SfxVolume;
         else
             fryingAudioSource.volume = 1f;
     }

@@ -83,6 +83,19 @@ public class Lobby_UI_Manager : MonoBehaviour
         panel.localScale = Vector3.one * panelStartScale;
     }
 
+    public void OnClickButtonSFXOnly()
+    {
+        PlayButtonClickSFXOnly();
+    }
+
+    void PlayButtonClickSFXOnly()
+    {
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlaySFX(buttonClickSFX);
+        }
+    }
+
     void PlayButtonJelly(RectTransform target)
     {
         if (target == null)
@@ -115,6 +128,7 @@ public class Lobby_UI_Manager : MonoBehaviour
             target.DOScale(originalScale, 0.14f).SetEase(Ease.OutQuad)
         );
     }
+
     public void OnClickStartButton()
     {
         StartCoroutine(LoadSceneAfterDelay());        

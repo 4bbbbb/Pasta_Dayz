@@ -74,7 +74,9 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     public bool CanBeSelected => true;
 
     private bool hasInitializedSprite = false;
-    
+
+    public bool isBeingTrashed { get; private set; } = false;
+
 
     public bool isOnPlate { get; private set; }
     private bool hasCheese = false;
@@ -619,6 +621,64 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         foreach (int id in ingredientIDs)
         {
             Debug.Log("Plate에 포함된 ID: " + id);
+        }
+    }
+
+    public void OnTrashed()
+    {
+        if (isBeingTrashed)
+            return;
+
+        isBeingTrashed = true;
+
+        // 자기 ingredientIDs 먼저 초기화
+        ResetIngredientState();
+
+        // 접시 위 파스타면 접시까지 같이 제거
+        if (transform.parent != null)
+        {
+            Cooker_PlateTable plateTable = GetComponentInParent<Cooker_PlateTable>();
+            if (plateTable != null)
+            {
+                plateTable.ClearPlateTable();
+                return;
+            }
+        }
+
+        // 팬 위 파스타면 팬 상태 초기화
+        fryingPan?.ClearPanAfterServing();
+
+        if (gasStove != null)
+        {
+            gasStove.DestroyFryingPan();
+        }
+
+        Destroy(gameObject);
+    }
+
+    private void ResetIngredientState()
+    {
+        ingredientIDs.Clear();
+
+        hasCheese = false;
+        addedCheeseType = null;
+        isSelected = false;
+        isOnPlate = false;
+        hasInitializedSprite = false;
+
+        if (spriteFadeRoutine != null)
+        {
+            StopCoroutine(spriteFadeRoutine);
+            spriteFadeRoutine = null;
+        }
+
+        if (sr == null)
+            sr = GetComponent<SpriteRenderer>();
+
+        if (sr != null)
+        {
+            Color c = sr.color;
+            sr.color = new Color(c.r, c.g, c.b, 1f);
         }
     }
 

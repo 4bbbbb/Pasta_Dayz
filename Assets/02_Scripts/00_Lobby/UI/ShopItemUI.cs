@@ -12,16 +12,17 @@ public class ShopItemUI : MonoBehaviour
     public Text statusText;
     public Button purchaseButton;
 
-    private IngredientData itemData;  
-    private Shop_Manager shopManager;  
+    [Header("SFX")]
+    [SerializeField] private AudioClip clickSFX;
+
+    private IngredientData itemData;
+    private Shop_Manager shopManager;
     private Gold_Manager goldManager;
 
-    // 데이터를 UI에 연결
     public void SetData(IngredientData data, Shop_Manager manager)
     {
         itemData = data;
         shopManager = manager;
-
 
         iconImage.sprite = IngredientDatabase.Instance.GetIcon(itemData.id);
         purchaseButton.onClick.RemoveAllListeners();
@@ -29,37 +30,45 @@ public class ShopItemUI : MonoBehaviour
         ItemUI();
     }
 
-    // 버튼 클릭 처리
     void OnPurchaseButton()
     {
+        PlayClickSFX();
         shopManager.PurchaseItem(itemData);
     }
 
-    // UI 갱신
+    void PlayClickSFX()
+    {
+        if (SoundManager.Instance != null && clickSFX != null)
+        {
+            SoundManager.Instance.PlaySFX(clickSFX);
+        }
+    }
+
     public void ItemUI()
     {
         nameText.text = itemData.name;
         priceText.text = itemData.unlockCost > 0 ? $"$ {itemData.unlockCost}" : "Free";
 
-        // 1. 보유중
         if (itemData.isUnlocked)
         {
             statusText.text = "";
             ownedImage.gameObject.SetActive(true);
-            purchaseButton.gameObject.SetActive(false); 
+            lockedImage.gameObject.SetActive(false);
+            purchaseButton.gameObject.SetActive(false);
         }
-        // 2️. 레벨 부족
         else if (Level_Manager.Instance.currentLevel < itemData.unlockLevel)
         {
             statusText.text = $"Lv.{itemData.unlockLevel}에서 잠금 해제";
             purchaseButton.gameObject.SetActive(false);
+            ownedImage.gameObject.SetActive(false);
             lockedImage.gameObject.SetActive(true);
         }
-        // 3️. 구매 가능
         else
         {
-            statusText.text = ""; 
-            purchaseButton.gameObject.SetActive(true);             
+            statusText.text = "";
+            ownedImage.gameObject.SetActive(false);
+            lockedImage.gameObject.SetActive(false);
+            purchaseButton.gameObject.SetActive(true);
             purchaseButton.interactable =
                 Gold_Manager.Instance.totalGold >= itemData.unlockCost;
         }
@@ -69,5 +78,4 @@ public class ShopItemUI : MonoBehaviour
     {
         return itemData.categoryType;
     }
-
 }

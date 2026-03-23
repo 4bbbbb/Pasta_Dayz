@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class GoldTextUI : MonoBehaviour
 {
-    public Text goldText;
-    
+    public TextMeshProUGUI goldText;
+
     void Start()
     {
         if (Gold_Manager.Instance != null && goldText != null)

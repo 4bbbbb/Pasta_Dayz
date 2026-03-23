@@ -68,13 +68,19 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
         SyncSfxVolume();
 
         if (SoundManager.Instance != null)
+        {
             SoundManager.Instance.OnSfxVolumeChanged += OnSfxVolumeChanged;
+            SoundManager.Instance.OnMasterVolumeChanged += OnMasterVolumeChanged;
+        }
     }
 
     void OnDestroy()
     {
         if (SoundManager.Instance != null)
+        {
             SoundManager.Instance.OnSfxVolumeChanged -= OnSfxVolumeChanged;
+            SoundManager.Instance.OnMasterVolumeChanged -= OnMasterVolumeChanged;
+        }
     }
 
     private void OnDisable()
@@ -250,9 +256,17 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
         if (boilingAudioSource == null)
             return;
 
-        // 루프음 재생 중이 아닐 때도 다음 재생 대비해서 항상 최신값 반영
         if (soundFadeRoutine == null)
-            boilingAudioSource.volume = value;
+            SyncSfxVolume();
+    }
+
+    private void OnMasterVolumeChanged(float value)
+    {
+        if (boilingAudioSource == null)
+            return;
+
+        if (soundFadeRoutine == null)
+            SyncSfxVolume();
     }
 
     private void SyncSfxVolume()
@@ -261,7 +275,8 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
             return;
 
         if (SoundManager.Instance != null)
-            boilingAudioSource.volume = SoundManager.Instance.SfxVolume;
+            boilingAudioSource.volume =
+                SoundManager.Instance.MasterVolume * SoundManager.Instance.SfxVolume;
         else
             boilingAudioSource.volume = 1f;
     }

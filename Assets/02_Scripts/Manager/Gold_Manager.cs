@@ -2,13 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+
 
 public class Gold_Manager : MonoBehaviour
 {
     public static Gold_Manager Instance;    
 
     [Header("UI")]
-    [HideInInspector] public Text goldText; // ¿ŒΩ∫∆Â≈Õø°º≠ ø¨∞·
+    [HideInInspector] public TextMeshProUGUI goldText; // ¿ŒΩ∫∆Â≈Õø°º≠ ø¨∞·
 
     [Header("√— ∞ÒµÂ")]
     public float totalGold = 0f;
@@ -71,7 +73,7 @@ public class Gold_Manager : MonoBehaviour
         return dailyRevenue + dailyTip - dailyCost - dailyRefund;
     }
 
-    public void SetUIText(Text text)
+    public void SetUIText(TextMeshProUGUI text)
     {
         goldText = text;
         UpdateUI();

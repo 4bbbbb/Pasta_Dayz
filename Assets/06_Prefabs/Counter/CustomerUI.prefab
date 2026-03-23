@@ -551,6 +551,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aac6d60341c9de54fb66024d195b86c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  clickSFX: {fileID: 8300000, guid: 4fd200db0ee806945974c0b41c27a255, type: 3}
+  clickDelay: 0.3
 --- !u!1 &6012041427529463633
 GameObject:
   m_ObjectHideFlags: 0
@@ -751,7 +753,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 4277792675846839023}
         m_TargetAssemblyTypeName: CustomerButton, Assembly-CSharp
-        m_MethodName: OnClickYesBtn
+        m_MethodName: OnClickAutoButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -773,6 +775,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aac6d60341c9de54fb66024d195b86c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  clickSFX: {fileID: 8300000, guid: 4fd200db0ee806945974c0b41c27a255, type: 3}
+  clickDelay: 0.3
 --- !u!1 &7602617281899052259
 GameObject:
   m_ObjectHideFlags: 0

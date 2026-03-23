@@ -3,27 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using static IInteractableScript;
 
-public class Cooker_GasStove: MonoBehaviour, IInteractable
+public class Cooker_GasStove : MonoBehaviour, IInteractable
 {
     public GameObject fryingPan;
     private bool isFireOn = false;
     bool isCooking = false;
 
     [Header("<< 가스 사운드 >>")]
-    public AudioSource audioSource;
-    public AudioClip fireOnSound;
+    [SerializeField] private AudioClip fireOnSound;
 
     public bool CanBeSelected => false;
 
-
     void Start()
-    {        
+    {
         fryingPan.SetActive(false);
         isFireOn = false;
     }
+
     public bool Interact(IInteractable target)
     {
-        if(isCooking)
+        if (isCooking)
         {
             Debug.Log("이미 후라이팬이 있습니다 !");
             return false;
@@ -36,24 +35,22 @@ public class Cooker_GasStove: MonoBehaviour, IInteractable
             fryingPan.SetActive(true);
             return false;
         }
+
         return false;
     }
 
     public void TurnOn()
     {
-        Debug.Log("가스에 불이 켜집니다 타닥타닥..!!");
-
         isFireOn = true;
 
-        if (audioSource != null && fireOnSound != null)
+        if (SoundManager.Instance != null && fireOnSound != null)
         {
-            audioSource.PlayOneShot(fireOnSound);
+            SoundManager.Instance.PlaySFX(fireOnSound);
         }
     }
 
     public void TurnOff()
     {
-        Debug.Log("조리 완료! 가스가 꺼집니다.");
         isFireOn = false;
     }
 
@@ -65,6 +62,5 @@ public class Cooker_GasStove: MonoBehaviour, IInteractable
 
     public void Cancel()
     {
-
     }
 }

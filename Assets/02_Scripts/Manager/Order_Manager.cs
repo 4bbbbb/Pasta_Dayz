@@ -32,6 +32,8 @@ public class Order_Manager : MonoBehaviour
     private Coroutine customerEntranceRoutine;
     private Sequence customerEntranceSequence;
 
+    private bool isAutoCooking = false;
+
     public enum ServiceState
     {
         WaitingForOrder,
@@ -582,6 +584,64 @@ public class Order_Manager : MonoBehaviour
         Debug.Log($"재료 일치: {sameIngredients}, box baked: {pastaBox.IsBaked}, order baked: {order.IsBaked}");
 
         return sameIngredients && sameBaked;
+    }
+
+    public void OnClickAutoButton()
+    {
+        if (isAutoCooking)
+            return;
+
+        if (currentOrder == null)
+            return;
+
+        if (currentState != ServiceState.TakingOrder)
+            return;
+
+        if (dayManager != null && !dayManager.isTakingOrder)
+            return;
+
+        StartCoroutine(AutoCookRoutine());
+    }
+
+    private IEnumerator AutoCookRoutine()
+    {
+        isAutoCooking = true;
+
+        SetState(ServiceState.ServingDish);
+        StopCustomerEntranceAnimation();
+
+        if (currentCustomer != null)
+        {
+            currentCustomer.gameObject.SetActive(true);
+            currentCustomer.SetCustomerSprite(currentCustomerSpriteIndex);
+            currentCustomer.HideBubble();
+        }
+
+        yield return new WaitForSeconds(0.3f);
+
+        float menuPrice = currentOrder.Price(generator.ingredientDB);
+        float ingredientCost = currentOrder.Ingredient_Cost(ingredientDB);
+        float autoExtraCost = 5f;
+
+        // 손님이 원래 메뉴 가격 결제
+        Gold_Manager.Instance.Earn(menuPrice);
+
+        // 플레이어는 재료비 + 자동조리비 5달러 지출
+        Gold_Manager.Instance.Spend(ingredientCost + autoExtraCost);
+
+        // 자동 성공 처리
+        Level_Manager.Instance.EarnXP(5);
+
+        Debug.Log(
+            $"[AUTO COOK] 자동 조리 완료 | " +
+            $"주문금액 +{menuPrice}, 재료비 -{ingredientCost}, 자동조리비 -{autoExtraCost}, 현재 골드: {Gold_Manager.Instance.totalGold}"
+        );
+
+        currentOrder = null;
+
+        yield return StartCoroutine(ServeDishAndGoToNextCustomer(true));
+
+        isAutoCooking = false;
     }
 
     public void OnOrderTimeEnded()

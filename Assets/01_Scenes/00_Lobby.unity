@@ -1325,6 +1325,7 @@ MonoBehaviour:
   dailyCost: 0
   dailyRefund: 0
   dailyTip: 0
+  dailyTipCount: 0
 --- !u!4 &210247728
 Transform:
   m_ObjectHideFlags: 0
@@ -4006,7 +4007,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   orderManager: {fileID: 1584618187}
-  dayDuration: 30
+  dayDuration: 90
   day: 0
   isDayActive: 0
   isTakingOrder: 1

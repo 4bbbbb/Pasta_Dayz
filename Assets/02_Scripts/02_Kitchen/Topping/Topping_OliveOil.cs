@@ -20,6 +20,7 @@ public class Topping_OliveOil : MonoBehaviour, IInteractable
     public bool CanBeSelected => true;
 
 
+
     void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
@@ -36,7 +37,7 @@ public class Topping_OliveOil : MonoBehaviour, IInteractable
         {
             Select();
             return true;
-        }        
+        }
 
         return false;
     }
@@ -63,6 +64,66 @@ public class Topping_OliveOil : MonoBehaviour, IInteractable
         seq.OnComplete(() => isAnimating = false);
     }
 
+    public void PlayPourToPanAnimation(Vector3 targetPos)
+    {
+        if (isAnimating) return;
+        isAnimating = true;
+
+        Transform tr = transform;
+
+        Vector3 startPos = tr.position;
+        Quaternion startRot = tr.rotation;
+
+        transform.DOKill();
+
+        Sequence seq = DOTween.Sequence();
+
+        // 1. 팬 위치로 이동
+        seq.Append(tr.DOMove(targetPos, 0.4f).SetEase(Ease.OutQuad));
+
+        // 2. 기울이면서 스프라이트 변경
+        seq.Append(tr.DORotate(new Vector3(0, 0, 25f), 0.25f)
+            .SetEase(Ease.OutQuad));
+
+        seq.AppendCallback(() =>
+        {
+            SetPressedSprite(); // 여기로 이동
+        });
+
+        // 3. 살짝 유지 (붓는 느낌)
+        seq.AppendInterval(0.15f);
+
+        // 4. 다시 원래 각도
+        seq.Append(tr.DORotate(Vector3.zero, 0.25f).SetEase(Ease.InQuad));
+
+        // 5. 원래 위치 복귀
+        seq.Append(tr.DOMove(startPos, 0.4f).SetEase(Ease.InQuad));
+
+        seq.OnComplete(() =>
+        {
+            SetNormalSprite();
+            tr.rotation = startRot;
+
+            isAnimating = false;
+        });
+    }
+
+    void SetPressedSprite()
+    {
+        if (sr != null && selectedSprite != null)
+            sr.sprite = selectedSprite;
+    }
+
+    void SetNormalSprite()
+    {
+        if (sr != null && originalSprite != null)
+            sr.sprite = originalSprite;
+    }
+
+
+
+
+
     public void Cancel()
     {
         if (isAnimating) return;
@@ -84,5 +145,5 @@ public class Topping_OliveOil : MonoBehaviour, IInteractable
         seq.Join(transform.DOLocalMove(originalPos, 0.12f));
         seq.OnComplete(() => isAnimating = false);
     }
-   
+
 }

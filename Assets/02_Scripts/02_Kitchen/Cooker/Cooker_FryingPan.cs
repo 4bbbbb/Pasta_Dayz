@@ -128,7 +128,15 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         hasOil = true;
         gasStove.TurnOn();
 
-        oilSpreadEffect.PlayOilSpread();
+        // 애니메이션 먼저 실행
+        oil.PlayPourToPanAnimation(GetSaucePourWorldPos());
+
+        // 오일 퍼지는 효과는 약간 딜레이
+        DOVirtual.DelayedCall(0.5f, () =>
+        {
+            if (this != null)
+                oilSpreadEffect.PlayOilSpread();
+        });
 
         IngredientIDs id = oil.GetComponent<IngredientIDs>();
         if (id != null)
@@ -136,6 +144,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
         return true;
     }
+
 
     bool AddTopping(Topping topping)
     {

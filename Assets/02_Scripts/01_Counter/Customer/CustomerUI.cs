@@ -74,11 +74,11 @@ public class CustomerUI : MonoBehaviour
 
     public void ShowOrder(string message)
     {
-        orderText.text = message;
-        StartCoroutine(ShowBubbleDelay());        
+        StartCoroutine(ShowBubbleDelay(message));
     }
 
-    IEnumerator ShowBubbleDelay()
+
+    IEnumerator ShowBubbleDelay(string message)
     {
         yield return new WaitForSeconds(0.7f);
 
@@ -87,10 +87,9 @@ public class CustomerUI : MonoBehaviour
         CanvasGroup cg = bubbleObject.GetComponent<CanvasGroup>();
         if (cg == null) cg = bubbleObject.AddComponent<CanvasGroup>();
 
-        // 시작
         bubble.localScale = Vector3.one * 0.8f;
         bubble.localRotation = Quaternion.identity;
-        cg.alpha = 0f; 
+        cg.alpha = 0f;
 
         bubbleObject.SetActive(true);
 
@@ -110,10 +109,8 @@ public class CustomerUI : MonoBehaviour
             float t = time / duration;
 
             float eased = 1 - Mathf.Pow(1 - t, 2);
-                        
-            Vector3 scale = Vector3.Lerp(startScale, targetScale, eased);
-            bubble.localScale = scale;
-                        
+
+            bubble.localScale = Vector3.Lerp(startScale, targetScale, eased);
             cg.alpha = eased;
 
             yield return null;
@@ -121,8 +118,22 @@ public class CustomerUI : MonoBehaviour
 
         bubble.localScale = targetScale;
         cg.alpha = 1f;
+
+        // 애니메이션 끝난 뒤 타이핑 시작
+        yield return StartCoroutine(TypeText(message));
     }
 
+
+    IEnumerator TypeText(string message)
+    {
+        orderText.text = "";
+
+        foreach (char c in message)
+        {
+            orderText.text += c;
+            yield return new WaitForSeconds(0.03f); // 속도 조절 (작을수록 빠름)
+        }
+    }
 
 
     public void HideBubble()
@@ -135,10 +146,11 @@ public class CustomerUI : MonoBehaviour
 
     public void ShowResult(string result)
     {
-        orderText.text = result;
-
         bubbleObject.SetActive(true);
         yesButton.SetActive(false);
         autoButton.SetActive(false);
+
+        StartCoroutine(TypeText(result));
     }
+
 }

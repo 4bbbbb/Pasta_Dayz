@@ -1773,8 +1773,8 @@ Transform:
   m_GameObject: {fileID: 367416882}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7.54, y: -11.04, z: 0}
-  m_LocalScale: {x: 0.36717224, y: 0.73483, z: 1}
+  m_LocalPosition: {x: 7.45, y: -11.12, z: 0}
+  m_LocalScale: {x: 1.4532657, y: 1.4532657, z: 1.4532657}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1630821045}
@@ -1820,7 +1820,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: c4a4a60204d19eb428c2c0827ae08c96, type: 3}
+  m_Sprite: {fileID: 21300000, guid: fab07f4dcdda3de4ea90007aac9e21cc, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -1850,8 +1850,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 5.89, y: 8.26, z: 0.2}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.56, y: 4.18, z: 0.2}
+  m_Center: {x: 0, y: 0.05, z: 0}
 --- !u!114 &367416886
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1963,7 +1963,6 @@ GameObject:
   - component: {fileID: 458088783}
   - component: {fileID: 458088785}
   - component: {fileID: 458088784}
-  - component: {fileID: 458088787}
   - component: {fileID: 458088786}
   m_Layer: 5
   m_Name: Button_Pause
@@ -2073,7 +2072,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 458088787}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Pause_Button, Assembly-CSharp
         m_MethodName: PauseGame
         m_Mode: 1
@@ -2085,18 +2084,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &458088787
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 458088782}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 584efc86500bd6a46bdafb4ccab36d27, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &471312964
 GameObject:
   m_ObjectHideFlags: 0
@@ -4813,7 +4800,7 @@ Transform:
   m_GameObject: {fileID: 927727545}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 17.1043, y: -2.3755, z: 0}
+  m_LocalPosition: {x: 9.2152, y: -4.91, z: 0}
   m_LocalScale: {x: 0.35, y: 0.35, z: 0.35}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4845,7 +4832,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOliveOil: 0
-  toppingType: 9
+  toppingType: 0
 --- !u!65 &927727549
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6798,7 +6785,7 @@ Transform:
   m_GameObject: {fileID: 1232048465}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 17.0952, y: 0.19, z: 0}
+  m_LocalPosition: {x: 14.49, y: -2.3755, z: 0}
   m_LocalScale: {x: 0.35, y: 0.35, z: 0.35}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7394,7 +7381,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 6
   m_Sprite: {fileID: 21300000, guid: 13423aad0e335634bb4edebe427ce22a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -7838,7 +7825,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1599888602
 Transform:
   m_ObjectHideFlags: 0
@@ -8453,7 +8440,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1750108891
 Transform:
   m_ObjectHideFlags: 0
@@ -8767,7 +8754,7 @@ Transform:
   m_GameObject: {fileID: 1776568096}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 14.49, y: -2.3755, z: 0}
+  m_LocalPosition: {x: 6.61, y: -4.91, z: 0}
   m_LocalScale: {x: 0.35, y: 0.35, z: 0.35}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8799,7 +8786,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOliveOil: 0
-  toppingType: 8
+  toppingType: 0
 --- !u!65 &1776568100
 BoxCollider:
   m_ObjectHideFlags: 0

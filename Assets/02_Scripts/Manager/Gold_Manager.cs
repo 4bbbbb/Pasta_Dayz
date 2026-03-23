@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,14 +11,18 @@ public class Gold_Manager : MonoBehaviour
     [Header("UI")]
     [HideInInspector] public TextMeshProUGUI goldText;
 
-    [Header("ÃÑ °ñµå")]
+    [Header("ì´ ê³¨ë“œ")]
     public float totalGold = 0f;
 
-    [Header("ÇÏ·ç ´ÜÀ§ Åë°è")]
-    public float dailyRevenue = 0f;   // ¼Õ´Ô¿¡°Ô ¹ŞÀº ±İ¾× ÇÕ
-    public float dailyCost = 0f;      // Àå»ç¿¡ »ç¿ëÇÑ Àç·áºñ ÇÕ
-    public float dailyRefund = 0f;    // È¯ºÒ ÇÕ
-    public float dailyTip = 0f;       // ÆÁ ÇÕ
+    [Header("í•˜ë£¨ ë‹¨ìœ„ í†µê³„")]
+    public float dailyRevenue = 0f;   // ì†ë‹˜ì—ê²Œ ë°›ì€ ê¸ˆì•¡ í•©
+    public float dailyCost = 0f;      // ì¥ì‚¬ì— ì‚¬ìš©í•œ ì¬ë£Œë¹„ í•©
+    public float dailyRefund = 0f;    // í™˜ë¶ˆ í•©
+    public float dailyTip = 0f;       // íŒ í•©
+    public int dailyTipCount = 0;
+
+    public System.Action OnTipChanged;
+
 
     void Awake()
     {
@@ -49,10 +53,16 @@ public class Gold_Manager : MonoBehaviour
     {
         totalGold += amount;
         dailyTip += amount;
+
+        dailyTipCount++; 
+
+        OnTipChanged?.Invoke(); 
+
         UpdateUI();
     }
 
-    // Àå»ç¿ë Àç·áºñ
+
+    // ì¥ì‚¬ìš© ì¬ë£Œë¹„
     public void SpendBusinessCost(float amount)
     {
         totalGold -= amount;
@@ -60,7 +70,7 @@ public class Gold_Manager : MonoBehaviour
         UpdateUI();
     }
 
-    // »óÁ¡ ±¸¸Å
+    // ìƒì  êµ¬ë§¤
     public void SpendShop(float amount)
     {
         totalGold -= amount;
@@ -99,5 +109,6 @@ public class Gold_Manager : MonoBehaviour
         dailyCost = 0f;
         dailyRefund = 0f;
         dailyTip = 0f;
+        dailyTipCount = 0; 
     }
 }

@@ -220,21 +220,26 @@ public class Counter_UI_Manager : MonoBehaviour
             cg.DOKill();
             panel.DOKill();
 
+            cg.transform.SetAsLastSibling(); // 가림 방지
+
             cg.gameObject.SetActive(true);
             cg.alpha = 0f;
             cg.interactable = false;
             cg.blocksRaycasts = false;
             panel.localScale = Vector3.one * panelStartScale;
 
-            cg.DOFade(1f, panelFadeDuration);
+            cg.DOFade(1f, panelFadeDuration).SetUpdate(true);
             panel.DOScale(Vector3.one, panelFadeDuration)
                 .SetEase(Ease.OutCubic)
+                .SetUpdate(true)
                 .OnComplete(() =>
                 {
                     cg.interactable = true;
                     cg.blocksRaycasts = true;
                 });
-        });
+
+        }).SetUpdate(true); //  이거 핵심
+
     }
 
     void StartClose(CanvasGroup cg, RectTransform panel)
@@ -249,13 +254,16 @@ public class Counter_UI_Manager : MonoBehaviour
             cg.interactable = false;
             cg.blocksRaycasts = false;
 
-            cg.DOFade(0f, panelCloseDuration);
+            cg.DOFade(0f, panelCloseDuration).SetUpdate(true);            
             panel.DOScale(Vector3.one * panelStartScale, panelCloseDuration)
                 .SetEase(Ease.InCubic)
                 .OnComplete(() =>
                 {
                     cg.gameObject.SetActive(false);
                 });
-        });
+
+        }).SetUpdate(true);
+
+
     }
 }

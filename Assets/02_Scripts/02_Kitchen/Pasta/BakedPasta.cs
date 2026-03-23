@@ -12,19 +12,16 @@ public class BakedPasta : MonoBehaviour, IInteractable
     [Header("<<파슬리 스폰 위치>>")]
     [SerializeField] Transform parsleySpawnPoint;
 
-    [Header("<<상태별 크기>>")]
-    [SerializeField] private Vector3 inOvenScale = new Vector3(1f, 1f, 1f);
-    [SerializeField] private Vector3 platedScale = new Vector3(0.7f, 0.7f, 1f);
-
     public enum BakedState
     {
-        InOven,
-        Plated
+        InOven,   // 오븐 안
+        Plated    // 접시 위
     }
 
     private BakedState currentState;
 
     [System.Serializable]
+
     public class BakedCheeseSpriteEntry
     {
         public int sauceID;
@@ -34,7 +31,8 @@ public class BakedPasta : MonoBehaviour, IInteractable
         public Sprite sprite;
     }
 
-    [SerializeField] private List<BakedCheeseSpriteEntry> bakedCheeseEntries = new List<BakedCheeseSpriteEntry>();
+    [SerializeField] private List<BakedCheeseSpriteEntry> bakedCheeseEntries =  new List<BakedCheeseSpriteEntry>();
+
 
     private SpriteRenderer sr;
     public bool isSelected { get; private set; }
@@ -45,16 +43,14 @@ public class BakedPasta : MonoBehaviour, IInteractable
     void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
-        currentState = BakedState.InOven;
-        ApplyStateVisual();
     }
 
     public void SetIngredients(HashSet<int> ids)
     {
         ingredientIDs = new HashSet<int>(ids);
+
         UpdateBakedSprite();
     }
-
     public HashSet<int> GetIngredientSet()
     {
         return new HashSet<int>(ingredientIDs);
@@ -89,6 +85,7 @@ public class BakedPasta : MonoBehaviour, IInteractable
             }
 
             return true;
+
         }
 
         return false;
@@ -97,22 +94,12 @@ public class BakedPasta : MonoBehaviour, IInteractable
     public void SetState(BakedState state)
     {
         currentState = state;
-        ApplyStateVisual();
         UpdateBakedSprite();
-    }
-
-    private void ApplyStateVisual()
-    {
-        if (currentState == BakedState.InOven)
-            transform.localScale = inOvenScale;
-        else
-            transform.localScale = platedScale;
     }
 
     public void AddIngredient(int id)
     {
         ingredientIDs.Add(id);
-        UpdateBakedSprite();
     }
 
     private int GetSauceID()
@@ -134,7 +121,7 @@ public class BakedPasta : MonoBehaviour, IInteractable
 
     private int GetCheeseID()
     {
-        if (ingredientIDs.Contains(402)) return 402;
+        if (ingredientIDs.Contains(402)) return 402; // 모짜렐라
         return -1;
     }
 
@@ -151,13 +138,12 @@ public class BakedPasta : MonoBehaviour, IInteractable
             if (entry.sauceID == sauceID &&
                 entry.plateID == plateID &&
                 entry.cheeseID == cheeseID &&
-                entry.state == currentState)
+                entry.state == currentState) // ⭐ 이거 추가
             {
                 sr.sprite = entry.sprite;
                 return;
             }
         }
-
         Debug.Log($"state={currentState}, sauce={sauceID}, plate={plateID}, cheese={cheeseID}");
     }
 

@@ -107,7 +107,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: 32c473a020809fe42ae69495e9e815ad, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 52d59eb7d7645024aaebb5e1829380da, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -168,9 +168,9 @@ MonoBehaviour:
     plateID: 502
     cheeseID: 402
     state: 0
-    sprite: {fileID: 21300000, guid: 32c473a020809fe42ae69495e9e815ad, type: 3}
+    sprite: {fileID: 21300000, guid: 52d59eb7d7645024aaebb5e1829380da, type: 3}
   - sauceID: 203
     plateID: 502
     cheeseID: 402
     state: 0
-    sprite: {fileID: 21300000, guid: 32c473a020809fe42ae69495e9e815ad, type: 3}
+    sprite: {fileID: 21300000, guid: 52d59eb7d7645024aaebb5e1829380da, type: 3}

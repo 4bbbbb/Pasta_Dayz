@@ -16,7 +16,6 @@ public class Shop_Manager : MonoBehaviour
 
     // 상점 아이템 UI 리스트
     private List<ShopItemUI> shopItemUIs = new List<ShopItemUI>();
-
     void Awake()
     {
         if (Instance == null)
@@ -26,9 +25,8 @@ public class Shop_Manager : MonoBehaviour
         else
         {
             Destroy(gameObject);
-        }
+        }        
     }
-
     void Start()
     {
         shopItemUIs.Clear();
@@ -60,12 +58,12 @@ public class Shop_Manager : MonoBehaviour
 
             GameObject go = Instantiate(shopItemPrefab, shopContentParent);
             ShopItemUI ui = go.GetComponent<ShopItemUI>();
-            ui.SetData(item, this);
+            ui.SetData(item, this); // 데이터 전달
             shopItemUIs.Add(ui);
         }
     }
 
-    // 전체 UI 갱신
+    // 전체 UI 갱신 (레벨업/골드 변경 시 호출)
     public void UpdateShopUI()
     {
         foreach (var ui in shopItemUIs)
@@ -80,9 +78,9 @@ public class Shop_Manager : MonoBehaviour
         if (!CanPurchase(item))
         {
             return;
-        }
+        } 
 
-        Gold_Manager.Instance.SpendShop(item.unlockCost); // 상점 구매라 dailyCost에 안 들어감
+        Gold_Manager.Instance.Spend(item.unlockCost); // 골드 차감
 
         IngredientDatabase.Instance.UpdateUnlockState(item.id, true);
 
@@ -107,7 +105,7 @@ public class Shop_Manager : MonoBehaviour
         shopContentParent = parent;
 
         shopItemUIs.Clear();
-
+        
         foreach (Transform child in shopContentParent)
         {
             Destroy(child.gameObject);
@@ -156,4 +154,5 @@ public class Shop_Manager : MonoBehaviour
     {
         FilterByCategory(CategoryType.Pane);
     }
+    
 }

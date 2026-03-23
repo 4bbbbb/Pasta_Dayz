@@ -373,6 +373,8 @@ public class Order_Manager : MonoBehaviour
     {
         SetState(ServiceState.Cooking);
 
+        // 여기서는 손님 제거 X
+        // 같은 손님이 다시 카운터에서 음식 받아야 하므로 숨기기만 함
         StopCustomerEntranceAnimation();
 
         if (currentCustomer != null)
@@ -426,7 +428,7 @@ public class Order_Manager : MonoBehaviour
             Level_Manager.Instance.EarnXP(5);
             Debug.Log("성공 +5");
             Debug.Log($"팁 지급: {tip}, 현재 골드: {Gold_Manager.Instance.totalGold}");
-            Debug.Log($"현재 XP : {Level_Manager.Instance.currentXP}");
+            Debug.Log($"현재 XP : {Level_Manager.Instance.currentXP}");            
         }
 
         HashSet<int> usedIngredients = pastaBox.GetIngredientSet();
@@ -454,8 +456,7 @@ public class Order_Manager : MonoBehaviour
             }
         }
 
-        // 장사용 재료비
-        Gold_Manager.Instance.SpendBusinessCost(totalingredientCost);
+        Gold_Manager.Instance.Spend(totalingredientCost);
 
         if (refund > 0f)
         {
@@ -466,7 +467,7 @@ public class Order_Manager : MonoBehaviour
         Debug.Log($"재료비 차감: {totalingredientCost}, 현재 골드: {Gold_Manager.Instance.totalGold}");
 
         pendingResult = success;
-        SetState(ServiceState.ServingDish);
+        SetState(ServiceState.ServingDish);        
 
         currentOrder = null;
     }
@@ -567,7 +568,7 @@ public class Order_Manager : MonoBehaviour
         currentCustomerSpriteIndex = -1;
         currentOrder = null;
 
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(2f);        
 
         SpawnCustomer();
     }
@@ -622,11 +623,13 @@ public class Order_Manager : MonoBehaviour
         float ingredientCost = currentOrder.Ingredient_Cost(ingredientDB);
         float autoExtraCost = 5f;
 
+        // 손님이 원래 메뉴 가격 결제
         Gold_Manager.Instance.Earn(menuPrice);
 
-        // 장사용 재료비 + 자동조리비
-        Gold_Manager.Instance.SpendBusinessCost(ingredientCost + autoExtraCost);
+        // 플레이어는 재료비 + 자동조리비 5달러 지출
+        Gold_Manager.Instance.Spend(ingredientCost + autoExtraCost);
 
+        // 자동 성공 처리
         Level_Manager.Instance.EarnXP(5);
 
         Debug.Log(

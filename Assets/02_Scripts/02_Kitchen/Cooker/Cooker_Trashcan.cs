@@ -27,7 +27,7 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
 
         if (Gold_Manager.Instance != null && totalCost > 0f)
         {
-            Gold_Manager.Instance.Spend(totalCost);
+            Gold_Manager.Instance.SpendBusinessCost(totalCost);
         }
 
         Debug.Log($"완성 파스타를 버렸습니다. 재료비 {totalCost} 차감");

@@ -1,9 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+
 
 public class DayTextUI : MonoBehaviour
 {
-    public Text dayText;
+    public TextMeshProUGUI dayText;
 
     void Update()
     {

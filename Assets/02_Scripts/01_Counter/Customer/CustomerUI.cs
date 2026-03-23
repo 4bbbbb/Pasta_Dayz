@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+
 
 public class CustomerUI : MonoBehaviour
 {
@@ -20,7 +22,7 @@ public class CustomerUI : MonoBehaviour
     public Image customerImage;     // 프리팹에 미리 연결된 이미지
     public GameObject bubbleObject; // 말풍선 오브젝트
     public CanvasGroup cg;
-    public Text orderText;          // 주문 텍스트
+    public TextMeshProUGUI orderText;          // 주문 텍스트
     public GameObject yesButton;    // 네 버튼
     public GameObject autoButton;   // 자동 완성 버튼
 

@@ -1,10 +1,12 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+
 
 public class XP_Text_UI : MonoBehaviour
 {
-    public Text lvText;
-    public Text xpText;
+    public TextMeshProUGUI lvText;
+    public TextMeshProUGUI xpText;
     public Image xpImage;
 
     void Update()

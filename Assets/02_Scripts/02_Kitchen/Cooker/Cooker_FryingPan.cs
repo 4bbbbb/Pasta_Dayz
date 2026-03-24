@@ -45,8 +45,6 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     [Header("<<소스 붓기 타겟>>")]
     [SerializeField] private Transform saucePourTarget;
 
-    private bool isSauceAnimating = false;
-
     private bool hasOil = false;
     private bool isCooking = false;
 

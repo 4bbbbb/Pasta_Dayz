@@ -16,7 +16,9 @@ public class Order_Manager : MonoBehaviour
 
     [Header("UI")]
     public GameObject customerUIPrefab;
-    private Transform canvasTransform;
+
+    private Transform customerUIParent;   // Panel_Customer
+    private Transform serveBoxParent;     // Image_Table
 
     [Header("손님 프리팹")]
     private CustomerUI currentCustomer;
@@ -24,7 +26,13 @@ public class Order_Manager : MonoBehaviour
     private int lastCustomerSpriteIndex = -1;
 
     [Header("연출용 파스타박스 프리팹")]
-    [SerializeField] GameObject serveBoxPrefab;
+    [SerializeField] private GameObject serveBoxPrefab;
+
+    [Header("박스 등장 연출")]
+    [SerializeField] private float serveBoxStartYOffset = -250f;
+    [SerializeField] private float serveBoxMoveDuration = 0.45f;
+    [SerializeField] private float serveBoxFadeDuration = 0.25f;
+    [SerializeField] private float serveBoxStartScale = 0.95f;
 
     [Header("딩동 사운드")]
     [SerializeField] private AudioClip customerEnterSFX;
@@ -80,16 +88,12 @@ public class Order_Manager : MonoBehaviour
         {
             case ServiceState.WaitingForOrder:
                 break;
-
             case ServiceState.TakingOrder:
                 break;
-
             case ServiceState.Cooking:
                 break;
-
             case ServiceState.ServingDish:
                 break;
-
             case ServiceState.DayEnded:
                 break;
         }
@@ -105,30 +109,49 @@ public class Order_Manager : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
+    private bool BindCounterParents()
+    {
+        GameObject customerPanel = GameObject.Find("Panel_Customer");
+        GameObject imageTable = GameObject.Find("Image_Table");
+
+        if (customerPanel == null)
+        {
+            Debug.LogError("Panel_Customer를 찾을 수 없음!");
+            return false;
+        }
+
+        customerUIParent = customerPanel.transform;
+
+        if (imageTable == null)
+        {
+            Debug.LogError("Image_Table을 찾을 수 없음! serveBox는 생성되지 않음");
+            serveBoxParent = null;
+        }
+        else
+        {
+            serveBoxParent = imageTable.transform;
+        }
+
+        return true;
+    }
+
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (scene.name != "01_Counter")
             return;
 
-        GameObject panel = GameObject.Find("Panel_Customer");
-
-        if (panel == null)
-        {
-            Debug.LogError("CustomerPanel을 찾을 수 없음!");
+        if (!BindCounterParents())
             return;
-        }
-
-        canvasTransform = panel.transform;
 
         if (currentCustomer == null)
         {
-            GameObject obj = Instantiate(customerUIPrefab, canvasTransform);
+            GameObject obj = Instantiate(customerUIPrefab, customerUIParent);
             currentCustomer = obj.GetComponent<CustomerUI>();
             currentCustomer.transform.SetAsFirstSibling();
         }
         else
         {
-            currentCustomer.transform.SetParent(canvasTransform, false);
+            currentCustomer.transform.SetParent(customerUIParent, false);
             currentCustomer.transform.SetAsFirstSibling();
             currentCustomer.gameObject.SetActive(true);
         }
@@ -176,36 +199,21 @@ public class Order_Manager : MonoBehaviour
 
         currentState = ServiceState.TakingOrder;
 
-        if (canvasTransform == null)
+        if (customerUIParent == null)
         {
-            GameObject panel = GameObject.Find("Panel_Customer");
-            if (panel != null)
-            {
-                canvasTransform = panel.transform;
-            }
-            else
-            {
-                Canvas canvas = FindObjectOfType<Canvas>();
-                if (canvas != null)
-                    canvasTransform = canvas.transform;
-            }
-
-            if (canvasTransform == null)
-            {
-                Debug.LogError("Canvas 또는 Panel_Customer를 찾을 수 없음!");
+            if (!BindCounterParents())
                 return;
-            }
         }
 
         if (currentCustomer == null)
         {
-            GameObject obj = Instantiate(customerUIPrefab, canvasTransform);
+            GameObject obj = Instantiate(customerUIPrefab, customerUIParent);
             currentCustomer = obj.GetComponent<CustomerUI>();
             currentCustomer.transform.SetAsFirstSibling();
         }
         else
         {
-            currentCustomer.transform.SetParent(canvasTransform, false);
+            currentCustomer.transform.SetParent(customerUIParent, false);
             currentCustomer.transform.SetAsFirstSibling();
         }
 
@@ -240,6 +248,9 @@ public class Order_Manager : MonoBehaviour
 
         if (currentCustomer.yesButton != null)
             currentCustomer.yesButton.SetActive(false);
+
+        if (currentCustomer.autoButton != null)
+            currentCustomer.autoButton.SetActive(false);
     }
 
     IEnumerator CustomerEntranceRoutine(string message)
@@ -454,7 +465,6 @@ public class Order_Manager : MonoBehaviour
             }
         }
 
-        // 장사용 재료비
         Gold_Manager.Instance.SpendBusinessCost(totalingredientCost);
 
         if (refund > 0f)
@@ -475,10 +485,16 @@ public class Order_Manager : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
 
-        GameObject box = null;
-        if (serveBoxPrefab != null && canvasTransform != null)
+        if (serveBoxParent == null)
         {
-            box = Instantiate(serveBoxPrefab, canvasTransform);
+            BindCounterParents();
+        }
+
+        GameObject box = null;
+        if (serveBoxPrefab != null && serveBoxParent != null)
+        {
+            box = Instantiate(serveBoxPrefab, serveBoxParent, false);
+            yield return StartCoroutine(PlayServeBoxEntrance(box));
         }
 
         yield return new WaitForSeconds(1f);
@@ -502,12 +518,65 @@ public class Order_Manager : MonoBehaviour
         currentCustomerSpriteIndex = -1;
 
         if (box != null)
+        {
+            box.transform.DOKill();
             Destroy(box);
+        }
 
         yield return new WaitForSeconds(2f);
 
         SpawnCustomer();
         CheckDayEndCondition();
+    }
+
+    private IEnumerator PlayServeBoxEntrance(GameObject box)
+    {
+        if (box == null)
+            yield break;
+
+        RectTransform boxRect = box.GetComponent<RectTransform>();
+        CanvasGroup boxCg = box.GetComponent<CanvasGroup>();
+
+        if (boxCg == null)
+            boxCg = box.AddComponent<CanvasGroup>();
+
+        if (boxRect == null)
+        {
+            boxCg.alpha = 1f;
+            yield break;
+        }
+
+        boxRect.DOKill();
+        boxCg.DOKill();
+
+        Vector2 targetPos = boxRect.anchoredPosition;
+        Vector2 startPos = targetPos + new Vector2(0f, serveBoxStartYOffset);
+
+        boxRect.anchoredPosition = startPos;
+        Vector3 targetScale = boxRect.localScale;
+        Vector3 startScale = targetScale * serveBoxStartScale;
+
+        boxRect.localScale = startScale;
+
+        Sequence boxSequence = DOTween.Sequence();
+        boxSequence.SetLink(box, LinkBehaviour.KillOnDestroy);
+
+        boxSequence.Append(
+            boxRect.DOAnchorPos(targetPos, serveBoxMoveDuration)
+                   .SetEase(Ease.OutCubic)
+        );
+
+        boxSequence.Join(
+            boxRect.DOScale(targetScale, serveBoxMoveDuration)
+                   .SetEase(Ease.OutBack)
+        );
+
+        boxSequence.Join(
+            boxCg.DOFade(1f, serveBoxFadeDuration)
+                 .SetEase(Ease.Linear)
+        );
+
+        yield return boxSequence.WaitForCompletion();
     }
 
     public void SatisfactionZero()
@@ -528,18 +597,23 @@ public class Order_Manager : MonoBehaviour
 
     IEnumerator DontSubmitDish()
     {
+        if (customerUIParent == null)
+        {
+            if (!BindCounterParents())
+                yield break;
+        }
+
         if (currentCustomer == null)
         {
-            if (canvasTransform == null)
-            {
-                GameObject panel = GameObject.Find("Panel_Customer");
-                if (panel != null)
-                    canvasTransform = panel.transform;
-            }
-
-            GameObject obj = Instantiate(customerUIPrefab, canvasTransform);
+            GameObject obj = Instantiate(customerUIPrefab, customerUIParent);
             currentCustomer = obj.GetComponent<CustomerUI>();
             currentCustomer.Appear();
+        }
+        else
+        {
+            currentCustomer.transform.SetParent(customerUIParent, false);
+            currentCustomer.transform.SetAsFirstSibling();
+            currentCustomer.gameObject.SetActive(true);
         }
 
         if (currentCustomerSpriteIndex == -1)
@@ -623,8 +697,6 @@ public class Order_Manager : MonoBehaviour
         float autoExtraCost = 5f;
 
         Gold_Manager.Instance.Earn(menuPrice);
-
-        // 장사용 재료비 + 자동조리비
         Gold_Manager.Instance.SpendBusinessCost(ingredientCost + autoExtraCost);
 
         Level_Manager.Instance.EarnXP(5);

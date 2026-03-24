@@ -10524,11 +10524,13 @@ MonoBehaviour:
   burnedPanePrefab: {fileID: 4529244966350777480, guid: c99ddb541f65b124886d90c9be1a1a33, type: 3}
   unbakedPastaPrefab: {fileID: 614694413020946341, guid: 4e5cedcb225fb5542b566c32c03b3f86, type: 3}
   bakedPastaPrefab: {fileID: 4934322642545547846, guid: d122190525a6e4e42a84800090dcf76e, type: 3}
-  burnedPastaPrefab: {fileID: 4529244966350777480, guid: c99ddb541f65b124886d90c9be1a1a33, type: 3}
+  burnedPastaPrefab: {fileID: 4529244966350777480, guid: 70903491d96ba9c46a995621a647a668, type: 3}
   bakedSpawnPoint: {fileID: 24670053}
   ovenSprite: {fileID: 21300000, guid: 23223fd78a4dc9345962f203e8ea8b06, type: 3}
   ovenBakingSprite: {fileID: 21300000, guid: 4718383dee16f5a42800022e39eac41b, type: 3}
   ovenFinishSprite: {fileID: 21300000, guid: 4c1c7246f66858241acacd21965fa1f2, type: 3}
+  ovenCollider: {fileID: 0}
+  releaseDistance: 0.2
 --- !u!65 &2002817763
 BoxCollider:
   m_ObjectHideFlags: 0

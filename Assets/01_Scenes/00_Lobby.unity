@@ -1684,37 +1684,37 @@ MonoBehaviour:
     ingredientPrefab: {fileID: 5062902668744613515, guid: 6076390bb621e5a4e8a3a00d107a4634, type: 3}
   - id: 303
     icon: {fileID: 21300000, guid: 6adecebf116875d458ee0734f7e0a51d, type: 3}
-    ingredientPrefab: {fileID: 5062902668744613515, guid: 6076390bb621e5a4e8a3a00d107a4634, type: 3}
+    ingredientPrefab: {fileID: 5062902668744613515, guid: c8e9cb6bb3718cb479be4835b3490a2f, type: 3}
   - id: 304
     icon: {fileID: 21300000, guid: 7b9c50582a0ef8e4cb321be022526a8d, type: 3}
-    ingredientPrefab: {fileID: 5062902668744613515, guid: 6076390bb621e5a4e8a3a00d107a4634, type: 3}
+    ingredientPrefab: {fileID: 5062902668744613515, guid: 329ce44c70388844183c345446e78b0b, type: 3}
   - id: 305
     icon: {fileID: 21300000, guid: e14775ebb7845bb41b66298c10ebeb64, type: 3}
-    ingredientPrefab: {fileID: 0}
+    ingredientPrefab: {fileID: 5062902668744613515, guid: f66ee3d4f0c75b04aae39236643c19e8, type: 3}
   - id: 306
     icon: {fileID: 21300000, guid: f0c2d18453a7ecb469dadd72bc4a507b, type: 3}
-    ingredientPrefab: {fileID: 0}
+    ingredientPrefab: {fileID: 5062902668744613515, guid: bc269a9f66dff7d4bbd8504b0f00815a, type: 3}
   - id: 307
     icon: {fileID: 21300000, guid: d4ebb6b54fb94ff46a2fee63fa4be7c7, type: 3}
-    ingredientPrefab: {fileID: 0}
+    ingredientPrefab: {fileID: 5062902668744613515, guid: 8e897a1bdc302a54780989fb3f5b0869, type: 3}
   - id: 308
     icon: {fileID: 21300000, guid: b9aae3e9236a9c745ac4d951b98c0a40, type: 3}
-    ingredientPrefab: {fileID: 0}
+    ingredientPrefab: {fileID: 5062902668744613515, guid: c710a3e603bd6524a9af35571953b7ef, type: 3}
   - id: 309
     icon: {fileID: 21300000, guid: 0ed7476a132283f48ae76d3bf87e1864, type: 3}
-    ingredientPrefab: {fileID: 0}
+    ingredientPrefab: {fileID: 5062902668744613515, guid: 8204f95dbb705d14ab9efe7986476181, type: 3}
   - id: 310
     icon: {fileID: 21300000, guid: b0a829507496a2348a658e59b6aade16, type: 3}
-    ingredientPrefab: {fileID: 0}
+    ingredientPrefab: {fileID: 5062902668744613515, guid: 8ffa75df0455ea149ada463d872e5686, type: 3}
   - id: 311
     icon: {fileID: 21300000, guid: 7ab2e667eebee52409010a8a3705dd36, type: 3}
-    ingredientPrefab: {fileID: 0}
+    ingredientPrefab: {fileID: 5062902668744613515, guid: 3dbeacbd31c0f514bb18641e4f742d0a, type: 3}
   - id: 312
     icon: {fileID: 21300000, guid: 2110c48881f846b4aa04a62e64c8ad2e, type: 3}
-    ingredientPrefab: {fileID: 0}
+    ingredientPrefab: {fileID: 5062902668744613515, guid: 300ea1cf6c2807246aa165cd6e9ddaac, type: 3}
   - id: 313
     icon: {fileID: 21300000, guid: 49cd2a068f00c33429beb3f74a5dfccf, type: 3}
-    ingredientPrefab: {fileID: 0}
+    ingredientPrefab: {fileID: 5062902668744613515, guid: 22e45a563164e144e96afa9aac450757, type: 3}
   - id: 201
     icon: {fileID: 21300000, guid: 13423aad0e335634bb4edebe427ce22a, type: 3}
     ingredientPrefab: {fileID: 1982640987095753963, guid: 65cc20e7648f1804c943389e53fd18d0, type: 3}
@@ -8502,7 +8502,7 @@ MonoBehaviour:
   ingredientDB: {fileID: 326935923}
   serveMessageDB: {fileID: 127470462}
   customerUIPrefab: {fileID: 1866242345739606558, guid: 4fa710a3971fae845809e1e8bcc9d9db, type: 3}
-  serveBoxPrefab: {fileID: 4515603954898981339, guid: c3765b53906168b4386b47dfe1a76cdc, type: 3}
+  serveBoxPrefab: {fileID: 4515603954898981339, guid: 6815259e2572556449f9426249cae20a, type: 3}
   customerEnterSFX: {fileID: 8300000, guid: db03eb15347b9ba47b62aee17625c848, type: 3}
   currentState: 0
 --- !u!1 &1585892876

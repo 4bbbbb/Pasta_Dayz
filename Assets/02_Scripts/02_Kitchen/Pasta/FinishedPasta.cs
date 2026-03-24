@@ -79,7 +79,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
 
     public bool isOnPlate { get; private set; }
-    private bool hasCheese = false;
 
     private HashSet<int> ingredientIDs = new HashSet<int>();
 
@@ -120,7 +119,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
                 ingredientIDs.Add(id.GetID());
             }
 
-            hasCheese = true;
             addedCheeseType = cheese.cheeseType;
 
             //  치즈 타입별 처리
@@ -660,7 +658,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     {
         ingredientIDs.Clear();
 
-        hasCheese = false;
         addedCheeseType = null;
         isSelected = false;
         isOnPlate = false;

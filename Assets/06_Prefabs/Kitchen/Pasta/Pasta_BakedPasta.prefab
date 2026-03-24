@@ -137,8 +137,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 10.239999, y: 10.239999, z: 0.1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 4.86, y: 2.03, z: 0.1}
+  m_Center: {x: 0, y: -0.27, z: 0}
 --- !u!114 &-3131851512186932931
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -153,6 +153,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   parsleyPrefab: {fileID: 4456431008458272939, guid: fbb71ae443d45644b9f8aef2c4b6aafd, type: 3}
   parsleySpawnPoint: {fileID: 9196670544973216652}
+  inOvenScale: {x: 1, y: 1, z: 1}
+  platedScale: {x: 0.7, y: 0.7, z: 1}
   bakedCheeseEntries:
   - sauceID: 202
     plateID: 502

@@ -33,6 +33,12 @@ public class Counter_UI_Manager : MonoBehaviour
     [SerializeField] private float pressX = 0.96f;
     [SerializeField] private float pressY = 0.94f;
 
+    [Header("Pause 메뉴 버튼 등장")]
+    [SerializeField] private float menuButtonStartScale = 0.65f;
+    [SerializeField] private float menuButtonOvershootScale = 1.12f;
+    [SerializeField] private float menuButtonPopDuration = 0.22f;
+    [SerializeField] private float menuButtonPopInterval = 0.08f;
+
     [Header("패널 등장/퇴장")]
     [SerializeField] private float buttonAnimDelay = 0.3f;
     [SerializeField] private float panelStartScale = 0.98f;
@@ -55,6 +61,7 @@ public class Counter_UI_Manager : MonoBehaviour
     [SerializeField] private AudioClip buttonClickSFX;
 
     private Dictionary<RectTransform, Vector3> originalScales = new Dictionary<RectTransform, Vector3>();
+    private Coroutine pauseMenuButtonsRoutine;
 
     void Awake()
     {
@@ -95,25 +102,32 @@ public class Counter_UI_Manager : MonoBehaviour
         if (pausePanel != null)
             pausePanel.SetActive(true);
 
+        PreparePauseMenuButtons();
         PlayButtonJelly(pauseButton);
 
         Time.timeScale = 0f;
+
+        if (pauseMenuButtonsRoutine != null)
+            StopCoroutine(pauseMenuButtonsRoutine);
+
+        pauseMenuButtonsRoutine = StartCoroutine(ShowPauseMenuButtonsRoutine());
     }
 
     public void OnPausePanelClicked()
     {
         if (!IsPaused)
-        {
             return;
-        }
 
-        if (Time.unscaledTime - pauseOpenedTime < resumeClickDelay) return;
+        if (Time.unscaledTime - pauseOpenedTime < resumeClickDelay)
+            return;
 
         ResumeGame();
     }
 
     public void ResumeGame()
     {
+        StopPauseMenuButtonsAnimation();
+
         IsPaused = false;
         Time.timeScale = 1f;
 
@@ -123,6 +137,8 @@ public class Counter_UI_Manager : MonoBehaviour
 
     void OnDisable()
     {
+        StopPauseMenuButtonsAnimation();
+
         Time.timeScale = 1f;
         IsPaused = false;
     }
@@ -162,17 +178,135 @@ public class Counter_UI_Manager : MonoBehaviour
         target.DOKill();
         target.localScale = originalScale;
 
-        Sequence seq = DOTween.Sequence();
+        Sequence seq = DOTween.Sequence().SetUpdate(true);
         seq.Append(
-            target.DOScale(
-                new Vector3(originalScale.x * pressX, originalScale.y * pressY, originalScale.z),
-                0.1f
-            ).SetEase(Ease.OutCubic)
+            target.DOScale(new Vector3(originalScale.x * pressX, originalScale.y * pressY, originalScale.z), 0.1f)
+                  .SetEase(Ease.OutCubic)
+        );
+        seq.Append(
+            target.DOScale(originalScale, 0.14f)
+                  .SetEase(Ease.OutQuad)
+        );
+    }
+
+    void PreparePauseMenuButtons()
+    {
+        PreparePauseMenuButton(settingOpenButton);
+        PreparePauseMenuButton(bookOpenButton);
+        PreparePauseMenuButton(homeOpenButton);
+    }
+
+    void PreparePauseMenuButton(RectTransform target)
+    {
+        if (target == null) return;
+
+        CanvasGroup cg = GetOrAddCanvasGroup(target);
+
+        if (!originalScales.TryGetValue(target, out Vector3 originalScale))
+            originalScale = target.localScale;
+
+        target.DOKill();
+        cg.DOKill();
+
+        target.gameObject.SetActive(true);
+        target.localScale = originalScale * menuButtonStartScale;
+
+        cg.alpha = 0f;
+        cg.interactable = false;
+        cg.blocksRaycasts = false;
+    }
+
+    IEnumerator ShowPauseMenuButtonsRoutine()
+    {
+        yield return StartCoroutine(PopPauseMenuButton(settingOpenButton));
+        yield return new WaitForSecondsRealtime(menuButtonPopInterval);
+
+        yield return StartCoroutine(PopPauseMenuButton(bookOpenButton));
+        yield return new WaitForSecondsRealtime(menuButtonPopInterval);
+
+        yield return StartCoroutine(PopPauseMenuButton(homeOpenButton));
+
+        pauseMenuButtonsRoutine = null;
+    }
+
+    IEnumerator PopPauseMenuButton(RectTransform target)
+    {
+        if (target == null)
+            yield break;
+
+        CanvasGroup cg = GetOrAddCanvasGroup(target);
+
+        if (!originalScales.TryGetValue(target, out Vector3 originalScale))
+            originalScale = target.localScale;
+
+        Vector3 startScale = originalScale * menuButtonStartScale;
+        Vector3 overshootScale = originalScale * menuButtonOvershootScale;
+
+        target.localScale = startScale;
+        cg.alpha = 0f;
+        cg.interactable = false;
+        cg.blocksRaycasts = false;
+
+        Sequence seq = DOTween.Sequence().SetUpdate(true);
+        seq.Append(
+            target.DOScale(overshootScale, menuButtonPopDuration * 0.65f)
+                  .SetEase(Ease.OutBack)
+        );
+        seq.Join(
+            cg.DOFade(1f, menuButtonPopDuration * 0.55f)
+              .SetEase(Ease.Linear)
+        );
+        seq.Append(
+            target.DOScale(originalScale, menuButtonPopDuration * 0.35f)
+                  .SetEase(Ease.OutQuad)
         );
 
-        seq.Append(
-            target.DOScale(originalScale, 0.14f).SetEase(Ease.OutQuad)
-        );
+        yield return seq.WaitForCompletion();
+
+        cg.interactable = true;
+        cg.blocksRaycasts = true;
+        target.localScale = originalScale;
+        cg.alpha = 1f;
+    }
+
+    void StopPauseMenuButtonsAnimation()
+    {
+        if (pauseMenuButtonsRoutine != null)
+        {
+            StopCoroutine(pauseMenuButtonsRoutine);
+            pauseMenuButtonsRoutine = null;
+        }
+
+        ResetPauseMenuButton(settingOpenButton);
+        ResetPauseMenuButton(bookOpenButton);
+        ResetPauseMenuButton(homeOpenButton);
+    }
+
+    void ResetPauseMenuButton(RectTransform target)
+    {
+        if (target == null) return;
+
+        CanvasGroup cg = GetOrAddCanvasGroup(target);
+
+        if (!originalScales.TryGetValue(target, out Vector3 originalScale))
+            originalScale = target.localScale;
+
+        target.DOKill();
+        cg.DOKill();
+
+        target.localScale = originalScale;
+        cg.alpha = 1f;
+        cg.interactable = true;
+        cg.blocksRaycasts = true;
+    }
+
+    CanvasGroup GetOrAddCanvasGroup(RectTransform target)
+    {
+        CanvasGroup cg = target.GetComponent<CanvasGroup>();
+        if (cg == null)
+            cg = target.gameObject.AddComponent<CanvasGroup>();
+
+        return cg;
     }
 
     public void OpenSettingWithDelay()
@@ -220,7 +354,7 @@ public class Counter_UI_Manager : MonoBehaviour
             cg.DOKill();
             panel.DOKill();
 
-            cg.transform.SetAsLastSibling(); // 가림 방지
+            cg.transform.SetAsLastSibling();
 
             cg.gameObject.SetActive(true);
             cg.alpha = 0f;
@@ -238,8 +372,7 @@ public class Counter_UI_Manager : MonoBehaviour
                     cg.blocksRaycasts = true;
                 });
 
-        }).SetUpdate(true); //  이거 핵심
-
+        }).SetUpdate(true);
     }
 
     void StartClose(CanvasGroup cg, RectTransform panel)
@@ -254,16 +387,15 @@ public class Counter_UI_Manager : MonoBehaviour
             cg.interactable = false;
             cg.blocksRaycasts = false;
 
-            cg.DOFade(0f, panelCloseDuration).SetUpdate(true);            
+            cg.DOFade(0f, panelCloseDuration).SetUpdate(true);
             panel.DOScale(Vector3.one * panelStartScale, panelCloseDuration)
                 .SetEase(Ease.InCubic)
+                .SetUpdate(true)
                 .OnComplete(() =>
                 {
                     cg.gameObject.SetActive(false);
                 });
 
         }).SetUpdate(true);
-
-
     }
 }

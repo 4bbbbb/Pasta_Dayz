@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-
 
 public class CustomerUI : MonoBehaviour
 {
@@ -19,24 +17,41 @@ public class CustomerUI : MonoBehaviour
     public List<CustomerSpriteSet> customerSprites;
 
     [Header("UI References")]
-    public Image customerImage;     // 프리팹에 미리 연결된 이미지
-    public GameObject bubbleObject; // 말풍선 오브젝트
+    public Image customerImage;
+    public GameObject bubbleObject;
     public CanvasGroup cg;
-    public TextMeshProUGUI orderText;          // 주문 텍스트
-    public GameObject yesButton;    // 네 버튼
-    public GameObject autoButton;   // 자동 완성 버튼
+    public TextMeshProUGUI orderText;
+    public GameObject yesButton;
+    public GameObject autoButton;
+
+    [Header("Button Pop Animation")]
+    [SerializeField] private float buttonPopStartScale = 0.7f;
+    [SerializeField] private float buttonPopOvershootScale = 1.12f;
+    [SerializeField] private float buttonPopDuration = 0.18f;
+    [SerializeField] private float buttonPopInterval = 0.06f;
+
+    [Header("Final Button Scale")]
+    [SerializeField] private Vector3 yesButtonTargetScale = new Vector3(1f, 1.4125f, 1f);
+    [SerializeField] private Vector3 autoButtonTargetScale = new Vector3(1f, 1.4125f, 1f);
 
     private int currentIndex = -1;
+
+    private Coroutine typingRoutine;
+    private Coroutine buttonPopRoutine;
 
     void Awake()
     {
         bubbleObject.SetActive(false);
         yesButton.SetActive(false);
         autoButton.SetActive(false);
+
         cg = bubbleObject.GetComponent<CanvasGroup>();
+        if (cg == null)
+            cg = bubbleObject.AddComponent<CanvasGroup>();
+
+        ResetButtonScale();
     }
 
-    // 손님 등장
     public void Appear()
     {
         gameObject.SetActive(true);
@@ -44,16 +59,15 @@ public class CustomerUI : MonoBehaviour
         yesButton.SetActive(false);
         autoButton.SetActive(false);
 
+        ResetButtonScale();
     }
 
-    //  손님 스프라이트 설정 (처음 등장 시 호출)
     public void SetCustomerSprite(int index)
     {
         currentIndex = index;
         customerImage.sprite = customerSprites[index].happy;
     }
 
-    //  감정 변경 (성공/실패에 따라)
     public void SetEmotion(bool success)
     {
         Debug.Log("currentIndex: " + currentIndex);
@@ -62,21 +76,16 @@ public class CustomerUI : MonoBehaviour
             return;
 
         if (success)
-        {
             customerImage.sprite = customerSprites[currentIndex].happy;
-        }
         else
-        {
             customerImage.sprite = customerSprites[currentIndex].angry;
-
-        }
     }
 
     public void ShowOrder(string message)
     {
-        StartCoroutine(ShowBubbleDelay(message));
+        StopAllUIRoutines();
+        typingRoutine = StartCoroutine(ShowBubbleDelay(message));
     }
-
 
     IEnumerator ShowBubbleDelay(string message)
     {
@@ -84,18 +93,14 @@ public class CustomerUI : MonoBehaviour
 
         Transform bubble = bubbleObject.transform;
 
-        CanvasGroup cg = bubbleObject.GetComponent<CanvasGroup>();
-        if (cg == null) cg = bubbleObject.AddComponent<CanvasGroup>();
-
         bubble.localScale = Vector3.one * 0.8f;
         bubble.localRotation = Quaternion.identity;
         cg.alpha = 0f;
 
         bubbleObject.SetActive(true);
-
-        yield return new WaitForSeconds(0.05f);
-        yesButton.SetActive(true);
-        autoButton.SetActive(true);
+        yesButton.SetActive(false);
+        autoButton.SetActive(false);
+        ResetButtonScale();
 
         float time = 0f;
         float duration = 0.5f;
@@ -107,7 +112,6 @@ public class CustomerUI : MonoBehaviour
         {
             time += Time.deltaTime;
             float t = time / duration;
-
             float eased = 1 - Mathf.Pow(1 - t, 2);
 
             bubble.localScale = Vector3.Lerp(startScale, targetScale, eased);
@@ -119,10 +123,10 @@ public class CustomerUI : MonoBehaviour
         bubble.localScale = targetScale;
         cg.alpha = 1f;
 
-        // 애니메이션 끝난 뒤 타이핑 시작
         yield return StartCoroutine(TypeText(message));
-    }
 
+        buttonPopRoutine = StartCoroutine(ShowButtonsPop());
+    }
 
     IEnumerator TypeText(string message)
     {
@@ -131,26 +135,106 @@ public class CustomerUI : MonoBehaviour
         foreach (char c in message)
         {
             orderText.text += c;
-            yield return new WaitForSeconds(0.03f); // 속도 조절 (작을수록 빠름)
+            yield return new WaitForSeconds(0.03f);
         }
     }
 
+    IEnumerator ShowButtonsPop()
+    {
+        yield return StartCoroutine(PopButton(yesButton, yesButtonTargetScale));
+        yield return new WaitForSeconds(buttonPopInterval);
+        yield return StartCoroutine(PopButton(autoButton, autoButtonTargetScale));
+    }
+
+    IEnumerator PopButton(GameObject buttonObj, Vector3 targetScale)
+    {
+        if (buttonObj == null)
+            yield break;
+
+        Transform tr = buttonObj.transform;
+
+        buttonObj.SetActive(true);
+
+        Vector3 startScale = targetScale * buttonPopStartScale;
+        Vector3 overshootScale = targetScale * buttonPopOvershootScale;
+
+        tr.localScale = startScale;
+
+        float halfDuration = buttonPopDuration * 0.5f;
+        float time = 0f;
+
+        while (time < halfDuration)
+        {
+            time += Time.deltaTime;
+            float t = Mathf.Clamp01(time / halfDuration);
+            float eased = 1f - Mathf.Pow(1f - t, 3f);
+
+            tr.localScale = Vector3.Lerp(startScale, overshootScale, eased);
+            yield return null;
+        }
+
+        tr.localScale = overshootScale;
+
+        time = 0f;
+
+        while (time < halfDuration)
+        {
+            time += Time.deltaTime;
+            float t = Mathf.Clamp01(time / halfDuration);
+            float eased = 1f - Mathf.Pow(1f - t, 2f);
+
+            tr.localScale = Vector3.Lerp(overshootScale, targetScale, eased);
+            yield return null;
+        }
+
+        tr.localScale = targetScale;
+    }
+
+    private void ResetButtonScale()
+    {
+        if (yesButton != null)
+            yesButton.transform.localScale = yesButtonTargetScale;
+
+        if (autoButton != null)
+            autoButton.transform.localScale = autoButtonTargetScale;
+    }
+
+    private void StopAllUIRoutines()
+    {
+        if (typingRoutine != null)
+        {
+            StopCoroutine(typingRoutine);
+            typingRoutine = null;
+        }
+
+        if (buttonPopRoutine != null)
+        {
+            StopCoroutine(buttonPopRoutine);
+            buttonPopRoutine = null;
+        }
+    }
 
     public void HideBubble()
     {
+        StopAllUIRoutines();
+
         bubbleObject.SetActive(false);
         yesButton.SetActive(false);
         autoButton.SetActive(false);
 
+        ResetButtonScale();
     }
 
     public void ShowResult(string result)
     {
+        StopAllUIRoutines();
+
         bubbleObject.SetActive(true);
         yesButton.SetActive(false);
         autoButton.SetActive(false);
 
-        StartCoroutine(TypeText(result));
-    }
+        ResetButtonScale();
 
+        typingRoutine = StartCoroutine(TypeText(result));
+    }
 }

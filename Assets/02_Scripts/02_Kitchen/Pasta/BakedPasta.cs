@@ -16,6 +16,9 @@ public class BakedPasta : MonoBehaviour, IInteractable
     [SerializeField] private Vector3 inOvenScale = new Vector3(1f, 1f, 1f);
     [SerializeField] private Vector3 platedScale = new Vector3(0.7f, 0.7f, 1f);
 
+    [Header("<<클릭용 콜라이더>>")]
+    [SerializeField] private Collider2D foodCollider;
+
     public enum BakedState
     {
         InOven,
@@ -45,8 +48,15 @@ public class BakedPasta : MonoBehaviour, IInteractable
     void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
+
+        if (foodCollider == null)
+            foodCollider = GetComponent<Collider2D>();
+
         currentState = BakedState.InOven;
         ApplyStateVisual();
+
+        // 처음 생성될 때는 오븐 안에 있으니까 클릭 막기
+        SetPickable(false);
     }
 
     public void SetIngredients(HashSet<int> ids)
@@ -99,6 +109,12 @@ public class BakedPasta : MonoBehaviour, IInteractable
         currentState = state;
         ApplyStateVisual();
         UpdateBakedSprite();
+    }
+
+    public void SetPickable(bool canPick)
+    {
+        if (foodCollider != null)
+            foodCollider.enabled = canPick;
     }
 
     private void ApplyStateVisual()

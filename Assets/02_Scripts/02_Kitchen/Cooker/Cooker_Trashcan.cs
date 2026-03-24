@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using static IInteractableScript;
 
@@ -6,6 +6,18 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
 {
     public bool isSelected => false;
     public bool CanBeSelected => false;
+
+    private Animator anim;
+
+    [Header("애니메이션 트리거 이름")]
+    [SerializeField] private string trashTriggerName = "Trash";
+
+    private bool isPlayingAnim = false;
+
+    void Start()
+    {
+        anim = GetComponent<Animator>();
+    }
 
     public bool Interact(IInteractable target)
     {
@@ -15,13 +27,40 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
             return true;
         }
 
+        if (target is Burned burned)
+        {
+            TrashBurnedFood(burned);
+            return true;
+        }
+
         return false;
+    }
+
+    private void PlayTrashAnimation()
+    {
+        if (anim == null) return;
+
+        if (isPlayingAnim) return;
+
+        anim.SetTrigger(trashTriggerName);
+        StartCoroutine(WaitForAnimation());
+    }
+
+    private System.Collections.IEnumerator WaitForAnimation()
+    {
+        isPlayingAnim = true;
+
+        yield return new WaitForSeconds(0.31f);
+
+        isPlayingAnim = false;
     }
 
     private void TrashFinishedPasta(FinishedPasta pasta)
     {
         if (pasta == null || pasta.isBeingTrashed)
             return;
+
+        PlayTrashAnimation();
 
         float totalCost = CalculateIngredientCost(pasta.GetIngredientSet());
 
@@ -30,9 +69,30 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
             Gold_Manager.Instance.SpendBusinessCost(totalCost);
         }
 
-        Debug.Log($"�ϼ� �Ľ�Ÿ�� ���Ƚ��ϴ�. ���� {totalCost} ����");
+        Debug.Log($"완성 파스타를 버렸습니다. 재료비 {totalCost} 차감");
 
-        pasta.OnTrashed();
+        pasta.OnTrashed(); 
+        pasta.PlayTrashEffect(transform); 
+    }
+
+    private void TrashBurnedFood(Burned burned)
+    {
+        if (burned == null || burned.isBeingTrashed)
+            return;
+
+        PlayTrashAnimation();
+
+        float totalCost = burned.GetCost();
+
+        if (Gold_Manager.Instance != null && totalCost > 0f)
+        {
+            Gold_Manager.Instance.SpendBusinessCost(totalCost);
+        }
+
+        Debug.Log($"탄 음식 버림. 재료비 {totalCost} 차감");
+
+        burned.OnTrashed(); 
+        burned.PlayTrashEffect(transform); 
     }
 
     private float CalculateIngredientCost(HashSet<int> ingredientIDs)
@@ -57,6 +117,6 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
 
     public void Cancel()
     {
-        
+
     }
 }

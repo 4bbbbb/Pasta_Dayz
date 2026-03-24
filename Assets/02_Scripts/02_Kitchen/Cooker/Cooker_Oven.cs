@@ -306,8 +306,25 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
                 break;
         }
 
-        currentBakeObject = Instantiate(prefab, bakedSpawnPoint.position, Quaternion.identity, bakedSpawnPoint);
+        GameObject obj = Instantiate(prefab, bakedSpawnPoint.position, Quaternion.identity, bakedSpawnPoint);
+        currentBakeObject = obj;
+
+        Burned burned = obj.GetComponent<Burned>();
+        if (burned != null)
+        {
+            if (bakeItem == BakeItemType.Pane)
+            {
+                burned.type = Burned.BurnedType.Pane;
+            }
+            else if (bakeItem == BakeItemType.Pasta)
+            {
+                burned.type = Burned.BurnedType.Pasta;
+                burned.SetIngredients(savedIngredientIDs);
+            }
+        }
     }
+
+
 
     private void RemoveBurnedFood()
     {

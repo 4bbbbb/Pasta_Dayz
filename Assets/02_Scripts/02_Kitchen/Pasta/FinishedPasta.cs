@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static IInteractableScript;
+using DG.Tweening;
+
 
 public class FinishedPasta : MonoBehaviour, IInteractable
 {
@@ -142,10 +144,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
             return true;
         }
-
-        // =========================
-        //  접시 관련
-        // =========================
+       
         if (isOnPlate && target is Plates_BasicPlate)
         {
             return false;
@@ -155,10 +154,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         {
             return false;
         }
-
-        // =========================
-        //  파슬리
-        // =========================
+                
         if (target is Topping_Parsley parsley)
         {
             if (!isOnPlate)
@@ -557,7 +553,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         // oven plate
         else if (plateID == 502)
         {
-            // ⭐ 모짜렐라 먼저 체크
             if (cheeseID == 402)
             {
                 foreach (var entry in cheeseSpriteEntries)
@@ -578,7 +573,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
                 }
             }
 
-            // 👉 기존 기본 스프라이트
             foreach (var entry in ovenPlateSpriteEntries)
             {
                 if (entry.noodleID == noodleID &&
@@ -625,34 +619,67 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     public void OnTrashed()
     {
         if (isBeingTrashed)
+        {
             return;
+        }
 
         isBeingTrashed = true;
 
-        // 자기 ingredientIDs 먼저 초기화
         ResetIngredientState();
 
-        // 접시 위 파스타면 접시까지 같이 제거
         if (transform.parent != null)
         {
             Cooker_PlateTable plateTable = GetComponentInParent<Cooker_PlateTable>();
             if (plateTable != null)
             {
-                plateTable.ClearPlateTable();
-                return;
+                transform.SetParent(null); 
+                plateTable.ClearPlateTable(); 
             }
         }
 
-        // 팬 위 파스타면 팬 상태 초기화
         fryingPan?.ClearPanAfterServing();
 
         if (gasStove != null)
         {
             gasStove.DestroyFryingPan();
         }
-
-        Destroy(gameObject);
     }
+
+
+    public void PlayTrashEffect(Transform trashTarget)
+    {
+        float moveDuration = 0.7f;     
+        float effectDuration = 0.31f; 
+
+        Vector3 targetPos = trashTarget.position;
+
+        Sequence seq = DOTween.Sequence();
+
+        seq.Append(transform.DOMove(targetPos, moveDuration)
+            .SetEase(Ease.OutQuad));
+
+        seq.Join(transform.DOScale(Vector3.zero, moveDuration)
+            .SetEase(Ease.InQuad)); 
+
+        
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+
+        seq.AppendCallback(() =>
+        {
+            
+        });
+
+        if (sr != null)
+        {
+            seq.Append(sr.DOFade(0f, effectDuration));
+        }
+
+        seq.OnComplete(() =>
+        {
+            Destroy(gameObject);
+        });
+    }
+
 
     private void ResetIngredientState()
     {

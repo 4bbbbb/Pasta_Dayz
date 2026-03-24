@@ -1757,6 +1757,7 @@ GameObject:
   - component: {fileID: 367416884}
   - component: {fileID: 367416886}
   - component: {fileID: 367416885}
+  - component: {fileID: 367416887}
   m_Layer: 6
   m_Name: Cooker_Trashcan
   m_TagString: Cooker
@@ -1864,6 +1865,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9870d5741a12ea645a85bfdabae753e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!95 &367416887
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 367416882}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 9d6c6271d78f6f14789ec0cac8287a1c, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &429224501
 GameObject:
   m_ObjectHideFlags: 0
@@ -2144,7 +2167,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 173d3c9e193c30a42a561f239828c32b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cookedNoodlePrefab: {fileID: 7492044799998688880, guid: 8f9d2d91d21e1014d8663ad080f4c2c7, type: 3}
+  originalSprite: {fileID: 21300000, guid: b32e070da606c7f448d7c74f0db0f092, type: 3}
+  selectedSprite: {fileID: 21300000, guid: 82f8bcb38b30ba74a8af436cf1786582, type: 3}
 --- !u!65 &471312968
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5468,7 +5492,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 173d3c9e193c30a42a561f239828c32b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cookedNoodlePrefab: {fileID: 7492044799998688880, guid: 8f9d2d91d21e1014d8663ad080f4c2c7, type: 3}
+  originalSprite: {fileID: 21300000, guid: defe7c6e6d86fe74d87d7dda98063719, type: 3}
+  selectedSprite: {fileID: 21300000, guid: 8a2e07704147735469c3b62627362a76, type: 3}
 --- !u!65 &1003561978
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5970,7 +5995,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 173d3c9e193c30a42a561f239828c32b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cookedNoodlePrefab: {fileID: 7492044799998688880, guid: 8f9d2d91d21e1014d8663ad080f4c2c7, type: 3}
+  originalSprite: {fileID: 21300000, guid: d41453cdc02f16e49a236b1575c60fb8, type: 3}
+  selectedSprite: {fileID: 21300000, guid: 2392acfe50b4b9e42ad2dc089c0572fc, type: 3}
 --- !u!114 &1166727145
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8650,7 +8676,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 173d3c9e193c30a42a561f239828c32b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cookedNoodlePrefab: {fileID: 7492044799998688880, guid: 8f9d2d91d21e1014d8663ad080f4c2c7, type: 3}
+  originalSprite: {fileID: 21300000, guid: 63e07adf429fd7e489b8ffe1601d169c, type: 3}
+  selectedSprite: {fileID: 21300000, guid: ab0f848dac68c204dac8d47c5c6ee690, type: 3}
 --- !u!65 &1764266567
 BoxCollider:
   m_ObjectHideFlags: 0

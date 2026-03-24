@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5796682620394913190}
   - component: {fileID: 8506994705059392761}
   - component: {fileID: 4204661628459304850}
+  - component: {fileID: 8554164916262095991}
   m_Layer: 0
   m_Name: Pasta_BurnedPasta
   m_TagString: Untagged
@@ -106,3 +107,17 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 4.27, y: 3.02, z: 0.2}
   m_Center: {x: 0.1, y: 0, z: 0}
+--- !u!114 &8554164916262095991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4529244966350777480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f85526deeac75494da5da4f9b4939312, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 0
+  selectedScaleMultiplier: 1.4

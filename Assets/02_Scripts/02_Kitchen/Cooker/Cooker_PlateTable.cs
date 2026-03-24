@@ -56,7 +56,7 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
             bakedPasta.transform.SetParent(plateSpawnPoint);
             bakedPasta.transform.position = plateSpawnPoint.position;
 
-            bakedPasta.AddIngredient(502); //⭐ 이거 추가
+            bakedPasta.AddIngredient(502); 
 
             bakedPasta.SetState(BakedPasta.BakedState.Plated);
 

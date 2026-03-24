@@ -6,39 +6,41 @@ using static IInteractableScript;
 public class Noodles : MonoBehaviour, IInteractable
 {
     private SpriteRenderer sr;
-    public bool isSelected {  get; private set; }
-    public GameObject cookedNoodlePrefab;
+
+    public bool isSelected { get; private set; }
+
+    [Header("스프라이트")]
+    public Sprite originalSprite;
+    public Sprite selectedSprite;
 
     public bool CanBeSelected => true;
 
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
-        isSelected = false;       
+        sr.sprite = originalSprite;
     }
 
     public bool Interact(IInteractable target)
     {
         if (target == null)
         {
-            Debug.Log("면 선택!");
             Select();
             return true;
-        }                
+        }
 
         return false;
-    }        
+    }
 
     void Select()
     {
         isSelected = true;
-        sr.color = Color.red;
+        sr.sprite = selectedSprite;
     }
 
     public void Cancel()
     {
         isSelected = false;
-        sr.color = Color.white;
+        sr.sprite = originalSprite;
     }
-
 }

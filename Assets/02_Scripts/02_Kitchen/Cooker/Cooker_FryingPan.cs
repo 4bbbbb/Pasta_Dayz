@@ -147,15 +147,19 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     bool AddTopping(Topping topping)
     {
         if (addedToppings.Count >= 2) return false;
+
         if (addedToppings.Contains(topping.toppingType)) return false;
 
-        Transform spawnPoint = GetRandomEmptyToppingPoint();
-        if (spawnPoint == null) return false;
-
         IngredientIDs id = topping.GetComponent<IngredientIDs>();
+        if (id == null) return false;
 
-        if (id != null)
-            SpawnIngredientByID(id.GetID(), spawnPoint);
+        List<Transform> spawnPoints = GetRandomEmptyPoints(2);
+        if (spawnPoints == null) return false;
+
+        foreach (var point in spawnPoints)
+        {
+            SpawnIngredientByID(id.GetID(), point);
+        }
 
         addedToppings.Add(topping.toppingType);
         return true;
@@ -242,42 +246,6 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         return true;
     }
 
-    void ApplySauceByID(int newID, SauceType sauceType)
-    {
-        if (ingredientIDs.Contains(202) && newID == 203)
-        {
-            ingredientIDs.Remove(202);
-            ingredientIDs.Add(204);
-
-            addedSauces.Clear();
-            addedSauces.Add(SauceType.Rose);
-
-            ShowSauceSprite(204);
-            oilOffSprite.SetActive(false);
-            oilOnSprite.SetActive(false);
-            return;
-        }
-
-        if (ingredientIDs.Contains(203) && newID == 202)
-        {
-            ingredientIDs.Remove(203);
-            ingredientIDs.Add(204);
-
-            addedSauces.Clear();
-            addedSauces.Add(SauceType.Rose);
-
-            ShowSauceSprite(204);
-            oilOffSprite.SetActive(false);
-            oilOnSprite.SetActive(false);
-            return;
-        }
-
-        addedSauces.Add(sauceType);
-        ingredientIDs.Add(newID);
-
-        ShowSauceSprite(newID);
-    }
-
     Vector3 GetSaucePourWorldPos()
     {
         if (saucePourTarget != null)
@@ -343,7 +311,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
         if (prefab == null) return;
 
-        Instantiate(
+        GameObject obj = Instantiate(
             prefab,
             spawnPoint.position,
             Quaternion.identity,
@@ -351,9 +319,28 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         );
 
         ingredientIDs.Add(ingredientID);
-    }
 
-    Transform GetRandomEmptyToppingPoint()
+        Vector3 startPos = spawnPoint.position + Vector3.up * 1.2f;
+        obj.transform.position = startPos;
+
+        if (ingredientID < 301 || ingredientID > 314) return;
+
+        obj.transform.localScale = Vector3.one * 0.8f;
+
+        obj.transform.DOMove(spawnPoint.position, 0.35f)
+            .SetEase(Ease.OutQuad);
+
+        obj.transform.DORotate(
+            new Vector3(0, 0, Random.Range(-120f, 120f)),
+            0.35f,
+            RotateMode.FastBeyond360
+        );
+
+        obj.transform.DOScale(Vector3.one, 0.25f)
+            .SetEase(Ease.OutQuad);
+    }  
+
+    List<Transform> GetRandomEmptyPoints(int count)
     {
         List<Transform> empty = new List<Transform>();
 
@@ -362,10 +349,20 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             if (point.childCount == 0)
                 empty.Add(point);
         }
+        
+        if (empty.Count < count)
+            return null;
 
-        if (empty.Count == 0) return null;
+        List<Transform> result = new List<Transform>();
 
-        return empty[Random.Range(0, empty.Count)];
+        for (int i = 0; i < count; i++)
+        {
+            int index = Random.Range(0, empty.Count);
+            result.Add(empty[index]);
+            empty.RemoveAt(index); 
+        }
+
+        return result;
     }
 
     IEnumerator CookRoutine()

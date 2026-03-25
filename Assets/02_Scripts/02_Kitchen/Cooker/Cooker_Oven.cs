@@ -91,9 +91,7 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
                 ReleaseBakedFood();
                 return true;
 
-            case OvenState.Burned:
-                RemoveBurnedFood();
-                ResetOven();
+            case OvenState.Burned:                
                 return true;
         }
 
@@ -322,6 +320,12 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
                 burned.SetIngredients(savedIngredientIDs);
             }
         }
+    }
+
+    public void OnBurnedRemoved()
+    {
+        currentBakeObject = null;
+        ResetOven();
     }
 
 

@@ -27,24 +27,28 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
     [SerializeField] private Vector3 selectedOffset = new Vector3(0f, 0.12f, 0f);
     [SerializeField] private float animDuration = 0.2f;
 
+    [Header("버블 이펙트")]
+    [SerializeField] private GameObject bubbleEffect;
+
     [Header("삶는 사운드")]
     [SerializeField] private AudioSource boilingAudioSource;
     [SerializeField] private AudioClip boilingLoopClip;
     [SerializeField] private float fadeOutDuration = 0.7f;
 
-    private SpriteRenderer sr;
+    private SpriteRenderer[] bubbleRenderers;
+
     private bool isCooking = false;
 
     private Vector3 originalLocalPos;
     private Coroutine visualRoutine;
     private Coroutine soundFadeRoutine;
     private Coroutine cookingRoutine;
+    private Coroutine bubbleFadeRoutine;
 
     public bool CanBeSelected => false;
 
     void Awake()
     {
-        sr = GetComponent<SpriteRenderer>();
 
         if (cookerVisual == null)
             cookerVisual = transform;
@@ -66,6 +70,12 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
     void Start()
     {
         SyncSfxVolume();
+
+        if (bubbleEffect != null)
+        {
+            bubbleRenderers = bubbleEffect.GetComponentsInChildren<SpriteRenderer>();
+            SetBubbleAlpha(0f);
+        }
 
         if (SoundManager.Instance != null)
         {
@@ -91,10 +101,7 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
     public bool Interact(IInteractable target)
     {
         if (isCooking)
-        {
-            Debug.Log($"{name}(이)가 이미 작동 중입니다!");
             return false;
-        }
 
         if (target is Noodles noodles)
         {
@@ -102,24 +109,7 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
             return true;
         }
 
-        if (target == null)
-        {
-            Debug.Log("면을 선택해주세요");
-            return false;
-        }
-
         return false;
-    }
-
-    private GameObject GetNoodlePrefab(int id)
-    {
-        foreach (var data in noodlePrefabs)
-        {
-            if (data.id == id)
-                return data.prefab;
-        }
-
-        return null;
     }
 
     public void StartBoiling(Noodles noodles)
@@ -137,82 +127,154 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
 
     private IEnumerator BoilingRoutine(Noodles noodles)
     {
-        for (int i = 1; i <= 7; i++)
-        {
-            yield return new WaitForSeconds(1f);
-            Debug.Log($"{i}초...");
-        }
+        GameObject cooked = null;
 
         if (noodles != null)
         {
             IngredientIDs id = noodles.GetComponent<IngredientIDs>();
-
             if (id != null)
             {
                 GameObject prefab = GetNoodlePrefab(id.GetID());
 
                 if (prefab != null)
                 {
-                    GameObject cooked = Instantiate(
+                    cooked = Instantiate(
                         prefab,
                         cookedNoodleSpawnPoint.position,
                         Quaternion.identity,
                         cookedNoodleSpawnPoint
                     );
 
-                    cooked.transform.position = cookedNoodleSpawnPoint.position;
-                    cooked.transform.rotation = Quaternion.identity;
                     cooked.transform.localScale = new Vector3(0.7f, 0.7f, 1f);
 
-                    Noodles_CookedNoodle cookedNoodle = cooked.GetComponent<Noodles_CookedNoodle>();
+                    Collider2D col = cooked.GetComponent<Collider2D>();
+                    if (col != null)
+                        col.enabled = false;
+
+                    var cookedNoodle = cooked.GetComponent<Noodles_CookedNoodle>();
                     if (cookedNoodle != null)
-                    {
                         cookedNoodle.SetPastaCooker(this);
-                    }
-                }
-                else
-                {
-                    Debug.LogWarning($"삶은 면 프리팹이 없습니다. id={id.GetID()}");
                 }
             }
         }
 
-        cookingRoutine = null;
+        yield return new WaitForSeconds(7f);
+
         StopBoiling();
+
+        if (cooked != null)
+        {
+            Collider2D col = cooked.GetComponent<Collider2D>();
+            if (col != null)
+                col.enabled = true;
+
+            var noodle = cooked.GetComponent<Noodles_CookedNoodle>();
+            if (noodle != null)
+                noodle.Unlock();
+        }
+    }
+
+
+    private GameObject GetNoodlePrefab(int id)
+    {
+        foreach (var data in noodlePrefabs)
+            if (data.id == id)
+                return data.prefab;
+
+        return null;
     }
 
     public void OnBoiling()
     {
         isCooking = true;
-        Debug.Log("면이 삶아지고 있습니다. 보글보글 oOoOO ....");
-        sr.color = Color.cyan;
+
+        SetBubbleAlpha(0f);
+
+        foreach (var b in bubbleEffect.GetComponentsInChildren<Bubble>())
+        {
+            b.StartBubble();
+        }
+
+        StartCoroutine(StartBubbleRoutine());
 
         PlayBoilingSound();
     }
 
+
+    IEnumerator StartBubbleRoutine()
+    {
+        yield return new WaitForSeconds(0.2f);
+
+        FadeBubble(0f, 1f, 0.5f);
+    }
+
+
     public void StopBoiling()
     {
         isCooking = false;
-        sr.color = Color.white;
-        Debug.Log("면이 다 익었습니다 !");
+
+        FadeBubble(1f, 0f, 1f);
+
+        StartCoroutine(StopBubbleAfterFade());
 
         StopBoilingSoundWithFade();
     }
+
+    IEnumerator StopBubbleAfterFade()
+    {
+        yield return new WaitForSeconds(0.8f); // ← Fade 시간과 맞추기
+
+        foreach (var b in bubbleEffect.GetComponentsInChildren<Bubble>())
+        {
+            b.StopBubble();
+        }
+    }
+
+
+    void FadeBubble(float start, float end, float duration)
+    {
+        if (bubbleFadeRoutine != null)
+            StopCoroutine(bubbleFadeRoutine);
+
+        bubbleFadeRoutine = StartCoroutine(FadeBubbleRoutine(start, end, duration));
+    }
+
+    IEnumerator FadeBubbleRoutine(float start, float end, float duration)
+    {
+        float time = 0f;
+
+        while (time < duration)
+        {
+            time += Time.deltaTime;
+            float t = time / duration;
+            float a = Mathf.Lerp(start, end, t);
+
+            SetBubbleAlpha(a);
+            yield return null;
+        }
+
+        SetBubbleAlpha(end);
+    }
+
+    void SetBubbleAlpha(float alpha)
+    {
+        if (bubbleRenderers == null) return;
+
+        foreach (var r in bubbleRenderers)
+        {
+            Color c = r.color;
+            c.a = alpha;
+            r.color = c;
+        }
+    }
+    
 
     private void PlayBoilingSound()
     {
         if (boilingAudioSource == null || boilingLoopClip == null)
             return;
 
-        if (soundFadeRoutine != null)
-        {
-            StopCoroutine(soundFadeRoutine);
-            soundFadeRoutine = null;
-        }
-
-        boilingAudioSource.clip = boilingLoopClip;
         boilingAudioSource.loop = true;
-
         SyncSfxVolume();
 
         if (!boilingAudioSource.isPlaying)
@@ -221,10 +283,7 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
 
     private void StopBoilingSoundWithFade()
     {
-        if (boilingAudioSource == null)
-            return;
-
-        if (!boilingAudioSource.isPlaying)
+        if (boilingAudioSource == null || !boilingAudioSource.isPlaying)
             return;
 
         if (soundFadeRoutine != null)
@@ -241,110 +300,31 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
         while (time < fadeOutDuration)
         {
             time += Time.deltaTime;
-            float t = Mathf.Clamp01(time / fadeOutDuration);
-            boilingAudioSource.volume = Mathf.Lerp(startVolume, 0f, t);
+            boilingAudioSource.volume = Mathf.Lerp(startVolume, 0f, time / fadeOutDuration);
             yield return null;
         }
 
         boilingAudioSource.Stop();
         SyncSfxVolume();
-        soundFadeRoutine = null;
-    }
-
-    private void OnSfxVolumeChanged(float value)
-    {
-        if (boilingAudioSource == null)
-            return;
-
-        if (soundFadeRoutine == null)
-            SyncSfxVolume();
-    }
-
-    private void OnMasterVolumeChanged(float value)
-    {
-        if (boilingAudioSource == null)
-            return;
-
-        if (soundFadeRoutine == null)
-            SyncSfxVolume();
     }
 
     private void SyncSfxVolume()
     {
-        if (boilingAudioSource == null)
-            return;
+        if (boilingAudioSource == null) return;
 
         if (SoundManager.Instance != null)
             boilingAudioSource.volume =
                 SoundManager.Instance.MasterVolume * SoundManager.Instance.SfxVolume;
         else
             boilingAudioSource.volume = 1f;
-    }
-
-    public void OnCookedNoodleSelected()
-    {
-        PlayCookerAnimation(true);
-    }
-
-    public void OnCookedNoodleCanceled()
-    {
-        PlayCookerAnimation(false);
-    }
-
-    private void PlayCookerAnimation(bool selected)
-    {
-        if (visualRoutine != null)
-            StopCoroutine(visualRoutine);
-
-        Vector3 targetScale = selected ? selectedScale : normalScale;
-        Vector3 targetPos = selected ? originalLocalPos + selectedOffset : originalLocalPos;
-
-        visualRoutine = StartCoroutine(AnimateCooker(targetScale, targetPos));
-    }
-
-    private IEnumerator AnimateCooker(Vector3 targetScale, Vector3 targetPos)
-    {
-        Vector3 startScale = cookerVisual.localScale;
-        Vector3 startPos = cookerVisual.localPosition;
-
-        float time = 0f;
-
-        while (time < animDuration)
-        {
-            time += Time.deltaTime;
-            float t = Mathf.Clamp01(time / animDuration);
-            t = t * t * (3f - 2f * t);
-
-            cookerVisual.localScale = Vector3.Lerp(startScale, targetScale, t);
-            cookerVisual.localPosition = Vector3.Lerp(startPos, targetPos, t);
-
-            yield return null;
-        }
-
-        cookerVisual.localScale = targetScale;
-        cookerVisual.localPosition = targetPos;
-        visualRoutine = null;
-    }
+    }    
 
     private void StopAllRunningProcesses()
     {
-        if (cookingRoutine != null)
-        {
-            StopCoroutine(cookingRoutine);
-            cookingRoutine = null;
-        }
-
-        if (visualRoutine != null)
-        {
-            StopCoroutine(visualRoutine);
-            visualRoutine = null;
-        }
-
-        if (soundFadeRoutine != null)
-        {
-            StopCoroutine(soundFadeRoutine);
-            soundFadeRoutine = null;
-        }
+        if (cookingRoutine != null) StopCoroutine(cookingRoutine);
+        if (visualRoutine != null) StopCoroutine(visualRoutine);
+        if (soundFadeRoutine != null) StopCoroutine(soundFadeRoutine);
+        if (bubbleFadeRoutine != null) StopCoroutine(bubbleFadeRoutine);
 
         if (boilingAudioSource != null)
         {
@@ -352,19 +332,21 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
             SyncSfxVolume();
         }
 
+        SetBubbleAlpha(0f);
+
         isCooking = false;
-
-        if (sr != null)
-            sr.color = Color.white;
-
-        if (cookerVisual != null)
-        {
-            cookerVisual.localScale = normalScale;
-            cookerVisual.localPosition = originalLocalPos;
-        }
     }
 
-    public void Cancel()
+    private void OnSfxVolumeChanged(float value)
     {
+        SyncSfxVolume();
     }
+
+    private void OnMasterVolumeChanged(float value)
+    {
+        SyncSfxVolume();
+    }
+
+
+    public void Cancel() { }
 }

@@ -125,6 +125,20 @@ public class Burned : MonoBehaviour, IInteractable
         });
     }
 
+    private void OnDestroy()
+    {
+        if (!isBeingTrashed) return;
+
+        Cooker_Oven oven = GetComponentInParent<Cooker_Oven>();
+
+        if (oven != null)
+        {
+            oven.OnBurnedRemoved();
+        }
+    }
+
+
+
 
     public void Cancel()
     {

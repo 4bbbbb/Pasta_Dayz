@@ -11,6 +11,9 @@ public class Noodles_CookedNoodle : MonoBehaviour, IInteractable
     public bool isSelected { get; private set; }
     public bool CanBeSelected => true;
 
+    private bool isLocked = true;
+
+
     [Header("기본 스프라이트")]
     [SerializeField] private Sprite normalSprite;
 
@@ -42,24 +45,27 @@ public class Noodles_CookedNoodle : MonoBehaviour, IInteractable
 
     public bool Interact(IInteractable target)
     {
+        if (isLocked) return false; 
+
         if (target != null) return false;
 
         isSelected = true;
         PlayNoodleAnimation(true);
 
-        if (pastaCooker != null)
-            pastaCooker.OnCookedNoodleSelected();
-
         return true;
     }
+
+    public void Unlock()
+    {
+        isLocked = false;
+    }
+
+
 
     public void Cancel()
     {
         isSelected = false;
-        PlayNoodleAnimation(false);
-
-        if (pastaCooker != null)
-            pastaCooker.OnCookedNoodleCanceled();
+        PlayNoodleAnimation(false);       
     }
 
     private void PlayNoodleAnimation(bool selected)

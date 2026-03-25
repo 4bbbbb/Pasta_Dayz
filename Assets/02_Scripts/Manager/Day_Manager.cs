@@ -66,13 +66,21 @@ public class Day_Manager : MonoBehaviour
 
     void StopTakingOrders()
     {
-        if (!isTakingOrder) return;
+        if (!isTakingOrder)
+        {
+            return;
+        }
 
         isTakingOrder = false;
-        Debug.Log("3분 종료!");
+
+        if (hasEndedDay)
+        {
+            return;
+        }
 
         orderManager.OnOrderTimeEnded();
     }
+
 
     public float GetRemainingTime()
     {
@@ -96,26 +104,40 @@ public class Day_Manager : MonoBehaviour
     public void EndDay()
     {
         if (hasEndedDay)
-        {
             return;
-        }
 
         hasEndedDay = true;
 
         isDayActive = false;
-        orderManager.SetState(Order_Manager.ServiceState.DayEnded);  // 하루 종료 상태로 전환
+        orderManager.SetState(Order_Manager.ServiceState.DayEnded);
+
         Debug.Log("하루 종료! +20");
 
-        // 정산 씬으로 넘어가는 로직
-        SceneManager.LoadScene(3);
-        Level_Manager.Instance.EarnXP(20);            
+        StartCoroutine(EndDayRoutine());
+    }
 
-        if(Gold_Manager.Instance.DailyNetProfit() > 0)
+    private IEnumerator EndDayRoutine()
+    {
+        if (orderManager != null)
+        {
+            yield return orderManager.PlayCustomerExitForDayEnd();
+        }
+
+        yield return new WaitForSeconds(0.5f);
+
+        SceneManager.LoadScene(3);
+
+        if (Level_Manager.Instance != null)
+            Level_Manager.Instance.EarnXP(20);
+
+        if (Gold_Manager.Instance != null && Gold_Manager.Instance.DailyNetProfit() > 0)
         {
             Level_Manager.Instance.EarnXP(10);
             Debug.Log("흑자 : +10");
         }
     }
+
+
 
     public void ResetForNextDay()
     {

@@ -11,8 +11,10 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     [Header("<<가스스토브>>")]
     [SerializeField] private Cooker_GasStove gasStove;
 
-    [Header("<<스폰 위치>>")]
-    [SerializeField] private Transform[] toppingSpawnPoints;
+    [Header("토핑 그룹 - 팬 위")]
+    [SerializeField] private Transform[] toppingGroupParents;
+
+    [Header("<<완성 파스타 / 면 위치>>")]
     [SerializeField] private Transform finishedPastaSpawnPoint;
     [SerializeField] private Transform noodleSpawnPoint;
 
@@ -55,7 +57,6 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     public bool CanBeSelected => false;
 
     private bool hasFinishedPastaOnPan = false;
-
     private Coroutine fryingSoundFadeRoutine;
 
     void Start()
@@ -80,6 +81,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             SoundManager.Instance.OnMasterVolumeChanged += OnMasterVolumeChanged;
         }
     }
+
     void OnDestroy()
     {
         if (SoundManager.Instance != null)
@@ -92,29 +94,19 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     public bool Interact(IInteractable target)
     {
         if (isCooking || hasFinishedPastaOnPan)
-        {
             return false;
-        }
 
         if (target is Topping_OliveOil oil)
-        {
             return AddOil(oil);
-        }
 
         if (target is Topping topping)
-        {
             return AddTopping(topping);
-        }
 
         if (target is Sauces sauce)
-        {
             return AddSauce(sauce);
-        }
 
         if (target is Noodles_CookedNoodle noodle)
-        {
             return AddNoodle(noodle);
-        }
 
         return false;
     }
@@ -126,10 +118,8 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         hasOil = true;
         gasStove.TurnOn();
 
-        // 애니메이션 먼저 실행
         oil.PlayPourToPanAnimation(GetSaucePourWorldPos());
 
-        // 오일 퍼지는 효과는 약간 딜레이
         DOVirtual.DelayedCall(0.5f, () =>
         {
             if (this != null)
@@ -143,26 +133,71 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         return true;
     }
 
-
     bool AddTopping(Topping topping)
     {
         if (addedToppings.Count >= 2) return false;
-
         if (addedToppings.Contains(topping.toppingType)) return false;
 
         IngredientIDs id = topping.GetComponent<IngredientIDs>();
         if (id == null) return false;
 
-        List<Transform> spawnPoints = GetRandomEmptyPoints(2);
-        if (spawnPoints == null) return false;
+        int groupIndex = addedToppings.Count;
+        Transform[] spawnPoints = GetSpawnPointsFromGroup(groupIndex);
 
-        foreach (var point in spawnPoints)
-        {
-            SpawnIngredientByID(id.GetID(), point);
-        }
+        if (spawnPoints == null || spawnPoints.Length != 3)
+            return false;
 
+        // 중복 입력 방지 위해 먼저 등록
         addedToppings.Add(topping.toppingType);
+        ingredientIDs.Add(id.GetID());
+
+        StartCoroutine(SpawnToppingBurst(id.GetID(), spawnPoints));
+
         return true;
+    }
+
+    Transform[] GetSpawnPointsFromGroup(int groupIndex)
+    {
+        if (toppingGroupParents == null || groupIndex < 0 || groupIndex >= toppingGroupParents.Length)
+            return null;
+
+        Transform parent = toppingGroupParents[groupIndex];
+        if (parent == null || parent.childCount < 3)
+            return null;
+
+        Transform[] points = new Transform[3];
+        for (int i = 0; i < 3; i++)
+            points[i] = parent.GetChild(i);
+
+        return points;
+    }
+
+    IEnumerator SpawnToppingBurst(int ingredientID, Transform[] spawnPoints)
+    {
+        List<Transform> pointList = new List<Transform>(spawnPoints);
+        ShufflePoints(pointList);   // 생성 순서 랜덤
+
+        foreach (Transform point in pointList)
+        {
+            if (point == null) continue;
+
+            float dropDuration = Random.Range(0.18f, 0.38f);   // 떨어지는 속도 랜덤
+            SpawnIngredientByIDWithDrop(ingredientID, point, dropDuration);
+
+            float nextDelay = Random.Range(0.05f, 0.18f);      // 다음 토핑까지 간격 랜덤
+            yield return new WaitForSeconds(nextDelay);
+        }
+    }
+
+    void ShufflePoints(List<Transform> list)
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            int rand = Random.Range(i, list.Count);
+            Transform temp = list[i];
+            list[i] = list[rand];
+            list[rand] = temp;
+        }
     }
 
     bool AddSauce(Sauces sauce)
@@ -175,13 +210,10 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         if (!CanAcceptSauce(newID))
             return false;
 
-        // 데이터는 먼저 반영
         ApplySauceDataByID(newID, sauce.sauceType);
 
-        // 국자 애니메이션 재생
         sauce.PlayPourToPanAnimation(GetSaucePourWorldPos());
 
-        // 팬 스프라이트는 조금 늦게 표시
         DOVirtual.DelayedCall(1.15f, () =>
         {
             if (this != null && gameObject.activeInHierarchy)
@@ -228,18 +260,15 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
     bool CanAcceptSauce(int newID)
     {
-        // 로제 완성 상태면 더 이상 추가 불가
         if (ingredientIDs.Contains(204))
             return false;
 
-        // 토마토 + 크림 / 크림 + 토마토 조합은 허용
         if ((ingredientIDs.Contains(202) && newID == 203) ||
             (ingredientIDs.Contains(203) && newID == 202))
         {
             return true;
         }
 
-        // 일반 소스는 1개만 허용
         if (addedSauces.Count >= 1)
             return false;
 
@@ -265,24 +294,18 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         {
             case 202:
                 tomatoSauceSprite.SetActive(true);
-                if (tomatoEffect != null)
-                    tomatoEffect.PlayOilSpread();
+                if (tomatoEffect != null) tomatoEffect.PlayOilSpread();
                 break;
-
             case 203:
                 creamSauceSprite.SetActive(true);
-                if (creamEffect != null)
-                    creamEffect.PlayOilSpread();
+                if (creamEffect != null) creamEffect.PlayOilSpread();
                 break;
-
             case 204:
                 roseSauceSprite.SetActive(true);
                 break;
-
             case 205:
                 vongoleSauceSprite.SetActive(true);
-                if (vongoleEffect != null)
-                    vongoleEffect.PlayOilSpread();
+                if (vongoleEffect != null) vongoleEffect.PlayOilSpread();
                 break;
         }
     }
@@ -296,7 +319,6 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         if (id == null) return false;
 
         SpawnIngredientByID(id.GetID(), noodleSpawnPoint);
-
         Destroy(cookedNoodle.gameObject);
 
         StartCoroutine(CookRoutine());
@@ -305,64 +327,84 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
     void SpawnIngredientByID(int ingredientID, Transform spawnPoint)
     {
-        GameObject prefab = Order_Manager.Instance
-            .ingredientDB
-            .GetPrefab(ingredientID);
-
+        GameObject prefab = Order_Manager.Instance.ingredientDB.GetPrefab(ingredientID);
         if (prefab == null) return;
 
-        GameObject obj = Instantiate(
-            prefab,
-            spawnPoint.position,
-            Quaternion.identity,
-            spawnPoint
-        );
+        GameObject obj = Instantiate(prefab, spawnPoint.position, Quaternion.identity, spawnPoint);
 
         ingredientIDs.Add(ingredientID);
 
-        Vector3 startPos = spawnPoint.position + Vector3.up * 1.2f;
-        obj.transform.position = startPos;
+        if (ingredientID >= 301 && ingredientID <= 313)
+        {
+            Vector3 startPos = spawnPoint.position + Vector3.up * 1.2f;
+            obj.transform.position = startPos;
 
-        if (ingredientID < 301 || ingredientID > 314) return;
+            obj.transform.localScale = Vector3.one * 0.8f;
 
-        obj.transform.localScale = Vector3.one * 0.8f;
+            obj.transform.DOMove(spawnPoint.position, 0.35f).SetEase(Ease.OutQuad);
+            obj.transform.DORotate(
+                new Vector3(0, 0, Random.Range(-120f, 120f)),
+                0.35f,
+                RotateMode.FastBeyond360
+            );
+            obj.transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutQuad);
+        }
+    }
 
-        obj.transform.DOMove(spawnPoint.position, 0.35f)
-            .SetEase(Ease.OutQuad);
-
-        obj.transform.DORotate(
-            new Vector3(0, 0, Random.Range(-120f, 120f)),
-            0.35f,
-            RotateMode.FastBeyond360
-        );
-
-        obj.transform.DOScale(Vector3.one, 0.25f)
-            .SetEase(Ease.OutQuad);
-    }  
-
-    List<Transform> GetRandomEmptyPoints(int count)
+    void SpawnIngredientByIDWithDrop(int ingredientID, Transform spawnPoint, float dropDuration)
     {
-        List<Transform> empty = new List<Transform>();
+        GameObject prefab = Order_Manager.Instance.ingredientDB.GetPrefab(ingredientID);
+        if (prefab == null) return;
 
-        foreach (var point in toppingSpawnPoints)
+        GameObject obj = Instantiate(prefab, spawnPoint.position, Quaternion.identity, spawnPoint);
+
+        // 토핑 프리팹만 드롭 연출
+        if (ingredientID >= 301 && ingredientID <= 313)
         {
-            if (point.childCount == 0)
-                empty.Add(point);
+            Vector3 endPos = spawnPoint.position;
+
+            float randomX = Random.Range(-0.15f, 0.15f);
+            float randomY = Random.Range(1.0f, 1.35f);
+
+            Vector3 startPos = endPos + new Vector3(randomX, randomY, 0f);
+            obj.transform.position = startPos;
+            obj.transform.localScale = Vector3.one * Random.Range(0.82f, 0.92f);
+
+            float rotZ = Random.Range(-160f, 160f);
+            obj.transform.rotation = Quaternion.Euler(0, 0, rotZ);
+
+            Sequence seq = DOTween.Sequence();
+
+            seq.Join(
+                obj.transform.DOMove(endPos, dropDuration)
+                .SetEase(Ease.InQuad)
+            );
+
+            seq.Join(
+                obj.transform.DOScale(Vector3.one, dropDuration)
+                .SetEase(Ease.OutQuad)
+            );
+
+            seq.OnComplete(() =>
+            {
+                if (obj != null)
+                {
+                    obj.transform.DOPunchPosition(
+                        new Vector3(0f, -0.05f, 0f),
+                        0.12f,
+                        4,
+                        0.4f
+                    );
+
+                    obj.transform.DOPunchScale(
+                        new Vector3(0.08f, 0.08f, 0f),
+                        0.12f,
+                        4,
+                        0.4f
+                    );
+                }
+            });
         }
-        
-        if (empty.Count < count)
-            return null;
-
-        List<Transform> result = new List<Transform>();
-
-        for (int i = 0; i < count; i++)
-        {
-            int index = Random.Range(0, empty.Count);
-            result.Add(empty[index]);
-            empty.RemoveAt(index); 
-        }
-
-        return result;
     }
 
     IEnumerator CookRoutine()
@@ -382,11 +424,16 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
         Dictionary<Transform, Vector3> ingredientOriginalLocalPos = new Dictionary<Transform, Vector3>();
 
-        foreach (Transform point in toppingSpawnPoints)
+        foreach (Transform groupParent in toppingGroupParents)
         {
-            foreach (Transform child in point)
+            if (groupParent == null) continue;
+
+            foreach (Transform point in groupParent)
             {
-                ingredientOriginalLocalPos[child] = child.localPosition;
+                foreach (Transform child in point)
+                {
+                    ingredientOriginalLocalPos[child] = child.localPosition;
+                }
             }
         }
 
@@ -408,7 +455,6 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
             }
 
             float t = Mathf.Clamp01(elapsed / totalTime);
-
             float angle = t * cycleCount * Mathf.PI * 2f;
 
             float envelope = 1f;
@@ -452,7 +498,6 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         finishedPasta.transform.localScale = Vector3.one;
 
         FinishedPasta pasta = finishedPasta.GetComponent<FinishedPasta>();
-
         pasta.SetIngredients(new HashSet<int>(ingredientIDs));
         pasta.Init(gasStove);
         pasta.SetFryingPan(this);
@@ -466,6 +511,16 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         hasFinishedPastaOnPan = true;
         isCooking = false;
         gasStove.TurnOff();
+    }
+
+    public void CopyPanToppingsToFinishedPasta(FinishedPasta targetPasta)
+    {
+        Debug.Log("CopyPanToppingsToFinishedPasta 호출됨");
+
+        if (targetPasta == null)
+            return;
+
+        targetPasta.BuildPlateToppingsFromPan(toppingGroupParents);
     }
 
     IEnumerator FadeOutAndDestroyNoodle()
@@ -512,19 +567,22 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
     public void ClearPanAfterServing()
     {
-        foreach (Transform point in toppingSpawnPoints)
+        foreach (Transform groupParent in toppingGroupParents)
         {
-            foreach (Transform child in point)
-                Destroy(child.gameObject);
+            if (groupParent == null) continue;
+
+            foreach (Transform point in groupParent)
+            {
+                foreach (Transform child in point)
+                    Destroy(child.gameObject);
+            }
         }
 
         if (finishedPastaSpawnPoint.childCount > 0)
         {
             Transform child = finishedPastaSpawnPoint.GetChild(0);
             if (child != null)
-            {
                 child.SetParent(null, true);
-            }
         }
 
         ResetState();
@@ -546,7 +604,6 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         creamSauceSprite.SetActive(false);
         roseSauceSprite.SetActive(false);
         vongoleSauceSprite.SetActive(false);
-
     }
 
     private void PlayFryingSound()

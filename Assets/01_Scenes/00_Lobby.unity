@@ -4007,7 +4007,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   orderManager: {fileID: 1584618187}
-  dayDuration: 90
+  dayDuration: 10
   day: 0
   isDayActive: 0
   isTakingOrder: 1
@@ -8503,6 +8503,10 @@ MonoBehaviour:
   serveMessageDB: {fileID: 127470462}
   customerUIPrefab: {fileID: 1866242345739606558, guid: 4fa710a3971fae845809e1e8bcc9d9db, type: 3}
   serveBoxPrefab: {fileID: 4515603954898981339, guid: 6815259e2572556449f9426249cae20a, type: 3}
+  serveBoxStartYOffset: -250
+  serveBoxMoveDuration: 0.45
+  serveBoxFadeDuration: 0.25
+  serveBoxStartScale: 0.95
   customerEnterSFX: {fileID: 8300000, guid: db03eb15347b9ba47b62aee17625c848, type: 3}
   currentState: 0
 --- !u!1 &1585892876

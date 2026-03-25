@@ -485,12 +485,8 @@ public class Order_Manager : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
 
-        if (serveBoxParent == null)
-        {
-            BindCounterParents();
-        }
-
         GameObject box = null;
+
         if (serveBoxPrefab != null && serveBoxParent != null)
         {
             box = Instantiate(serveBoxPrefab, serveBoxParent, false);
@@ -501,33 +497,28 @@ public class Order_Manager : MonoBehaviour
 
         if (currentCustomer != null)
         {
-            currentCustomer.SetCustomerSprite(currentCustomerSpriteIndex);
             currentCustomer.SetEmotion(success);
-        }
-
-        string resultMessage = serveMessageDB.GetRandomMessage(success);
-
-        if (currentCustomer != null)
-        {
-            currentCustomer.ShowResult(resultMessage);
+            currentCustomer.ShowResult(serveMessageDB.GetRandomMessage(success));
         }
 
         yield return new WaitForSeconds(2f);
 
-        DestroyCurrentCustomerSafely();
-        currentCustomerSpriteIndex = -1;
+        Coroutine exitAnim = StartCoroutine(PlayCustomerExitAnimation());
 
         if (box != null)
-        {
-            box.transform.DOKill();
-            Destroy(box);
-        }
+            StartCoroutine(FadeOutServeBox(box));
+
+        yield return exitAnim;
+
+        DestroyCurrentCustomerSafely();
+        currentCustomerSpriteIndex = -1;
 
         yield return new WaitForSeconds(2f);
 
         SpawnCustomer();
         CheckDayEndCondition();
     }
+
 
     private IEnumerator PlayServeBoxEntrance(GameObject box)
     {
@@ -637,6 +628,8 @@ public class Order_Manager : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
 
+        yield return StartCoroutine(PlayCustomerExitAnimation());
+
         DestroyCurrentCustomerSafely();
         currentCustomerSpriteIndex = -1;
         currentOrder = null;
@@ -644,7 +637,57 @@ public class Order_Manager : MonoBehaviour
         yield return new WaitForSeconds(2f);
 
         SpawnCustomer();
+
     }
+
+    public IEnumerator PlayCustomerExitForDayEnd()
+    {
+        if (currentCustomer == null)
+            yield break;
+
+        yield return StartCoroutine(PlayCustomerExitAnimation());
+
+        DestroyCurrentCustomerSafely();
+        currentCustomerSpriteIndex = -1;
+        currentOrder = null;
+    }
+
+    private IEnumerator PlayCustomerExitAnimation()
+    {
+        if (currentCustomer == null)
+            yield break;
+
+        RectTransform rect = currentCustomer.GetComponent<RectTransform>();
+        if (rect == null)
+            yield break;
+
+        rect.DOKill();
+
+        currentCustomer.HideBubble();
+
+        Vector2 startPos = rect.anchoredPosition;
+        Vector2 endPos = startPos + new Vector2(0f, -700f); 
+
+        yield return rect.DOAnchorPos(endPos, 0.4f)
+            .SetEase(Ease.InQuad)
+            .WaitForCompletion();
+    }
+
+
+    private IEnumerator FadeOutServeBox(GameObject box)
+    {
+        if (box == null)
+            yield break;
+
+        CanvasGroup cg = box.GetComponent<CanvasGroup>();
+        if (cg == null)
+            cg = box.AddComponent<CanvasGroup>();
+
+        yield return cg.DOFade(0f, 0.4f).WaitForCompletion();
+
+        Destroy(box);
+    }
+
 
     public bool IsCorrect(PastaBox pastaBox, Order order)
     {
@@ -715,17 +758,25 @@ public class Order_Manager : MonoBehaviour
 
     public void OnOrderTimeEnded()
     {
-        Debug.Log("영업 종료! 새 주문 불가");
-
         if (currentState == ServiceState.TakingOrder)
         {
-            DestroyCurrentCustomerSafely();
-            currentOrder = null;
-            currentCustomerSpriteIndex = -1;
-
-            CheckDayEndCondition();
+            StartCoroutine(HandleCustomerExitAndEndDay());
         }
     }
+
+    private IEnumerator HandleCustomerExitAndEndDay()
+    {
+        yield return StartCoroutine(PlayCustomerExitAnimation());
+
+        DestroyCurrentCustomerSafely();
+        currentCustomerSpriteIndex = -1;
+        currentOrder = null;
+
+        yield return new WaitForSeconds(0.5f);
+
+        CheckDayEndCondition();
+    }
+
 
     void CheckDayEndCondition()
     {
@@ -734,7 +785,7 @@ public class Order_Manager : MonoBehaviour
             dayManager.EndDay();
         }
     }
-
+    
     void DebugIngredientSet(IHasIngredients target, string label)
     {
         HashSet<int> set = target.GetIngredientSet();

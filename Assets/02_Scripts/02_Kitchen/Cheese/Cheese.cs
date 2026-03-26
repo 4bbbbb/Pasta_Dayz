@@ -4,15 +4,22 @@ using UnityEngine;
 using DG.Tweening;
 using static IInteractableScript;
 
-public class Cheese: MonoBehaviour, IInteractable
+public class Cheese : MonoBehaviour, IInteractable
 {
     [Header("<<파마산치즈 스프라이트>>")]
     [SerializeField] private Sprite parmesanSprite;
     [SerializeField] private Sprite parmesanselectedSprite;
 
-    private SpriteRenderer sr;
-    public bool isSelected { get; private set; }
+    [Header("<<파마산 선택 연출>>")]
+    [SerializeField] private float selectScaleDuration = 0.12f;
+    [SerializeField] private float selectedScaleMultiplier = 1.08f;
+    [SerializeField] private float pressedScaleMultiplier = 0.97f;
 
+    private SpriteRenderer sr;
+    private Vector3 originalScale;
+    private bool isAnimating = false;
+
+    public bool isSelected { get; private set; }
     public bool CanBeSelected => true;
 
     public CheeseType cheeseType;
@@ -22,9 +29,10 @@ public class Cheese: MonoBehaviour, IInteractable
         Mozzarella,
     }
 
-    void Start()
+    void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
+        originalScale = transform.localScale;
     }
 
     public bool Interact(IInteractable target)
@@ -40,10 +48,25 @@ public class Cheese: MonoBehaviour, IInteractable
 
     void Select()
     {
+        if (isAnimating) return;
+        if (isSelected) return;
+
         isSelected = true;
-        if(cheeseType == CheeseType.Parmesan)
+
+        if (cheeseType == CheeseType.Parmesan)
         {
-            sr.sprite = parmesanselectedSprite;
+            isAnimating = true;
+            transform.DOKill();
+
+            Sequence seq = DOTween.Sequence();
+            seq.Append(transform.DOScale(originalScale * pressedScaleMultiplier, 0.08f));
+            seq.AppendCallback(() =>
+            {
+                sr.sprite = parmesanselectedSprite;
+            });
+            seq.Append(transform.DOScale(originalScale * selectedScaleMultiplier, selectScaleDuration)
+                .SetEase(Ease.OutBack));
+            seq.OnComplete(() => isAnimating = false);
         }
         else
         {
@@ -58,6 +81,8 @@ public class Cheese: MonoBehaviour, IInteractable
 
         Vector3 targetPos = pastaPoint.position + new Vector3(2f, 2f, 0);
         Quaternion pourRot = Quaternion.Euler(0, 0, 120f);
+
+        transform.DOKill();
 
         Sequence seq = DOTween.Sequence();
 
@@ -93,21 +118,37 @@ public class Cheese: MonoBehaviour, IInteractable
         seq.AppendCallback(() =>
         {
             sr.sprite = parmesanSprite;
+            transform.localScale = originalScale;
+            isSelected = false;
         });
     }
 
     public void Cancel()
     {
-        isSelected = false;
         if (cheeseType == CheeseType.Parmesan)
         {
-            sr.sprite = parmesanSprite;
+            if (isAnimating) return;
+            if (!isSelected) return;
 
+            isAnimating = true;
+            isSelected = false;
+
+            transform.DOKill();
+
+            Sequence seq = DOTween.Sequence();
+            seq.Append(transform.DOScale(originalScale * pressedScaleMultiplier, 0.08f));
+            seq.AppendCallback(() =>
+            {
+                sr.sprite = parmesanSprite;
+            });
+            seq.Append(transform.DOScale(originalScale, selectScaleDuration)
+                .SetEase(Ease.OutQuad));
+            seq.OnComplete(() => isAnimating = false);
         }
         else
         {
+            isSelected = false;
             sr.color = Color.white;
-
         }
     }
 }

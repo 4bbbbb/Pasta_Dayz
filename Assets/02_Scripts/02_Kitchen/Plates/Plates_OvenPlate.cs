@@ -9,6 +9,7 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
     private Collider plateCollider;
 
     [Header("선택 연출")]
+    [SerializeField] private float selectScaleDuration = 0.12f;
     [SerializeField] private float selectedScaleMultiplier = 1.08f;
 
     public bool isSelected { get; private set; }
@@ -161,10 +162,12 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
         });
     }
 
-    private void Select()
+    void Select()
     {
         isSelected = true;
-        transform.localScale = originalScale * selectedScaleMultiplier;
+        transform.DOKill();
+        transform.DOScale(originalScale * selectedScaleMultiplier, selectScaleDuration)
+                 .SetEase(Ease.OutBack);
     }
 
     public void AddIngredient(int id)
@@ -191,6 +194,8 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
     public void Cancel()
     {
         isSelected = false;
-        transform.localScale = originalScale;
+        transform.DOKill();
+        transform.DOScale(originalScale, selectScaleDuration)
+                 .SetEase(Ease.OutQuad);
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 using static IInteractableScript;
 using static Topping;
 
@@ -14,7 +15,15 @@ public class Plate : MonoBehaviour, IInteractable
     [SerializeField] private Sprite original502Sprite;
     [SerializeField] private Sprite selected502Sprite;
 
+    [Header("<<선택 연출>>")]
+    [SerializeField] private float selectScaleDuration = 0.12f;
+    [SerializeField] private float selectedScaleMultiplier = 1.08f;
+    [SerializeField] private float pressedScaleMultiplier = 0.97f;
+
     private SpriteRenderer sr;
+    private Vector3 originalScale;
+    private bool isAnimating = false;
+
     public bool isSelected { get; private set; }
     public bool CanBeSelected => true;
 
@@ -25,21 +34,22 @@ public class Plate : MonoBehaviour, IInteractable
         OvenPlate,
     }
 
-    void Start()
+    void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
+        originalScale = transform.localScale;
         isSelected = false;
 
         if (plateType == PlateType.BasicPlate)
         {
             sr.sprite = original501Sprite;
         }
-
-        if (plateType == PlateType.OvenPlate)
+        else if (plateType == PlateType.OvenPlate)
         {
             sr.sprite = original502Sprite;
         }
     }
+
     public bool Interact(IInteractable target)
     {
         if (target == null)
@@ -52,30 +62,49 @@ public class Plate : MonoBehaviour, IInteractable
 
     void Select()
     {
+        if (isAnimating) return;
+        if (isSelected) return;
+
+        isAnimating = true;
         isSelected = true;
 
-        if (plateType == PlateType.BasicPlate)
-        {
-            sr.sprite = selected501Sprite;
-        }
+        transform.DOKill();
 
-        if (plateType == PlateType.OvenPlate)
+        Sequence seq = DOTween.Sequence();
+        seq.Append(transform.DOScale(originalScale * pressedScaleMultiplier, 0.08f));
+        seq.AppendCallback(() =>
         {
-            sr.sprite = selected502Sprite;
-        }
+            if (plateType == PlateType.BasicPlate && selected501Sprite != null)
+                sr.sprite = selected501Sprite;
+            else if (plateType == PlateType.OvenPlate && selected502Sprite != null)
+                sr.sprite = selected502Sprite;
+        });
+        seq.Append(transform.DOScale(originalScale * selectedScaleMultiplier, selectScaleDuration)
+            .SetEase(Ease.OutBack));
+        seq.OnComplete(() => isAnimating = false);
     }
+
     public void Cancel()
     {
+        if (isAnimating) return;
+        if (!isSelected) return;
+
+        isAnimating = true;
         isSelected = false;
 
-        if (plateType == PlateType.BasicPlate)
-        {
-            sr.sprite = original501Sprite;
-        }
+        transform.DOKill();
 
-        if (plateType == PlateType.OvenPlate)
+        Sequence seq = DOTween.Sequence();
+        seq.Append(transform.DOScale(originalScale * pressedScaleMultiplier, 0.08f));
+        seq.AppendCallback(() =>
         {
-            sr.sprite = original502Sprite;
-        }
+            if (plateType == PlateType.BasicPlate && original501Sprite != null)
+                sr.sprite = original501Sprite;
+            else if (plateType == PlateType.OvenPlate && original502Sprite != null)
+                sr.sprite = original502Sprite;
+        });
+        seq.Append(transform.DOScale(originalScale, selectScaleDuration)
+            .SetEase(Ease.OutQuad));
+        seq.OnComplete(() => isAnimating = false);
     }
 }

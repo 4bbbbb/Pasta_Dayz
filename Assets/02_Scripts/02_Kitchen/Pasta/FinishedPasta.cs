@@ -69,8 +69,42 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     [Header("<<이펙트 속도>>")]
     [SerializeField] private float fadeDuration = 0.15f;
 
+    [Header("<<선택 연출>>")]
+    [SerializeField] private float selectScaleDuration = 0.12f;
+    [SerializeField] private float selectedScaleMultiplier = 1.08f;
+
+    [Header("<<쓰레기 이펙트>>")]
+    [SerializeField] private float trashEffectDuration = 0.22f;
+    [SerializeField] private float trashFinalScaleMultiplier = 0.2f;
+    [SerializeField] private Vector3 trashFadeOffset = new Vector3(0f, -0.15f, 0f);
+
+    [Header("<<드래그 이동>>")]
+    private Collider myCollider;
+    [SerializeField] private float dragLiftScaleMultiplier = 1.08f;
+    [SerializeField] private Transform dragToppingRoot;
+
+    private bool isDragging = false;
+    private Vector3 dragStartWorldPos;
+    private Vector3 dragStartLocalPos;
+    private Transform dragStartParent;
+    private Vector3 dragOffset;
+    private float dragScreenZ;
+    private int originalSortingOrder;
+    private bool hasTransferredPanToppingsForDrag = false;
+
+    [Header("<<드래그 판정>>")]
+    [SerializeField] private float dragStartThreshold = 0.12f;
+
+    private bool isPointerDown = false;
+    private bool hasStartedRealDrag = false;
+    private Vector3 mouseDownWorldPos;
+
+    private Plates_BasicPlate dragStartBasicPlate;
+    private Plates_OvenPlate dragStartOvenPlate;
+
     private SpriteRenderer sr;
     private Coroutine spriteFadeRoutine;
+    private Vector3 originalScale;
 
     public bool isSelected { get; private set; }
     public bool CanBeSelected => true;
@@ -85,15 +119,15 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
+        originalScale = transform.localScale;
+        myCollider = GetComponent<Collider>();
     }
 
     public bool Interact(IInteractable target)
     {
         if (target == null)
         {
-            Debug.Log("완성된 파스타 선택!");
-            Select();
-            return true;
+            return false;
         }
 
         if (target is Cheese cheese)
@@ -188,11 +222,164 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         return false;
     }
 
-    void Select()
+    private Vector3 GetMouseWorldPosition()
     {
-        isSelected = true;
-        sr.color = Color.red;
+        if (Camera.main == null)
+            return transform.position;
+
+        Vector3 mouse = Input.mousePosition;
+        mouse.z = dragScreenZ;
+
+        Vector3 world = Camera.main.ScreenToWorldPoint(mouse);
+        world.z = dragStartWorldPos.z;
+        return world;
     }
+
+    private void OnMouseDown()
+    {
+        if (isBeingTrashed)
+            return;
+
+        if (Camera.main == null)
+            return;
+
+        dragStartBasicPlate = GetComponentInParent<Plates_BasicPlate>();
+        dragStartOvenPlate = GetComponentInParent<Plates_OvenPlate>();
+
+        isPointerDown = true;
+        hasStartedRealDrag = false;
+
+        dragStartWorldPos = transform.position;
+        dragStartLocalPos = transform.localPosition;
+        dragStartParent = transform.parent;
+        dragScreenZ = Camera.main.WorldToScreenPoint(transform.position).z;
+
+        mouseDownWorldPos = GetMouseWorldPosition();
+        dragOffset = transform.position - mouseDownWorldPos;
+    }
+
+    private void OnMouseDrag()
+    {
+        if (!isPointerDown)
+            return;
+
+        Vector3 currentMouseWorld = GetMouseWorldPosition();
+
+        if (!hasStartedRealDrag)
+        {
+            float dragDistance = Vector3.Distance(currentMouseWorld, mouseDownWorldPos);
+
+            if (dragDistance >= dragStartThreshold)
+            {
+                BeginRealDrag();
+            }
+        }
+
+        if (!hasStartedRealDrag)
+            return;
+
+        transform.position = currentMouseWorld + dragOffset;
+    }
+
+    private void BeginRealDrag()
+    {
+        if (!isOnPlate && fryingPan != null && !hasTransferredPanToppingsForDrag)
+        {
+            fryingPan.TransferPanToppingsToFinishedPasta(this);
+        }
+
+        hasStartedRealDrag = true;
+        isDragging = true;
+        isSelected = false;
+
+        transform.DOKill();
+        transform.localScale = originalScale * dragLiftScaleMultiplier;
+
+        if (sr != null)
+        {
+            originalSortingOrder = sr.sortingOrder;
+            sr.sortingOrder = 999;
+        }
+
+        if (myCollider != null)
+            myCollider.enabled = false;
+
+        transform.SetParent(null, true);
+    }    
+
+    private void OnMouseUp()
+    {
+        if (!isPointerDown)
+            return;
+
+        isPointerDown = false;
+
+        // 드래그가 실제로 시작되지 않았으면 클릭으로 처리되게 그냥 종료
+        if (!hasStartedRealDrag)
+        {
+            isDragging = false;
+            return;
+        }
+
+        isDragging = false;
+        hasStartedRealDrag = false;
+
+        bool placed = TryDropTarget();
+
+        if (!placed)
+        {
+            transform.SetParent(dragStartParent, true);
+            transform.position = dragStartWorldPos;
+            transform.localPosition = dragStartLocalPos;
+            transform.localScale = originalScale;
+        }
+
+        if (myCollider != null)
+            myCollider.enabled = true;
+
+        if (sr != null)
+            sr.sortingOrder = originalSortingOrder;
+    }
+
+    private bool TryDropTarget()
+    {
+        if (Camera.main == null)
+            return false;
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        if (!Physics.Raycast(ray, out RaycastHit hit, 100f))
+        {
+            Debug.Log("드롭 실패: 아무 콜라이더도 맞지 않음");
+            return false;
+        }
+
+        Debug.Log("드롭 시 맞은 오브젝트: " + hit.collider.name);
+
+        Plates_BasicPlate basicPlate = hit.collider.GetComponentInParent<Plates_BasicPlate>();
+        if (basicPlate != null)
+        {
+            Debug.Log("BasicPlate 감지됨");
+            return basicPlate.Interact(this);
+        }
+
+        Plates_OvenPlate ovenPlate = hit.collider.GetComponentInParent<Plates_OvenPlate>();
+        if (ovenPlate != null)
+        {
+            Debug.Log("OvenPlate 감지됨");
+            return ovenPlate.Interact(this);
+        }
+
+        Cooker_Trashcan trashcan = hit.collider.GetComponentInParent<Cooker_Trashcan>();
+        if (trashcan != null)
+        {
+            Debug.Log("Trashcan 감지됨");
+            return trashcan.Interact(this);
+        }
+
+        Debug.Log("드롭 실패: 접시/쓰레기통이 아님");
+        return false;
+    }   
 
     public void Init(Cooker_GasStove stove)
     {
@@ -239,6 +426,41 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         }
 
         return false;
+    }
+
+    public void MovePanToppingsForDrag(Transform[] sourceGroupParents)
+    {
+        if (sourceGroupParents == null || dragToppingRoot == null)
+            return;
+
+        hasTransferredPanToppingsForDrag = true;
+
+        for (int g = 0; g < sourceGroupParents.Length; g++)
+        {
+            Transform sourceGroup = sourceGroupParents[g];
+            if (sourceGroup == null)
+                continue;
+
+            foreach (Transform sourcePoint in sourceGroup)
+            {
+                if (sourcePoint == null)
+                    continue;
+
+                List<Transform> children = new List<Transform>();
+
+                foreach (Transform child in sourcePoint)
+                {
+                    if (child != null)
+                        children.Add(child);
+                }
+
+                foreach (Transform child in children)
+                {
+                    // 위치/회전/스케일 유지한 채 부모만 변경
+                    child.SetParent(dragToppingRoot, true);
+                }
+            }
+        }
     }
 
     public void BuildPlateToppingsFromPan(Transform[] sourceGroupParents)
@@ -361,6 +583,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         sr.color = new Color(c.r, c.g, c.b, 1f);
 
         isOnPlate = true;
+        originalScale = transform.localScale;   // 접시에 올라간 현재 크기를 기준값으로 다시 저장
         UpdatePlateSprite();
 
         fryingPan?.CopyPanToppingsToFinishedPasta(this);
@@ -370,6 +593,10 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         {
             gasStove.DestroyFryingPan();
         }
+
+        // 접시에 올라간 뒤에는 원래 팬/스토브 참조 끊기
+        fryingPan = null;
+        gasStove = null;
 
         Debug.Log("완성된 파스타를 그릇에 담았어요 !!");
         PrintIngredients();
@@ -710,50 +937,73 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     public void OnTrashed()
     {
         if (isBeingTrashed)
-        {
             return;
-        }
 
         isBeingTrashed = true;
+        isSelected = false;
+        isDragging = false;
 
-        ResetIngredientState();
+        transform.DOKill();
+
+        if (myCollider != null)
+            myCollider.enabled = false;
+
+        if (spriteFadeRoutine != null)
+        {
+            StopCoroutine(spriteFadeRoutine);
+            spriteFadeRoutine = null;
+        }
+
         ClearExistingPlateToppings();
 
-        if (transform.parent != null)
+        if (dragStartBasicPlate != null)
         {
-            Cooker_PlateTable plateTable = GetComponentInParent<Cooker_PlateTable>();
-            if (plateTable != null)
-            {
-                transform.SetParent(null);
-                plateTable.ClearPlateTable();
-            }
+            Destroy(dragStartBasicPlate.gameObject);
+            dragStartBasicPlate = null;
         }
 
-        fryingPan?.ClearPanAfterServing();
-
-        if (gasStove != null)
+        if (dragStartOvenPlate != null)
         {
-            gasStove.DestroyFryingPan();
+            Destroy(dragStartOvenPlate.gameObject);
+            dragStartOvenPlate = null;
         }
+
+        // 접시 위 파스타를 버릴 때는 현재 돌아가는 팬을 건드리면 안 됨
+        if (!isOnPlate)
+        {
+            fryingPan?.ClearPanAfterServing();
+
+            if (gasStove != null)
+                gasStove.DestroyFryingPan();
+        }
+
+        fryingPan = null;
+        gasStove = null;
     }
 
     public void PlayTrashEffect(Transform trashTarget)
     {
-        float moveDuration = 0.7f;
-        float effectDuration = 0.31f;
+        transform.DOKill();
 
-        Vector3 targetPos = trashTarget.position;
+        float effectDuration = 0.22f;
+        float finalScaleMultiplier = 0.2f;
+        Vector3 trashFadeOffset = new Vector3(0f, -0.15f, 0f);
+
+        if (trashTarget != null)
+            transform.position = trashTarget.position + trashFadeOffset;
 
         Sequence seq = DOTween.Sequence();
 
-        seq.Append(transform.DOMove(targetPos, moveDuration).SetEase(Ease.OutQuad));
-        seq.Join(transform.DOScale(Vector3.zero, moveDuration).SetEase(Ease.InQuad));
+        seq.Append(
+            transform.DOScale(originalScale * finalScaleMultiplier, effectDuration)
+                     .SetEase(Ease.InQuad)
+        );
 
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
-
-        if (sr != null)
+        SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>(true);
+        foreach (var r in renderers)
         {
-            seq.Append(sr.DOFade(0f, effectDuration));
+            if (r != null)
+                seq.Join(r.DOFade(0f, effectDuration));
         }
 
         seq.OnComplete(() =>
@@ -770,6 +1020,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         isSelected = false;
         isOnPlate = false;
         hasInitializedSprite = false;
+        transform.localScale = originalScale;
 
         if (spriteFadeRoutine != null)
         {
@@ -789,7 +1040,15 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
     public void Cancel()
     {
+        if (isBeingTrashed)
+            return;
+
         isSelected = false;
-        sr.color = Color.white;
+
+        transform.DOKill();
+        transform.DOScale(originalScale, selectScaleDuration)
+                 .SetEase(Ease.OutQuad);
     }
+
+
 }

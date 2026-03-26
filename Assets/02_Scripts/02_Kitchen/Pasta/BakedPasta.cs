@@ -20,6 +20,10 @@ public class BakedPasta : MonoBehaviour, IInteractable
     [Header("<<클릭용 콜라이더>>")]
     [SerializeField] private Collider foodCollider;
 
+    [Header("<<선택 연출>>")]
+    [SerializeField] private float selectScaleDuration = 0.12f;
+    [SerializeField] private float selectedScaleMultiplier = 1.08f;
+
     public enum BakedState
     {
         InOven,
@@ -183,9 +187,19 @@ public class BakedPasta : MonoBehaviour, IInteractable
         });
     }
 
+    private Vector3 GetBaseScale()
+    {
+        return currentState == BakedState.InOven ? inOvenScale : platedScale;
+    }
+
     private void ApplyStateVisual()
     {
-        transform.localScale = currentState == BakedState.InOven ? inOvenScale : platedScale;
+        transform.DOKill();
+
+        Vector3 baseScale = GetBaseScale();
+        transform.localScale = isSelected
+            ? baseScale * selectedScaleMultiplier
+            : baseScale;
     }
 
     public void AddIngredient(int id)
@@ -242,12 +256,20 @@ public class BakedPasta : MonoBehaviour, IInteractable
     void Select()
     {
         isSelected = true;
-        sr.color = Color.red;
+        transform.DOKill();
+
+        Vector3 baseScale = GetBaseScale();
+        transform.DOScale(baseScale * selectedScaleMultiplier, selectScaleDuration)
+                 .SetEase(Ease.OutBack);
     }
 
     public void Cancel()
     {
         isSelected = false;
-        sr.color = Color.white;
+        transform.DOKill();
+
+        Vector3 baseScale = GetBaseScale();
+        transform.DOScale(baseScale, selectScaleDuration)
+                 .SetEase(Ease.OutQuad);
     }
 }

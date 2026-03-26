@@ -13,8 +13,11 @@ public class Plate_BakedPane : MonoBehaviour, IInteractable
     private bool canPick = false;
     public bool CanBeSelected => canPick;
 
-    [SerializeField] private float selectedScaleMultiplier = 1.2f;
-    [SerializeField] private float paneCost = 3f;   // Burned Pane이랑 동일하게 3원 처리
+    [Header("<<선택 연출>>")]
+    [SerializeField] private float selectScaleDuration = 0.12f;
+    [SerializeField] private float selectedScaleMultiplier = 1.08f;
+
+    [SerializeField] private float paneCost = 3f;  
 
     private void Awake()
     {
@@ -88,21 +91,19 @@ public class Plate_BakedPane : MonoBehaviour, IInteractable
         });
     }
 
-    private void Select()
+    void Select()
     {
         isSelected = true;
-        transform.localScale = originalScale * selectedScaleMultiplier;
-
-        if (sr != null)
-            sr.color = Color.red;
+        transform.DOKill();
+        transform.DOScale(originalScale * selectedScaleMultiplier, selectScaleDuration)
+                 .SetEase(Ease.OutBack);
     }
 
     public void Cancel()
     {
         isSelected = false;
-        transform.localScale = originalScale;
-
-        if (sr != null)
-            sr.color = Color.white;
+        transform.DOKill();
+        transform.DOScale(originalScale, selectScaleDuration)
+                 .SetEase(Ease.OutQuad);
     }
 }

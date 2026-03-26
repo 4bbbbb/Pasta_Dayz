@@ -15,7 +15,12 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
     [SerializeField] private GameObject paneOnPlatePrefab;
 
     [Header("<<선택 연출>>")]
+    [SerializeField] private float selectScaleDuration = 0.12f;
     [SerializeField] private float selectedScaleMultiplier = 1.08f;
+
+
+    private bool isServing = false;
+    [SerializeField] private bool hidePlateBaseAfterServing = true;
 
     private SpriteRenderer sr;
     private Collider plateCollider;
@@ -36,6 +41,8 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
     private HashSet<int> ingredients = new HashSet<int>();
 
     private Vector3 originalScale;
+
+
 
     void Start()
     {
@@ -234,10 +241,12 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
         });
     }
 
-    private void Select()
+    void Select()
     {
         isSelected = true;
-        transform.localScale = originalScale * selectedScaleMultiplier;
+        transform.DOKill();
+        transform.DOScale(originalScale * selectedScaleMultiplier, selectScaleDuration)
+                 .SetEase(Ease.OutBack);
     }
 
     public void AddIngredient(int id)
@@ -264,6 +273,8 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
     public void Cancel()
     {
         isSelected = false;
-        transform.localScale = originalScale;
+        transform.DOKill();
+        transform.DOScale(originalScale, selectScaleDuration)
+                 .SetEase(Ease.OutQuad);
     }
 }

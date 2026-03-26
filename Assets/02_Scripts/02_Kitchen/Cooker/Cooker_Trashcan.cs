@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using static Cooker_Oven;
 using static IInteractableScript;
 
 public class Cooker_Trashcan : MonoBehaviour, IInteractable
@@ -94,8 +95,11 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
 
     private void TrashCookedNoodle(Noodles_CookedNoodle cookedNoodle)
     {
+
         if (cookedNoodle == null || cookedNoodle.isBeingTrashed)
             return;
+
+        ClearKitchenSelection(cookedNoodle);
 
         PlayTrashAnimation();
 
@@ -117,6 +121,9 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
         if (fryingPan == null || fryingPan.isBeingTrashed)
             return;
 
+        ClearKitchenSelection(fryingPan);
+
+
         PlayTrashAnimation();
 
         float totalCost = fryingPan.GetPanContentCost();
@@ -136,6 +143,9 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
     {
         if (pasta == null || pasta.isBeingTrashed)
             return;
+
+        ClearKitchenSelection(pasta);
+
 
         PlayTrashAnimation();
 
@@ -157,6 +167,9 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
         if (burned == null || burned.isBeingTrashed)
             return;
 
+        ClearKitchenSelection(burned);
+
+
         PlayTrashAnimation();
 
         float totalCost = burned.GetCost();
@@ -176,6 +189,9 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
     {
         if (bakedPane == null || bakedPane.isBeingTrashed)
             return;
+
+        ClearKitchenSelection(bakedPane);
+
 
         PlayTrashAnimation();
 
@@ -197,6 +213,9 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
         if (basicPlate == null || basicPlate.isBeingTrashed)
             return;
 
+        ClearKitchenSelection(basicPlate);
+
+
         PlayTrashAnimation();
 
         float totalCost = basicPlate.GetCost();
@@ -217,6 +236,9 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
         if (ovenPlate == null || ovenPlate.isBeingTrashed)
             return;
 
+        ClearKitchenSelection(ovenPlate);
+
+
         PlayTrashAnimation();       
 
         ovenPlate.OnTrashed();
@@ -227,6 +249,9 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
     {
         if (bakedPasta == null || bakedPasta.isBeingTrashed)
             return;
+
+        ClearKitchenSelection(bakedPasta);
+
 
         PlayTrashAnimation();
 
@@ -261,6 +286,15 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
         }
 
         return total;
+    }
+
+    private void ClearKitchenSelection(IInteractable target)
+    {
+        Kitchen_Manager km = FindObjectOfType<Kitchen_Manager>();
+        if (km != null)
+        {
+            km.ClearSelectionForTrashed(target);
+        }
     }
 
     public void Cancel()

@@ -88,14 +88,49 @@ public class Kitchen_Manager : MonoBehaviour
         }
     }
 
-    void HandleRightClick()
+    private void HandleRightClick()
     {
-        if (!Input.GetMouseButtonDown(1)) return;
+        if (!Input.GetMouseButtonDown(1))
+            return;
 
-        Debug.Log("실행취소");
+        if (currentSelected is UnityEngine.Object unityObj && unityObj == null)
+        {
+            currentSelected = null;
+            return;
+        }
 
         currentSelected?.Cancel();
         currentSelected = null;
+    }
+
+    public void ClearSelectionForTrashed(IInteractable trashedTarget)
+    {
+        if (currentSelected == null)
+            return;
+
+        // 이미 Destroy된 유니티 오브젝트면 그냥 참조만 제거
+        if (currentSelected is UnityEngine.Object unityObj && unityObj == null)
+        {
+            currentSelected = null;
+            return;
+        }
+
+        // 지금 버려지는 대상이 현재 선택된 대상이면 Cancel 호출하지 말고 바로 참조만 제거
+        if (ReferenceEquals(currentSelected, trashedTarget))
+        {
+            currentSelected = null;
+            return;
+        }
+
+        // 다른 게 선택돼 있으면 정상 취소
+        currentSelected.Cancel();
+        currentSelected = null;
+    }
+
+    public void ClearSelection(IInteractable target)
+    {
+        if (currentSelected == target)
+            currentSelected = null;
     }
 }
 

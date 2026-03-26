@@ -158,6 +158,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6096304388472190381}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3595790300790314400
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6105595113302531585}
+  m_Layer: 0
+  m_Name: dragToppingRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6105595113302531585
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3595790300790314400}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6518147389686890248}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3830154185128318548
 GameObject:
   m_ObjectHideFlags: 0
@@ -221,6 +252,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 6105595113302531585}
   - {fileID: 905166858084659127}
   - {fileID: 1589834203138197831}
   - {fileID: 8954951188063815746}
@@ -566,6 +598,13 @@ MonoBehaviour:
     cheeseID: 402
     sprite: {fileID: 21300000, guid: e25aa6d8f6b0e5145a3bd2f666bad58f, type: 3}
   fadeDuration: 0.35
+  selectScaleDuration: 0.12
+  selectedScaleMultiplier: 1.08
+  trashEffectDuration: 0.22
+  trashFinalScaleMultiplier: 0.2
+  trashFadeOffset: {x: 0, y: -0.15, z: 0}
+  dragLiftScaleMultiplier: 1.08
+  dragStartThreshold: 0.12
 --- !u!1 &5804078093874095920
 GameObject:
   m_ObjectHideFlags: 0

@@ -10,14 +10,27 @@ public class Topping_Parsley : MonoBehaviour, IInteractable
     [SerializeField] private Sprite originalSprite;
     [SerializeField] private Sprite selectedSprite;
 
+    [Header("<<선택 연출>>")]
+    [SerializeField] private float selectScaleDuration = 0.12f;
+    [SerializeField] private float selectedScaleMultiplier = 1.08f;
+    [SerializeField] private float pressedScaleMultiplier = 0.97f;
+
     private SpriteRenderer sr;
+    private Vector3 originalScale;
+    private bool isAnimating = false;
+
     public bool isSelected { get; private set; }
     public bool CanBeSelected => true;
 
-    void Start()
+    void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
-        sr.sprite = originalSprite;
+        originalScale = transform.localScale;
+
+        if (sr != null && originalSprite != null)
+            sr.sprite = originalSprite;
+
+        isSelected = false;
     }
 
     public bool Interact(IInteractable target)
@@ -33,8 +46,24 @@ public class Topping_Parsley : MonoBehaviour, IInteractable
 
     void Select()
     {
+        if (isAnimating) return;
+        if (isSelected) return;
+
+        isAnimating = true;
         isSelected = true;
-        sr.sprite = selectedSprite;
+
+        transform.DOKill();
+
+        Sequence seq = DOTween.Sequence();
+        seq.Append(transform.DOScale(originalScale * pressedScaleMultiplier, 0.08f));
+        seq.AppendCallback(() =>
+        {
+            if (sr != null && selectedSprite != null)
+                sr.sprite = selectedSprite;
+        });
+        seq.Append(transform.DOScale(originalScale * selectedScaleMultiplier, selectScaleDuration)
+            .SetEase(Ease.OutBack));
+        seq.OnComplete(() => isAnimating = false);
     }
 
     public void Sprinkle(Transform pastaPoint, System.Action onSprinkle)
@@ -45,11 +74,15 @@ public class Topping_Parsley : MonoBehaviour, IInteractable
         Vector3 targetPos = pastaPoint.position + new Vector3(2f, 2f, 0);
         Quaternion pourRot = Quaternion.Euler(0, 0, 120f);
 
+        isAnimating = true;
+        transform.DOKill();
+
         Sequence seq = DOTween.Sequence();
 
         seq.AppendCallback(() =>
         {
-            sr.sprite = selectedSprite;
+            if (sr != null && selectedSprite != null)
+                sr.sprite = selectedSprite;
         });
 
         // 파스타 쪽으로 이동
@@ -66,9 +99,9 @@ public class Topping_Parsley : MonoBehaviour, IInteractable
 
         seq.Append(
             transform.DOMoveY(targetPos.y + 0.08f, 0.18f)
-            .SetLoops(4, LoopType.Yoyo)
-            .SetEase(Ease.InOutSine)
-        );               
+                .SetLoops(4, LoopType.Yoyo)
+                .SetEase(Ease.InOutSine)
+        );
 
         // 다시 세우기
         seq.Append(transform.DORotateQuaternion(startRot, 0.2f));
@@ -78,13 +111,34 @@ public class Topping_Parsley : MonoBehaviour, IInteractable
 
         seq.AppendCallback(() =>
         {
-            sr.sprite = originalSprite;
+            if (sr != null && originalSprite != null)
+                sr.sprite = originalSprite;
+
+            transform.localScale = originalScale;
+            isSelected = false;
+            isAnimating = false;
         });
     }
 
     public void Cancel()
     {
+        if (isAnimating) return;
+        if (!isSelected) return;
+
+        isAnimating = true;
         isSelected = false;
-        sr.sprite = originalSprite;
+
+        transform.DOKill();
+
+        Sequence seq = DOTween.Sequence();
+        seq.Append(transform.DOScale(originalScale * pressedScaleMultiplier, 0.08f));
+        seq.AppendCallback(() =>
+        {
+            if (sr != null && originalSprite != null)
+                sr.sprite = originalSprite;
+        });
+        seq.Append(transform.DOScale(originalScale, selectScaleDuration)
+            .SetEase(Ease.OutQuad));
+        seq.OnComplete(() => isAnimating = false);
     }
 }

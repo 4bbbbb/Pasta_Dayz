@@ -168,7 +168,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6105595113302531585}
   m_Layer: 0
-  m_Name: dragToppingRoot
+  m_Name: DragToppingRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -604,6 +604,7 @@ MonoBehaviour:
   trashFinalScaleMultiplier: 0.2
   trashFadeOffset: {x: 0, y: -0.15, z: 0}
   dragLiftScaleMultiplier: 1.08
+  dragToppingRoot: {fileID: 6105595113302531585}
   dragStartThreshold: 0.12
 --- !u!1 &5804078093874095920
 GameObject:

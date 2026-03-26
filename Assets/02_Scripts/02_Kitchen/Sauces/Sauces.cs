@@ -11,12 +11,8 @@ public class Sauces : MonoBehaviour, IInteractable
     [SerializeField] private Sprite emptyLadleSprite;
     [SerializeField] private Sprite scoopedLadleSprite;
 
-    [Header("선택 연출")]
-    [SerializeField] private float riseDistance = 0.8f;
-    [SerializeField] private float riseDuration = 0.25f;
-    [SerializeField] private float bounceUpAmount = 0.08f;
-    [SerializeField] private float bounceUpDuration = 0.12f;
-    [SerializeField] private float bounceDownDuration = 0.1f;
+    [Header("드래그")]
+    [SerializeField] private Vector3 mouseFollowOffset = new Vector3(0.35f, -0.15f, 0f);
     [SerializeField] private float cancelDuration = 0.2f;
 
     [Header("붓기 연출")]
@@ -38,15 +34,22 @@ public class Sauces : MonoBehaviour, IInteractable
     }
 
     private Vector3 ladleOriginalLocalPos;
+    private Quaternion ladleOriginalLocalRot;
+    private Transform ladleOriginalParent;
     private Color ladleOriginalColor;
     private Sequence ladleSequence;
 
     private bool isAnimating = false;
     private bool isPouring = false;
+    private bool isDragging = false;
     private bool isInitialized = false;
 
+    private float dragScreenZ;
+    private int originalSortingOrder;
+    private string originalSortingLayerName;
+
     public bool isSelected { get; private set; }
-    public bool CanBeSelected => true;
+    public bool CanBeSelected => !isPouring;
 
     private void Awake()
     {
@@ -59,8 +62,13 @@ public class Sauces : MonoBehaviour, IInteractable
 
         if (ladleRenderer != null)
         {
+            ladleOriginalParent = ladleRenderer.transform.parent;
             ladleOriginalLocalPos = ladleRenderer.transform.localPosition;
+            ladleOriginalLocalRot = ladleRenderer.transform.localRotation;
             ladleOriginalColor = ladleRenderer.color;
+            originalSortingOrder = ladleRenderer.sortingOrder;
+            originalSortingLayerName = ladleRenderer.sortingLayerName;
+
             ResetLadleVisual();
         }
 
@@ -69,77 +77,102 @@ public class Sauces : MonoBehaviour, IInteractable
 
     public bool Interact(IInteractable target)
     {
-        if (target == null)
-        {
-            Select();
-            return true;
-        }
-
+        // 이제 클릭 선택형이 아니라 드래그형
         return false;
     }
 
-    private void Select()
+    private void OnMouseDown()
     {
         InitializeLadle();
 
         if (ladleRenderer == null) return;
-        if (isAnimating || isSelected) return;
-
-        isSelected = true;
-        PlayLadleSelectAnimation();
-    }
-
-    private void PlayLadleSelectAnimation()
-    {
-        if (ladleRenderer == null) return;
+        if (isPouring || isAnimating) return;
+        if (Camera.main == null) return;
 
         KillSequence();
 
-        isAnimating = true;
+        isDragging = true;
+        isSelected = true;
+        isAnimating = false;
 
         ladleRenderer.gameObject.SetActive(true);
-        ladleRenderer.transform.localPosition = ladleOriginalLocalPos + Vector3.down * riseDistance;
-        ladleRenderer.sprite = emptyLadleSprite;
 
-        Color startColor = ladleOriginalColor;
-        startColor.a = 0f;
-        ladleRenderer.color = startColor;
+        // 부모 분리해서 마우스를 따라다니게
+        ladleRenderer.transform.SetParent(null, true);
 
-        ladleSequence = DOTween.Sequence();
+        if (scoopedLadleSprite != null)
+            ladleRenderer.sprite = scoopedLadleSprite;
 
-        ladleSequence.Append(
-            ladleRenderer.transform.DOLocalMove(ladleOriginalLocalPos, riseDuration)
-                .SetEase(Ease.InOutSine)
-        );
+        Color visibleColor = ladleOriginalColor;
+        visibleColor.a = 1f;
+        ladleRenderer.color = visibleColor;
 
-        ladleSequence.Join(
-            ladleRenderer.DOFade(1f, riseDuration)
-        );
+        ladleRenderer.sortingOrder = 999;
 
-        ladleSequence.AppendCallback(() =>
+        dragScreenZ = Camera.main.WorldToScreenPoint(transform.position).z;
+
+        UpdateLadleFollowMouse();
+    }
+
+    private void OnMouseDrag()
+    {
+        if (!isDragging) return;
+        UpdateLadleFollowMouse();
+    }
+
+    private void OnMouseUp()
+    {
+        if (!isDragging) return;
+
+        isDragging = false;
+
+        bool droppedSuccessfully = TryDropTarget();
+
+        if (!droppedSuccessfully)
         {
-            if (scoopedLadleSprite != null)
-                ladleRenderer.sprite = scoopedLadleSprite;
-        });
+            Cancel();
+        }
+    }
 
-        ladleSequence.Append(
-            ladleRenderer.transform.DOLocalMove(
-                ladleOriginalLocalPos + new Vector3(0f, bounceUpAmount, 0f),
-                bounceUpDuration
-            ).SetEase(Ease.OutQuad)
-        );
+    private void UpdateLadleFollowMouse()
+    {
+        if (ladleRenderer == null || Camera.main == null)
+            return;
 
-        ladleSequence.Append(
-            ladleRenderer.transform.DOLocalMove(
-                ladleOriginalLocalPos,
-                bounceDownDuration
-            ).SetEase(Ease.InOutSine)
-        );
+        Vector3 mouse = Input.mousePosition;
+        mouse.z = dragScreenZ;
 
-        ladleSequence.OnComplete(() =>
+        Vector3 world = Camera.main.ScreenToWorldPoint(mouse);
+        world.z = transform.position.z;
+
+        ladleRenderer.transform.position = world + mouseFollowOffset;
+    }
+
+    private bool TryDropTarget()
+    {
+        if (Camera.main == null)
+            return false;
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        if (!Physics.Raycast(ray, out RaycastHit hit, 100f))
         {
-            isAnimating = false;
-        });
+            Debug.Log("소스 드롭 실패: 아무 콜라이더도 맞지 않음");
+            return false;
+        }
+
+        Debug.Log("소스 드롭 시 맞은 오브젝트: " + hit.collider.name);
+
+        // 후라이팬만 성공 처리
+        Cooker_FryingPan pan = hit.collider.GetComponentInParent<Cooker_FryingPan>();
+        if (pan != null)
+        {
+            Debug.Log("후라이팬 감지됨");
+            return pan.Interact(this);
+        }
+
+        Debug.Log("소스 드롭 실패: 후라이팬 아님");
+        return false;
     }
 
     public void PlayPourToPanAnimation(Vector3 panWorldPos)
@@ -151,18 +184,24 @@ public class Sauces : MonoBehaviour, IInteractable
             isSelected = false;
             isAnimating = false;
             isPouring = false;
+            isDragging = false;
             return;
         }
 
         KillSequence();
+
         isAnimating = true;
         isPouring = true;
+        isDragging = false;
 
         ladleRenderer.gameObject.SetActive(true);
+        ladleRenderer.transform.SetParent(null, true);
 
         Color visibleColor = ladleOriginalColor;
         visibleColor.a = 1f;
         ladleRenderer.color = visibleColor;
+
+        ladleRenderer.sortingOrder = 999;
 
         if (scoopedLadleSprite != null)
             ladleRenderer.sprite = scoopedLadleSprite;
@@ -203,6 +242,7 @@ public class Sauces : MonoBehaviour, IInteractable
             isSelected = false;
             isAnimating = false;
             isPouring = false;
+            isDragging = false;
         });
     }
 
@@ -211,20 +251,20 @@ public class Sauces : MonoBehaviour, IInteractable
         InitializeLadle();
 
         if (isPouring)
-        {
             return;
-        }
 
         if (ladleRenderer == null)
         {
             isSelected = false;
             isAnimating = false;
+            isDragging = false;
             return;
         }
 
         KillSequence();
 
         isSelected = false;
+        isDragging = false;
 
         if (!ladleRenderer.gameObject.activeSelf)
         {
@@ -234,15 +274,18 @@ public class Sauces : MonoBehaviour, IInteractable
 
         isAnimating = true;
 
-        ladleRenderer.sprite = emptyLadleSprite;
+        if (emptyLadleSprite != null)
+            ladleRenderer.sprite = emptyLadleSprite;
+
+        Vector3 homeWorldPos = ladleOriginalParent != null
+            ? ladleOriginalParent.TransformPoint(ladleOriginalLocalPos)
+            : ladleOriginalLocalPos;
 
         ladleSequence = DOTween.Sequence();
 
         ladleSequence.Append(
-            ladleRenderer.transform.DOLocalMove(
-                ladleOriginalLocalPos + Vector3.down * riseDistance,
-                cancelDuration
-            ).SetEase(Ease.InSine)
+            ladleRenderer.transform.DOMove(homeWorldPos, cancelDuration)
+                .SetEase(Ease.InSine)
         );
 
         ladleSequence.Join(
@@ -260,7 +303,11 @@ public class Sauces : MonoBehaviour, IInteractable
     {
         if (ladleRenderer == null) return;
 
+        if (ladleOriginalParent != null)
+            ladleRenderer.transform.SetParent(ladleOriginalParent, false);
+
         ladleRenderer.transform.localPosition = ladleOriginalLocalPos;
+        ladleRenderer.transform.localRotation = ladleOriginalLocalRot;
 
         if (emptyLadleSprite != null)
             ladleRenderer.sprite = emptyLadleSprite;
@@ -268,6 +315,9 @@ public class Sauces : MonoBehaviour, IInteractable
         Color c = ladleOriginalColor;
         c.a = 0f;
         ladleRenderer.color = c;
+
+        ladleRenderer.sortingOrder = originalSortingOrder;
+        ladleRenderer.sortingLayerName = originalSortingLayerName;
 
         ladleRenderer.gameObject.SetActive(false);
     }
@@ -288,7 +338,7 @@ public class Sauces : MonoBehaviour, IInteractable
         for (int i = 0; i <= pointCount; i++)
         {
             float t = (float)i / pointCount;
-            float angle = Mathf.PI * 0.5f - t * Mathf.PI * 2f; // 위에서 시작, 시계방향
+            float angle = Mathf.PI * 0.5f - t * Mathf.PI * 2f;
             path[i] = center + new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f) * radius;
         }
 

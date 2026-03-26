@@ -656,11 +656,7 @@ MonoBehaviour:
   ladleRenderer: {fileID: 1977273851}
   emptyLadleSprite: {fileID: 21300000, guid: 3a8a58f2505dd204697def806b3e1925, type: 3}
   scoopedLadleSprite: {fileID: 21300000, guid: 3030449e5148aed49a7225029b55c70b, type: 3}
-  riseDistance: 0.8
-  riseDuration: 0.25
-  bounceUpAmount: 0.08
-  bounceUpDuration: 0.12
-  bounceDownDuration: 0.1
+  mouseFollowOffset: {x: 0.35, y: -0.15, z: 0}
   cancelDuration: 0.2
   moveToPanDuration: 0.55
   circleDuration: 1.45
@@ -1162,6 +1158,90 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 62500371}
   m_CullTransparentMesh: 1
+--- !u!1 &67368923
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 67368924}
+  - component: {fileID: 67368925}
+  m_Layer: 0
+  m_Name: DragPlateVisual
+  m_TagString: Plate
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &67368924
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 67368923}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.73484, y: 0.73484, z: 0.73484}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 331358127}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &67368925
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 67368923}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 2
+  m_Sprite: {fileID: 21300000, guid: 11419d164b47d5049890ae4dd1667324, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 15.36, y: 10.24}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
 --- !u!1 &79057217
 GameObject:
   m_ObjectHideFlags: 0
@@ -2170,11 +2250,7 @@ MonoBehaviour:
   ladleRenderer: {fileID: 1418275287}
   emptyLadleSprite: {fileID: 21300000, guid: 3a8a58f2505dd204697def806b3e1925, type: 3}
   scoopedLadleSprite: {fileID: 21300000, guid: 5ed8d3654a8fedd49860313c543b216d, type: 3}
-  riseDistance: 0.8
-  riseDuration: 0.25
-  bounceUpAmount: 0.08
-  bounceUpDuration: 0.12
-  bounceDownDuration: 0.1
+  mouseFollowOffset: {x: 0.35, y: -0.15, z: 0}
   cancelDuration: 0.2
   moveToPanDuration: 0.55
   circleDuration: 1.45
@@ -5000,7 +5076,8 @@ Transform:
   m_LocalPosition: {x: 17.59, y: -6.35, z: 0}
   m_LocalScale: {x: 0.47049364, y: 0.47049364, z: 0.7841561}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 67368924}
   m_Father: {fileID: 507778477}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &331358128
@@ -5040,9 +5117,9 @@ MonoBehaviour:
   selected501Sprite: {fileID: 21300000, guid: 97231f0f42cd9914e9519e892e30a8ec, type: 3}
   original502Sprite: {fileID: 21300000, guid: a58bff7deecf1f24ab5f820decd654f3, type: 3}
   selected502Sprite: {fileID: 21300000, guid: 418fe6e601d323e488c92ccf29076354, type: 3}
-  selectScaleDuration: 0.12
-  selectedScaleMultiplier: 1.08
-  pressedScaleMultiplier: 0.97
+  dragPlateObject: {fileID: 67368923}
+  mouseFollowOffset: {x: 0.2, y: -0.1, z: 0}
+  cancelDuration: 0.2
   plateType: 0
 --- !u!114 &331358130
 MonoBehaviour:
@@ -5748,6 +5825,90 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1 &368392923
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 368392924}
+  - component: {fileID: 368392925}
+  m_Layer: 0
+  m_Name: DragPlateVisual
+  m_TagString: Plate
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &368392924
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 368392923}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.3, y: 0.03670328, z: 0}
+  m_LocalScale: {x: 0.67264086, y: 0.67264086, z: 1.1210681}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1651584279}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &368392925
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 368392923}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 2
+  m_Sprite: {fileID: 21300000, guid: 04eab4f66c085694a96fb87ba66409fe, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 15.36, y: 10.24}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
 --- !u!1 &377899690
 GameObject:
   m_ObjectHideFlags: 0
@@ -7286,6 +7447,7 @@ MonoBehaviour:
   selectScaleDuration: 0.12
   selectedScaleMultiplier: 1.08
   pressedScaleMultiplier: 0.97
+  dragScaleMultiplier: 1.08
   cheeseType: 1
 --- !u!114 &476927718
 MonoBehaviour:
@@ -10624,11 +10786,7 @@ MonoBehaviour:
   ladleRenderer: {fileID: 1604107955}
   emptyLadleSprite: {fileID: 21300000, guid: 3a8a58f2505dd204697def806b3e1925, type: 3}
   scoopedLadleSprite: {fileID: 21300000, guid: edd8c3eaceafd5d4f95889be76aec7c4, type: 3}
-  riseDistance: 0.8
-  riseDuration: 0.25
-  bounceUpAmount: 0.08
-  bounceUpDuration: 0.12
-  bounceDownDuration: 0.1
+  mouseFollowOffset: {x: 0.35, y: -0.15, z: 0}
   cancelDuration: 0.2
   moveToPanDuration: 0.55
   circleDuration: 1.45
@@ -13140,6 +13298,90 @@ SpriteRenderer:
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 1.28, y: 1.28}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!1 &823750824
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 823750825}
+  - component: {fileID: 823750826}
+  m_Layer: 0
+  m_Name: DragPlateVisual (1)
+  m_TagString: Plate
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &823750825
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 823750824}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.05, y: 0, z: 0}
+  m_LocalScale: {x: 1.6833153, y: 1.1917276, z: 1.58897}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1764266564}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &823750826
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 823750824}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 2
+  m_Sprite: {fileID: 21300000, guid: 1020256e1d7455246a2b6be5e58a2dcd, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 2.56, y: 5.12}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -20282,7 +20524,8 @@ Transform:
   m_LocalPosition: {x: -0.27, y: -10.534, z: 0}
   m_LocalScale: {x: 0.65937245, y: 0.65937245, z: 0.82421553}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1680126232}
   m_Father: {fileID: 980589933}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &1166727143
@@ -21508,6 +21751,9 @@ MonoBehaviour:
   saucePourTarget: {fileID: 1857983016}
   selectScaleDuration: 0.12
   selectedScaleMultiplier: 1.08
+  trashEffectDuration: 0.22
+  trashFinalScaleMultiplier: 0.2
+  trashFadeOffset: {x: 0, y: -0.15, z: 0}
 --- !u!65 &1229255783
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -23275,9 +23521,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   originalSprite: {fileID: 21300000, guid: 89f1d4700cf0c114f939bb2a30230ca1, type: 3}
   selectedSprite: {fileID: 21300000, guid: 4af096b7b92063e45bfd5c094c034222, type: 3}
-  selectScaleDuration: 0.12
-  selectedScaleMultiplier: 1.08
-  pressedScaleMultiplier: 0.97
+  dragScaleMultiplier: 1.08
+  sprinkleRotateAngle: 120
+  sprinkleRotateDuration: 0.18
+  sprinkleShakeHeight: 0.08
+  sprinkleShakeCount: 4
+  sprinkleShakeDuration: 0.18
+  returnDuration: 0.25
 --- !u!114 &1305335769
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24982,6 +25232,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   originalSprite: {fileID: 21300000, guid: 13423aad0e335634bb4edebe427ce22a, type: 3}
   selectedSprite: {fileID: 21300000, guid: 5de6831a32985894c84ac04b0e785708, type: 3}
+  dragScaleMultiplier: 1.08
   isOliveOil: 1
 --- !u!65 &1367144561
 BoxCollider:
@@ -29121,7 +29372,8 @@ Transform:
   m_LocalPosition: {x: 22.54, y: -6.37, z: 0}
   m_LocalScale: {x: 0.5449099, y: 0.5449099, z: 0.5449099}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 368392924}
   m_Father: {fileID: 507778477}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1651584280
@@ -29140,9 +29392,9 @@ MonoBehaviour:
   selected501Sprite: {fileID: 21300000, guid: 97231f0f42cd9914e9519e892e30a8ec, type: 3}
   original502Sprite: {fileID: 21300000, guid: a58bff7deecf1f24ab5f820decd654f3, type: 3}
   selected502Sprite: {fileID: 21300000, guid: 418fe6e601d323e488c92ccf29076354, type: 3}
-  selectScaleDuration: 0.12
-  selectedScaleMultiplier: 1.08
-  pressedScaleMultiplier: 0.97
+  dragPlateObject: {fileID: 368392923}
+  mouseFollowOffset: {x: 0.2, y: -0.1, z: 0}
+  cancelDuration: 0.2
   plateType: 1
 --- !u!212 &1651584281
 SpriteRenderer:
@@ -29591,6 +29843,90 @@ SpriteRenderer:
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 1.28, y: 1.28}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!1 &1680126231
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1680126232}
+  - component: {fileID: 1680126233}
+  m_Layer: 0
+  m_Name: DragPlateVisual
+  m_TagString: Plate
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1680126232
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1680126231}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.000000045198, y: 0, z: 0}
+  m_LocalScale: {x: 1.1917276, y: 1.1917276, z: 1.58897}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1166727141}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &1680126233
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1680126231}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 2
+  m_Sprite: {fileID: 21300000, guid: 97aae28f7f9b0384fa02c2a7d1a11aa0, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 15.36, y: 10.24}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -30796,7 +31132,8 @@ Transform:
   m_LocalPosition: {x: 1.5199699, y: -10.534, z: 0}
   m_LocalScale: {x: 0.65937245, y: 0.65937245, z: 0.82421553}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 823750825}
   m_Father: {fileID: 980589933}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1764266568
@@ -31610,6 +31947,7 @@ MonoBehaviour:
   selectScaleDuration: 0.12
   selectedScaleMultiplier: 1.08
   pressedScaleMultiplier: 0.97
+  dragScaleMultiplier: 1.08
   cheeseType: 0
 --- !u!1 &1804355656
 GameObject:

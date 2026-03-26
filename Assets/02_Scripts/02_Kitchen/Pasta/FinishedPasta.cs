@@ -61,6 +61,9 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     [Header("<<접시 위 토핑 그룹>>")]
     [SerializeField] private Transform[] plateToppingGroupParents;
 
+    [Header("<<단일 토핑 배치>>")]
+    [SerializeField] private int singleToppingPreferredGroupIndex = 0;
+
     [SerializeField] private List<PanSpriteEntry> panSpriteEntries = new List<PanSpriteEntry>();
     [SerializeField] private List<BasicPlateSpriteEntry> basicplateSpriteEntries = new List<BasicPlateSpriteEntry>();
     [SerializeField] private List<OvenPlateSpriteEntry> ovenPlateSpriteEntries = new List<OvenPlateSpriteEntry>();
@@ -80,8 +83,14 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
     [Header("<<드래그 이동>>")]
     private Collider myCollider;
+    private Collider[] cachedColliders;
+
     [SerializeField] private float dragLiftScaleMultiplier = 1.08f;
     [SerializeField] private Transform dragToppingRoot;
+
+    private SpriteRenderer[] allRenderers;
+    private int[] savedSortingOrders;
+    private string[] savedSortingLayers;
 
     private bool isDragging = false;
     private Vector3 dragStartWorldPos;
@@ -89,7 +98,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     private Transform dragStartParent;
     private Vector3 dragOffset;
     private float dragScreenZ;
-    private int originalSortingOrder;
     private bool hasTransferredPanToppingsForDrag = false;
 
     [Header("<<드래그 판정>>")]
@@ -105,6 +113,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     private SpriteRenderer sr;
     private Coroutine spriteFadeRoutine;
     private Vector3 originalScale;
+    private Vector3 originalLocalPos;
 
     public bool isSelected { get; private set; }
     public bool CanBeSelected => true;
@@ -119,8 +128,27 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
-        originalScale = transform.localScale;
         myCollider = GetComponent<Collider>();
+
+        originalLocalPos = transform.localPosition;
+        originalScale = transform.localScale;
+
+        RefreshDragCaches();
+
+        if (dragToppingRoot != null)
+        {
+            // 드래그할 때 finishedpasta와 같이 움직이게 유지
+            dragToppingRoot.SetParent(transform, true);
+        }
+    }
+
+    private void RefreshDragCaches()
+    {
+        allRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+        savedSortingOrders = new int[allRenderers.Length];
+        savedSortingLayers = new string[allRenderers.Length];
+
+        cachedColliders = GetComponentsInChildren<Collider>(true);
     }
 
     public bool Interact(IInteractable target)
@@ -286,7 +314,16 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         if (!isOnPlate && fryingPan != null && !hasTransferredPanToppingsForDrag)
         {
             fryingPan.TransferPanToppingsToFinishedPasta(this);
+            hasTransferredPanToppingsForDrag = true;
         }
+
+        if (dragToppingRoot != null)
+        {
+            // 팬에서 끌고 온 토핑도 finishedpasta를 따라오게 유지
+            dragToppingRoot.SetParent(transform, true);
+        }
+
+        RefreshDragCaches();
 
         hasStartedRealDrag = true;
         isDragging = true;
@@ -295,17 +332,19 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         transform.DOKill();
         transform.localScale = originalScale * dragLiftScaleMultiplier;
 
-        if (sr != null)
+        RaiseAllSortingForDrag();
+
+        if (cachedColliders != null)
         {
-            originalSortingOrder = sr.sortingOrder;
-            sr.sortingOrder = 999;
+            foreach (var col in cachedColliders)
+            {
+                if (col != null)
+                    col.enabled = false;
+            }
         }
 
-        if (myCollider != null)
-            myCollider.enabled = false;
-
         transform.SetParent(null, true);
-    }    
+    }
 
     private void OnMouseUp()
     {
@@ -314,7 +353,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
         isPointerDown = false;
 
-        // 드래그가 실제로 시작되지 않았으면 클릭으로 처리되게 그냥 종료
         if (!hasStartedRealDrag)
         {
             isDragging = false;
@@ -334,11 +372,24 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             transform.localScale = originalScale;
         }
 
-        if (myCollider != null)
-            myCollider.enabled = true;
+        if (cachedColliders != null)
+        {
+            foreach (var col in cachedColliders)
+            {
+                if (col != null)
+                    col.enabled = !isBeingTrashed;
+            }
+        }
 
-        if (sr != null)
-            sr.sortingOrder = originalSortingOrder;
+        // 핵심
+        if (placed && isOnPlate)
+        {
+            ApplyPlateSorting();
+        }
+        else
+        {
+            RestoreAllSortingAfterDrag();
+        }
     }
 
     private bool TryDropTarget()
@@ -355,6 +406,13 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         }
 
         Debug.Log("드롭 시 맞은 오브젝트: " + hit.collider.name);
+
+        Cooker_PassTable passTable = hit.collider.GetComponentInParent<Cooker_PassTable>();
+        if (passTable != null)
+        {
+            Debug.Log("PassTable 감지됨");
+            return passTable.Interact(this);
+        }
 
         Plates_BasicPlate basicPlate = hit.collider.GetComponentInParent<Plates_BasicPlate>();
         if (basicPlate != null)
@@ -377,9 +435,9 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             return trashcan.Interact(this);
         }
 
-        Debug.Log("드롭 실패: 접시/쓰레기통이 아님");
+        Debug.Log("드롭 실패: PassTable/접시/쓰레기통이 아님");
         return false;
-    }   
+    }
 
     public void Init(Cooker_GasStove stove)
     {
@@ -428,6 +486,35 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         return false;
     }
 
+    private void RaiseAllSortingForDrag()
+    {
+        if (allRenderers == null) return;
+
+        for (int i = 0; i < allRenderers.Length; i++)
+        {
+            if (allRenderers[i] == null) continue;
+
+            savedSortingOrders[i] = allRenderers[i].sortingOrder;
+            savedSortingLayers[i] = allRenderers[i].sortingLayerName;
+
+            allRenderers[i].sortingLayerName = "Default";
+            allRenderers[i].sortingOrder = 999 + i;
+        }
+    }
+
+    private void RestoreAllSortingAfterDrag()
+    {
+        if (allRenderers == null) return;
+
+        for (int i = 0; i < allRenderers.Length; i++)
+        {
+            if (allRenderers[i] == null) continue;
+
+            allRenderers[i].sortingLayerName = savedSortingLayers[i];
+            allRenderers[i].sortingOrder = savedSortingOrders[i];
+        }
+    }
+
     public void MovePanToppingsForDrag(Transform[] sourceGroupParents)
     {
         if (sourceGroupParents == null || dragToppingRoot == null)
@@ -456,12 +543,132 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
                 foreach (Transform child in children)
                 {
-                    // 위치/회전/스케일 유지한 채 부모만 변경
                     child.SetParent(dragToppingRoot, true);
                 }
             }
         }
+
+        RefreshDragCaches();
     }
+
+    private Transform FindNearestEmptyPlatePoint(Vector3 worldPos)
+    {
+        if (plateToppingGroupParents == null)
+            return null;
+
+        Transform bestPoint = null;
+        float bestDist = float.MaxValue;
+
+        foreach (Transform group in plateToppingGroupParents)
+        {
+            if (group == null)
+                continue;
+
+            foreach (Transform point in group)
+            {
+                if (point == null)
+                    continue;
+
+                if (point.childCount > 0)
+                    continue;
+
+                float dist = (point.position - worldPos).sqrMagnitude;
+                if (dist < bestDist)
+                {
+                    bestDist = dist;
+                    bestPoint = point;
+                }
+            }
+        }
+
+        return bestPoint;
+    }
+
+    private void MoveDraggedToppingsToPlateGroups()
+    {
+        if (dragToppingRoot == null || plateToppingGroupParents == null)
+            return;
+
+        List<Transform> toppings = new List<Transform>();
+
+        foreach (Transform child in dragToppingRoot)
+        {
+            if (child != null)
+                toppings.Add(child);
+        }
+
+        if (toppings.Count == 0)
+            return;
+
+        // 토핑이 1개면 무조건 지정한 group으로만 보냄
+        if (toppings.Count == 1)
+        {
+            Transform targetPoint = FindFirstEmptyPointInGroup(singleToppingPreferredGroupIndex);
+
+            // 지정한 그룹이 꽉 찼으면 반대 그룹 시도
+            if (targetPoint == null)
+            {
+                for (int g = 0; g < plateToppingGroupParents.Length; g++)
+                {
+                    if (g == singleToppingPreferredGroupIndex)
+                        continue;
+
+                    targetPoint = FindFirstEmptyPointInGroup(g);
+                    if (targetPoint != null)
+                        break;
+                }
+            }
+
+            if (targetPoint != null)
+            {
+                Transform topping = toppings[0];
+                topping.SetParent(targetPoint, true);
+                topping.localPosition = Vector3.zero;
+                topping.localRotation = Quaternion.identity;
+                topping.localScale = Vector3.one;
+            }
+
+            return;
+        }
+
+        // 토핑이 여러 개면 기존처럼 가까운 빈 포인트 사용
+        foreach (Transform topping in toppings)
+        {
+            Transform targetPoint = FindNearestEmptyPlatePoint(topping.position);
+            if (targetPoint == null)
+                continue;
+
+            topping.SetParent(targetPoint, true);
+            topping.localPosition = Vector3.zero;
+            topping.localRotation = Quaternion.identity;
+            topping.localScale = Vector3.one;
+        }
+    }
+
+    private Transform FindFirstEmptyPointInGroup(int groupIndex)
+    {
+        if (plateToppingGroupParents == null)
+            return null;
+
+        if (groupIndex < 0 || groupIndex >= plateToppingGroupParents.Length)
+            return null;
+
+        Transform group = plateToppingGroupParents[groupIndex];
+        if (group == null)
+            return null;
+
+        foreach (Transform point in group)
+        {
+            if (point == null)
+                continue;
+
+            if (point.childCount == 0)
+                return point;
+        }
+
+        return null;
+    }
+
 
     public void BuildPlateToppingsFromPan(Transform[] sourceGroupParents)
     {
@@ -530,14 +737,14 @@ public class FinishedPasta : MonoBehaviour, IInteractable
                     obj.transform.localScale = Vector3.one;
                     obj.SetActive(true);
 
-                    SpriteRenderer sr = obj.GetComponentInChildren<SpriteRenderer>(true);
+                    SpriteRenderer objSr = obj.GetComponentInChildren<SpriteRenderer>(true);
                     Debug.Log(
                         $"group {g}, point {p}: 생성 성공 -> {obj.name}, " +
                         $"activeSelf={obj.activeSelf}, activeInHierarchy={obj.activeInHierarchy}, " +
                         $"localPos={obj.transform.localPosition}, worldPos={obj.transform.position}, " +
                         $"localScale={obj.transform.localScale}, " +
-                        $"spriteRendererNull={sr == null}" +
-                        $"{(sr != null ? $", sortingLayer={sr.sortingLayerName}, order={sr.sortingOrder}, colorA={sr.color.a}" : "")}"
+                        $"spriteRendererNull={objSr == null}" +
+                        $"{(objSr != null ? $", sortingLayer={objSr.sortingLayerName}, order={objSr.sortingOrder}, colorA={objSr.color.a}" : "")}"
                     );
                 }
             }
@@ -569,9 +776,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         Debug.Log("OnMovedToPlate 호출됨");
 
         if (sr == null)
-        {
             sr = GetComponent<SpriteRenderer>();
-        }
 
         if (spriteFadeRoutine != null)
         {
@@ -583,10 +788,18 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         sr.color = new Color(c.r, c.g, c.b, 1f);
 
         isOnPlate = true;
-        originalScale = transform.localScale;   // 접시에 올라간 현재 크기를 기준값으로 다시 저장
+        originalScale = transform.localScale;
         UpdatePlateSprite();
 
-        fryingPan?.CopyPanToppingsToFinishedPasta(this);
+        if (dragToppingRoot != null && dragToppingRoot.childCount > 0)
+        {
+            MoveDraggedToppingsToPlateGroups();
+        }
+        else
+        {
+            fryingPan?.CopyPanToppingsToFinishedPasta(this);
+        }
+
         fryingPan?.ClearPanAfterServing();
 
         if (gasStove != null)
@@ -594,12 +807,53 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             gasStove.DestroyFryingPan();
         }
 
-        // 접시에 올라간 뒤에는 원래 팬/스토브 참조 끊기
         fryingPan = null;
         gasStove = null;
 
+        RefreshDragCaches();
+        ApplyPlateSorting();
+
         Debug.Log("완성된 파스타를 그릇에 담았어요 !!");
         PrintIngredients();
+    }
+
+    private void ApplyPlateSorting()
+    {
+        if (sr == null)
+            sr = GetComponent<SpriteRenderer>();
+
+        // FinishedPasta 본체
+        sr.sortingLayerName = "Default";
+        sr.sortingOrder = 3;
+
+        // 접시 위 토핑들
+        if (plateToppingGroupParents != null)
+        {
+            foreach (Transform group in plateToppingGroupParents)
+            {
+                if (group == null) continue;
+
+                SpriteRenderer[] renderers = group.GetComponentsInChildren<SpriteRenderer>(true);
+                foreach (var r in renderers)
+                {
+                    if (r == null) continue;
+                    r.sortingLayerName = "Default";
+                    r.sortingOrder = 5;
+                }
+            }
+        }
+
+        // 아직 dragToppingRoot에 남아 있는 토핑 대비
+        if (dragToppingRoot != null)
+        {
+            SpriteRenderer[] renderers = dragToppingRoot.GetComponentsInChildren<SpriteRenderer>(true);
+            foreach (var r in renderers)
+            {
+                if (r == null) continue;
+                r.sortingLayerName = "Default";
+                r.sortingOrder = 5;
+            }
+        }
     }
 
     public bool IsOnOvenPlate()
@@ -945,8 +1199,14 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
         transform.DOKill();
 
-        if (myCollider != null)
-            myCollider.enabled = false;
+        if (cachedColliders != null)
+        {
+            foreach (var col in cachedColliders)
+            {
+                if (col != null)
+                    col.enabled = false;
+            }
+        }
 
         if (spriteFadeRoutine != null)
         {
@@ -968,7 +1228,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             dragStartOvenPlate = null;
         }
 
-        // 접시 위 파스타를 버릴 때는 현재 돌아가는 팬을 건드리면 안 됨
         if (!isOnPlate)
         {
             fryingPan?.ClearPanAfterServing();
@@ -985,17 +1244,13 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     {
         transform.DOKill();
 
-        float effectDuration = 0.22f;
-        float finalScaleMultiplier = 0.2f;
-        Vector3 trashFadeOffset = new Vector3(0f, -0.15f, 0f);
-
         if (trashTarget != null)
             transform.position = trashTarget.position + trashFadeOffset;
 
         Sequence seq = DOTween.Sequence();
 
         seq.Append(
-            transform.DOScale(originalScale * finalScaleMultiplier, effectDuration)
+            transform.DOScale(originalScale * trashFinalScaleMultiplier, trashEffectDuration)
                      .SetEase(Ease.InQuad)
         );
 
@@ -1003,7 +1258,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         foreach (var r in renderers)
         {
             if (r != null)
-                seq.Join(r.DOFade(0f, effectDuration));
+                seq.Join(r.DOFade(0f, trashEffectDuration));
         }
 
         seq.OnComplete(() =>
@@ -1049,6 +1304,4 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         transform.DOScale(originalScale, selectScaleDuration)
                  .SetEase(Ease.OutQuad);
     }
-
-
 }

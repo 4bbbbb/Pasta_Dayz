@@ -13,7 +13,7 @@ public class Cooker_PassTable : MonoBehaviour, IInteractable
     [Header("<< 박스 프리팹 >>")]
     [SerializeField] private GameObject boxPrefab;
 
-    public bool CanBeSelected => false;     
+    public bool CanBeSelected => false;
 
     public bool Interact(IInteractable target)
     {

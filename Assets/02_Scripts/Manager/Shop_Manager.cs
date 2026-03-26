@@ -4,6 +4,24 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static IngredientData;
 
+
+//[System.Serializable]
+//public class PlayerSaveData
+//{
+//    public float Gold;
+//    public string Nickname;
+//    public List<int> Items;
+
+
+//    //PlayerSaveData saveData = new PlayerSaveData();
+//    //string json = JsonUtility.ToJson(saveData);
+
+//    //saveData = JsonUtility.FromJson<PlayerSaveData>(json);
+//}
+
+
+
+
 public class Shop_Manager : MonoBehaviour
 {
     public static Shop_Manager Instance;

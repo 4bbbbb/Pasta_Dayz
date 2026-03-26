@@ -319,8 +319,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1176818402}
+  m_Children: []
   m_Father: {fileID: 1244443977}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -1364,14 +1363,14 @@ RectTransform:
   m_GameObject: {fileID: 1176818401}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 4.2082443, y: 1.277795, z: 1.000062}
+  m_LocalScale: {x: 7.3627987, y: 2.102572, z: 1.7470379}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 388089392}
+  m_Father: {fileID: 1946212139}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -8.00177, y: 302.06116}
+  m_AnchoredPosition: {x: -7.0000997, y: -8.000061}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1176818403
@@ -1720,7 +1719,7 @@ MonoBehaviour:
   buttonOvershootScale: 1.12
   buttonPopDuration: 0.22
   buttonPopInterval: 0.12
-  typingSFX: {fileID: 0}
+  typingSFX: {fileID: 8300000, guid: 87833ee72c0ddce46be108682a1f10e6, type: 3}
   profitSFX: {fileID: 0}
   lossSFX: {fileID: 0}
   buttonSFX: {fileID: 8300000, guid: 4fd200db0ee806945974c0b41c27a255, type: 3}
@@ -2788,7 +2787,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1176818402}
   m_Father: {fileID: 108128336}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}

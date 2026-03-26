@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using DG.Tweening;
 using static IInteractableScript;
 
 public class Noodles_CookedNoodle : MonoBehaviour, IInteractable
@@ -9,10 +10,10 @@ public class Noodles_CookedNoodle : MonoBehaviour, IInteractable
     private Coroutine animRoutine;
 
     public bool isSelected { get; private set; }
-    public bool CanBeSelected => true;
+    public bool isBeingTrashed { get; private set; } = false;
+    public bool CanBeSelected => !isLocked && !isBeingTrashed;
 
     private bool isLocked = true;
-
 
     [Header("기본 스프라이트")]
     [SerializeField] private Sprite normalSprite;
@@ -24,6 +25,8 @@ public class Noodles_CookedNoodle : MonoBehaviour, IInteractable
     [SerializeField] private float animDuration = 0.2f;
 
     private Vector3 originalLocalPos;
+    private Collider[] cachedColliders;
+    private IngredientIDs ingredientIDComp;
 
     public void SetPastaCooker(Cooker_PastaCooker cooker)
     {
@@ -34,6 +37,8 @@ public class Noodles_CookedNoodle : MonoBehaviour, IInteractable
     {
         sr = GetComponent<SpriteRenderer>();
         originalLocalPos = transform.localPosition;
+        cachedColliders = GetComponentsInChildren<Collider>(true);
+        ingredientIDComp = GetComponent<IngredientIDs>();
     }
 
     void Start()
@@ -45,8 +50,7 @@ public class Noodles_CookedNoodle : MonoBehaviour, IInteractable
 
     public bool Interact(IInteractable target)
     {
-        if (isLocked) return false; 
-
+        if (isLocked || isBeingTrashed) return false;
         if (target != null) return false;
 
         isSelected = true;
@@ -60,12 +64,69 @@ public class Noodles_CookedNoodle : MonoBehaviour, IInteractable
         isLocked = false;
     }
 
+    public float GetCost()
+    {
+        if (IngredientDatabase.Instance == null || ingredientIDComp == null)
+            return 0f;
 
+        IngredientData data = IngredientDatabase.Instance.GetIngredient(ingredientIDComp.GetID());
+        if (data == null)
+            return 0f;
+
+        return data.ingredientCost;
+    }
+
+    public void OnTrashed()
+    {
+        isBeingTrashed = true;
+        isSelected = false;
+        isLocked = true;
+
+        if (animRoutine != null)
+        {
+            StopCoroutine(animRoutine);
+            animRoutine = null;
+        }
+
+        foreach (var col in cachedColliders)
+        {
+            col.enabled = false;
+        }
+
+        if (sr != null)
+            sr.color = Color.white;
+    }
+
+    public void PlayTrashEffect(Transform trashTarget)
+    {
+        float moveDuration = 0.9f;
+        float fadeDuration = 0.31f;
+
+        Vector3 targetPos = trashTarget.position;
+
+        Sequence seq = DOTween.Sequence();
+
+        seq.Append(transform.DOMove(targetPos, moveDuration)
+            .SetEase(Ease.OutQuad));
+
+        seq.Join(transform.DOScale(Vector3.zero, moveDuration)
+            .SetEase(Ease.InQuad));
+
+        if (sr != null)
+        {
+            seq.Append(sr.DOFade(0f, fadeDuration));
+        }
+
+        seq.OnComplete(() =>
+        {
+            Destroy(gameObject);
+        });
+    }
 
     public void Cancel()
     {
         isSelected = false;
-        PlayNoodleAnimation(false);       
+        PlayNoodleAnimation(false);
     }
 
     private void PlayNoodleAnimation(bool selected)

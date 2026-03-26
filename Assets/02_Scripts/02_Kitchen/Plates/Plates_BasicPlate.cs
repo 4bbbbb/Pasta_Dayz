@@ -1,6 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 using static IInteractableScript;
 
 public class Plates_BasicPlate : MonoBehaviour, IInteractable
@@ -14,11 +14,17 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
     [Header("<<구워진 빠네 프리팹>>")]
     [SerializeField] private GameObject paneOnPlatePrefab;
 
+    [Header("<<선택 연출>>")]
+    [SerializeField] private float selectedScaleMultiplier = 1.08f;
+
     private SpriteRenderer sr;
     private Collider plateCollider;
 
     public bool isSelected { get; private set; }
-    public bool CanBeSelected => true;
+    public bool isBeingTrashed { get; private set; } = false;
+
+    // 빈 접시도 선택 가능
+    public bool CanBeSelected => !isBeingTrashed;
 
     private GameObject currentPaneVisual;
 
@@ -29,18 +35,23 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
     private IngredientIDs ingredientIDs;
     private HashSet<int> ingredients = new HashSet<int>();
 
+    private Vector3 originalScale;
+
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
         plateCollider = GetComponent<Collider>();
         isSelected = false;
+        originalScale = transform.localScale;
 
         ingredientIDs = GetComponent<IngredientIDs>();
+
+        ingredients.Clear();
 
         if (ingredientIDs != null)
         {
             plateID = ingredientIDs.GetID();
-            ingredients.Add(plateID);
+            ingredients.Add(plateID);   // 접시 ID만 먼저 넣어둠
         }
         else
         {
@@ -50,9 +61,19 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
     public bool Interact(IInteractable target)
     {
+        if (isBeingTrashed)
+            return false;
+
+        // 빈 접시도 선택 가능
         if (target == null)
         {
-            Debug.Log("완성된 파스타를 옮겨주세요!");
+            if (hasPasta)
+            {
+                Debug.Log("이미 파스타가 올라가 있습니다.");
+                return false;
+            }
+
+            Select();
             return true;
         }
 
@@ -87,6 +108,8 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
             ingredients = new HashSet<int>(finalIngredients);
 
             hasPasta = true;
+            isSelected = false;
+            transform.localScale = originalScale;
 
             // 빠네 비주얼 제거
             if (currentPaneVisual != null)
@@ -130,6 +153,8 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
                 ingredients.Add(601);
 
             hasPane = true;
+            isSelected = false;
+            transform.localScale = originalScale;
 
             if (paneOnPlatePrefab != null && paneSpawnPoint != null)
             {
@@ -150,6 +175,69 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
         }
 
         return false;
+    }
+
+    // 완전히 빈 접시는 비용 0원
+    public float GetCost()
+    {
+        if (!hasPane && !hasPasta)
+            return 0f;
+
+        if (IngredientDatabase.Instance == null)
+            return 0f;
+
+        float total = 0f;
+
+        foreach (int id in ingredients)
+        {
+            IngredientData data = IngredientDatabase.Instance.GetIngredient(id);
+            if (data != null)
+            {
+                total += data.ingredientCost;
+            }
+        }
+
+        return total;
+    }
+
+    public void OnTrashed()
+    {
+        isBeingTrashed = true;
+        isSelected = false;
+        transform.localScale = originalScale;
+
+        if (plateCollider != null)
+            plateCollider.enabled = false;
+    }
+
+    public void PlayTrashEffect(Transform trashTarget)
+    {
+        float moveDuration = 0.9f;
+        float fadeDuration = 0.31f;
+        Vector3 targetPos = trashTarget.position;
+
+        Sequence seq = DOTween.Sequence();
+
+        seq.Append(transform.DOMove(targetPos, moveDuration).SetEase(Ease.OutQuad));
+        seq.Join(transform.DOScale(Vector3.zero, moveDuration).SetEase(Ease.InQuad));
+
+        SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>(true);
+        foreach (var r in renderers)
+        {
+            if (r != null)
+                seq.Join(r.DOFade(0f, fadeDuration));
+        }
+
+        seq.OnComplete(() =>
+        {
+            Destroy(gameObject);
+        });
+    }
+
+    private void Select()
+    {
+        isSelected = true;
+        transform.localScale = originalScale * selectedScaleMultiplier;
     }
 
     public void AddIngredient(int id)
@@ -176,5 +264,6 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
     public void Cancel()
     {
         isSelected = false;
+        transform.localScale = originalScale;
     }
 }

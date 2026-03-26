@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 using static IInteractableScript;
 using static Sauces;
 
@@ -17,7 +18,7 @@ public class BakedPasta : MonoBehaviour, IInteractable
     [SerializeField] private Vector3 platedScale = new Vector3(0.7f, 0.7f, 1f);
 
     [Header("<<클릭용 콜라이더>>")]
-    [SerializeField] private Collider2D foodCollider;
+    [SerializeField] private Collider foodCollider;
 
     public enum BakedState
     {
@@ -40,8 +41,12 @@ public class BakedPasta : MonoBehaviour, IInteractable
     [SerializeField] private List<BakedCheeseSpriteEntry> bakedCheeseEntries = new List<BakedCheeseSpriteEntry>();
 
     private SpriteRenderer sr;
+
     public bool isSelected { get; private set; }
-    public bool CanBeSelected => true;
+    public bool isBeingTrashed { get; private set; } = false;
+
+    private bool canPick = false;
+    public bool CanBeSelected => canPick;
 
     private HashSet<int> ingredientIDs = new HashSet<int>();
 
@@ -50,12 +55,12 @@ public class BakedPasta : MonoBehaviour, IInteractable
         sr = GetComponent<SpriteRenderer>();
 
         if (foodCollider == null)
-            foodCollider = GetComponent<Collider2D>();
+            foodCollider = GetComponent<Collider>();
 
         currentState = BakedState.InOven;
         ApplyStateVisual();
 
-        // 처음 생성될 때는 오븐 안에 있으니까 클릭 막기
+        // 처음 생성될 때는 오븐 안에 있으므로 클릭 막기
         SetPickable(false);
     }
 
@@ -70,8 +75,30 @@ public class BakedPasta : MonoBehaviour, IInteractable
         return new HashSet<int>(ingredientIDs);
     }
 
+    public float GetCost()
+    {
+        if (IngredientDatabase.Instance == null)
+            return 0f;
+
+        float total = 0f;
+
+        foreach (int id in ingredientIDs)
+        {
+            IngredientData data = IngredientDatabase.Instance.GetIngredient(id);
+
+            if (data != null)
+            {
+                total += data.ingredientCost;
+            }
+        }
+
+        return total;
+    }
+
     public bool Interact(IInteractable target)
     {
+        if (!canPick || isBeingTrashed) return false;
+
         if (target == null)
         {
             Debug.Log("잘 구워진 파스타 선택!");
@@ -94,9 +121,7 @@ public class BakedPasta : MonoBehaviour, IInteractable
 
             IngredientIDs id = parsley.GetComponent<IngredientIDs>();
             if (id != null)
-            {
                 ingredientIDs.Add(id.GetID());
-            }
 
             return true;
         }
@@ -111,18 +136,56 @@ public class BakedPasta : MonoBehaviour, IInteractable
         UpdateBakedSprite();
     }
 
-    public void SetPickable(bool canPick)
+    public void SetPickable(bool value)
     {
-        if (foodCollider != null)
-            foodCollider.enabled = canPick;
+        canPick = value;
+
+        Collider[] cols = GetComponentsInChildren<Collider>(true);
+        foreach (var col in cols)
+        {
+            col.enabled = value;
+        }
+    }
+
+    public void OnTrashed()
+    {
+        isBeingTrashed = true;
+        isSelected = false;
+        SetPickable(false);
+
+        if (sr != null)
+            sr.color = Color.white;
+    }
+
+    public void PlayTrashEffect(Transform trashTarget)
+    {
+        float moveDuration = 0.9f;
+        float fadeDuration = 0.31f;
+
+        Vector3 targetPos = trashTarget.position;
+
+        Sequence seq = DOTween.Sequence();
+
+        seq.Append(transform.DOMove(targetPos, moveDuration)
+            .SetEase(Ease.OutQuad));
+
+        seq.Join(transform.DOScale(Vector3.zero, moveDuration)
+            .SetEase(Ease.InQuad));
+
+        if (sr != null)
+        {
+            seq.Append(sr.DOFade(0f, fadeDuration));
+        }
+
+        seq.OnComplete(() =>
+        {
+            Destroy(gameObject);
+        });
     }
 
     private void ApplyStateVisual()
     {
-        if (currentState == BakedState.InOven)
-            transform.localScale = inOvenScale;
-        else
-            transform.localScale = platedScale;
+        transform.localScale = currentState == BakedState.InOven ? inOvenScale : platedScale;
     }
 
     public void AddIngredient(int id)
@@ -138,7 +201,6 @@ public class BakedPasta : MonoBehaviour, IInteractable
         if (ingredientIDs.Contains(204)) return 204;
         if (ingredientIDs.Contains(205)) return 205;
         if (ingredientIDs.Contains(201)) return 201;
-
         return -1;
     }
 

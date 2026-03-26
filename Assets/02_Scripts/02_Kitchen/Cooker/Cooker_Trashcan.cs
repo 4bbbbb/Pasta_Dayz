@@ -21,6 +21,18 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
 
     public bool Interact(IInteractable target)
     {
+        if (target is Noodles_CookedNoodle cookedNoodle)
+        {
+            TrashCookedNoodle(cookedNoodle);
+            return true;
+        }
+
+        if (target is Cooker_FryingPan fryingPan)
+        {
+            TrashFryingPan(fryingPan);
+            return true;
+        }
+
         if (target is FinishedPasta pasta)
         {
             TrashFinishedPasta(pasta);
@@ -30,6 +42,31 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
         if (target is Burned burned)
         {
             TrashBurnedFood(burned);
+            return true;
+        }
+
+        if (target is Plate_BakedPane bakedPane)
+        {
+            TrashBakedPane(bakedPane);
+            return true;
+        }
+
+        if (target is Plates_BasicPlate basicPlate)
+        {
+            TrashBasicPlate(basicPlate);
+            return true;
+        }
+
+        if (target is Plates_OvenPlate ovenPlate)
+        {
+            TrashOvenPlate(ovenPlate);
+            return true;
+        }
+
+
+        if (target is BakedPasta bakedPasta)
+        {
+            TrashBakedPasta(bakedPasta);
             return true;
         }
 
@@ -53,6 +90,46 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
         yield return new WaitForSeconds(0.31f);
 
         isPlayingAnim = false;
+    }
+
+    private void TrashCookedNoodle(Noodles_CookedNoodle cookedNoodle)
+    {
+        if (cookedNoodle == null || cookedNoodle.isBeingTrashed)
+            return;
+
+        PlayTrashAnimation();
+
+        float totalCost = cookedNoodle.GetCost();
+
+        if (Gold_Manager.Instance != null && totalCost > 0f)
+        {
+            Gold_Manager.Instance.SpendBusinessCost(totalCost);
+        }
+
+        Debug.Log($"삶은 면 버림. 재료비 {totalCost} 차감");
+
+        cookedNoodle.OnTrashed();
+        cookedNoodle.PlayTrashEffect(transform);
+    }
+
+    private void TrashFryingPan(Cooker_FryingPan fryingPan)
+    {
+        if (fryingPan == null || fryingPan.isBeingTrashed)
+            return;
+
+        PlayTrashAnimation();
+
+        float totalCost = fryingPan.GetPanContentCost();
+
+        if (Gold_Manager.Instance != null && totalCost > 0f)
+        {
+            Gold_Manager.Instance.SpendBusinessCost(totalCost);
+        }
+
+        Debug.Log($"팬 통째로 버림. 재료비 {totalCost} 차감");
+
+        fryingPan.OnTrashed();
+        fryingPan.PlayTrashEffect(transform);
     }
 
     private void TrashFinishedPasta(FinishedPasta pasta)
@@ -93,6 +170,77 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
 
         burned.OnTrashed(); 
         burned.PlayTrashEffect(transform); 
+    }
+
+    private void TrashBakedPane(Plate_BakedPane bakedPane)
+    {
+        if (bakedPane == null || bakedPane.isBeingTrashed)
+            return;
+
+        PlayTrashAnimation();
+
+        float totalCost = bakedPane.GetCost();
+
+        if (Gold_Manager.Instance != null && totalCost > 0f)
+        {
+            Gold_Manager.Instance.SpendBusinessCost(totalCost);
+        }
+
+        Debug.Log($"구워진 빠네 버림. 재료비 {totalCost} 차감");
+
+        bakedPane.OnTrashed();
+        bakedPane.PlayTrashEffect(transform);
+    }
+
+    private void TrashBasicPlate(Plates_BasicPlate basicPlate)
+    {
+        if (basicPlate == null || basicPlate.isBeingTrashed)
+            return;
+
+        PlayTrashAnimation();
+
+        float totalCost = basicPlate.GetCost();
+
+        if (Gold_Manager.Instance != null && totalCost > 0f)
+        {
+            Gold_Manager.Instance.SpendBusinessCost(totalCost);
+        }
+
+        Debug.Log($"기본 접시 버림. 재료비 {totalCost} 차감");
+
+        basicPlate.OnTrashed();
+        basicPlate.PlayTrashEffect(transform);
+    }
+
+    private void TrashOvenPlate(Plates_OvenPlate ovenPlate)
+    {
+        if (ovenPlate == null || ovenPlate.isBeingTrashed)
+            return;
+
+        PlayTrashAnimation();       
+
+        ovenPlate.OnTrashed();
+        ovenPlate.PlayTrashEffect(transform);
+    }
+
+    private void TrashBakedPasta(BakedPasta bakedPasta)
+    {
+        if (bakedPasta == null || bakedPasta.isBeingTrashed)
+            return;
+
+        PlayTrashAnimation();
+
+        float totalCost = bakedPasta.GetCost();
+
+        if (Gold_Manager.Instance != null && totalCost > 0f)
+        {
+            Gold_Manager.Instance.SpendBusinessCost(totalCost);
+        }
+
+        Debug.Log($"구워진 파스타 버림. 재료비 {totalCost} 차감");
+
+        bakedPasta.OnTrashed();
+        bakedPasta.PlayTrashEffect(transform);
     }
 
     private float CalculateIngredientCost(HashSet<int> ingredientIDs)

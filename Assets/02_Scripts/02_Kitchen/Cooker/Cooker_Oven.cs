@@ -8,22 +8,22 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
     [Header("굽기 전 빠네")]
     [SerializeField] public GameObject unbakedPanePrefab;
 
-    [Header("<<구운 빠네 >>")]
+    [Header("구운 빠네")]
     [SerializeField] public GameObject bakedPanePrefab;
 
-    [Header("<<탄 빠네 >>")]
+    [Header("탄 빠네")]
     [SerializeField] public GameObject burnedPanePrefab;
 
     [Header("굽기 전 파스타")]
     [SerializeField] public GameObject unbakedPastaPrefab;
 
-    [Header("<<구운 파스타 >>")]
+    [Header("구운 파스타")]
     [SerializeField] public GameObject bakedPastaPrefab;
 
-    [Header("<<탄 파스타 >>")]
+    [Header("탄 파스타")]
     [SerializeField] public GameObject burnedPastaPrefab;
 
-    [Header("<< 빠네,파스타 스폰 위치>>")]
+    [Header("스폰 위치")]
     [SerializeField] private Transform bakedSpawnPoint;
 
     [Header("오븐 스프라이트")]
@@ -31,10 +31,10 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
     [SerializeField] public Sprite ovenBakingSprite;
     [SerializeField] public Sprite ovenFinishSprite;
 
-    [Header("오븐 콜라이더")]
-    [SerializeField] private Collider2D ovenCollider;
+    [Header("오븐 콜라이더 (3D!)")]
+    [SerializeField] private Collider ovenCollider;
 
-    [Header("음식이 오븐에서 벗어났다고 판정할 거리")]
+    [Header("벗어난 판정 거리")]
     [SerializeField] private float releaseDistance = 0.2f;
 
     private SpriteRenderer sr;
@@ -70,7 +70,7 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
         sr = GetComponent<SpriteRenderer>();
 
         if (ovenCollider == null)
-            ovenCollider = GetComponent<Collider2D>();
+            ovenCollider = GetComponent<Collider>(); // 🔥 3D로 변경
     }
 
     public bool Interact(IInteractable target)
@@ -82,16 +82,15 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
                 return TryInsert(target);
 
             case OvenState.Baking:
-                Debug.Log("오븐이 이미 작동 중입니다!");
-                sr.sprite = ovenBakingSprite;
+                Debug.Log("오븐 작동 중");
                 return false;
 
             case OvenState.Ready:
-                Debug.Log("구운 음식 꺼냄!");
+                Debug.Log("꺼냄!");
                 ReleaseBakedFood();
                 return true;
 
-            case OvenState.Burned:                
+            case OvenState.Burned:
                 return true;
         }
 
@@ -100,47 +99,30 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
 
     private bool TryInsert(IInteractable target)
     {
-        if (target == null)
-        {
-            Debug.Log("어떤걸 구울건가요?");
-            return false;
-        }
+        if (target == null) return false;
 
         switch (target)
         {
-            case Plate_Pane pane:
+            case Plate_Pane:
                 bakeItem = BakeItemType.Pane;
                 savedIngredientIDs = null;
                 StartBaking();
                 return true;
 
             case FinishedPasta pasta:
-
                 HashSet<int> ids = pasta.GetIngredientSet();
 
-                if (!ids.Contains(502))
-                {
-                    Debug.Log("오븐 전용 그릇에 담겨야 합니다!");
+                if (!ids.Contains(502) || !ids.Contains(402))
                     return false;
-                }
 
-                if (!ids.Contains(402))
-                {
-                    Debug.Log("모짜렐라 치즈가 필요합니다!");
-                    return false;
-                }
-
-                savedIngredientIDs = new HashSet<int>(pasta.GetIngredientSet());
+                savedIngredientIDs = new HashSet<int>(ids);
 
                 Plates_OvenPlate plate = pasta.GetComponentInParent<Plates_OvenPlate>();
-
                 if (plate != null)
                 {
                     IngredientIDs plateID = plate.GetComponent<IngredientIDs>();
                     if (plateID != null)
-                    {
                         savedIngredientIDs.Add(plateID.GetID());
-                    }
 
                     Destroy(plate.gameObject);
                 }
@@ -156,10 +138,7 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
     public void StartBaking()
     {
         if (bakingCoroutine != null)
-        {
             StopCoroutine(bakingCoroutine);
-            bakingCoroutine = null;
-        }
 
         bakingCoroutine = StartCoroutine(BakingRoutine());
     }
@@ -169,33 +148,20 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
         ovenState = OvenState.Baking;
         sr.sprite = ovenBakingSprite;
 
-        GameObject prefab = null;
-
-        switch (bakeItem)
-        {
-            case BakeItemType.Pane:
-                prefab = unbakedPanePrefab;
-                break;
-
-            case BakeItemType.Pasta:
-                prefab = unbakedPastaPrefab;
-                break;
-        }
+        GameObject prefab = (bakeItem == BakeItemType.Pane)
+            ? unbakedPanePrefab
+            : unbakedPastaPrefab;
 
         currentBakeObject = Instantiate(prefab, bakedSpawnPoint.position, Quaternion.identity, bakedSpawnPoint);
 
-        for (int i = 1; i <= 8; i++)
-        {
-            yield return new WaitForSeconds(1f);
-            Debug.Log($"{i}초.");
-        }
+        yield return new WaitForSeconds(8f);
 
-        // 8초 후 바로 구운 상태로 변경
         SpawnBaked();
+
+        SetCurrentFoodPickable(false); // 🔥 Ready에서도 클릭 금지
 
         ovenState = OvenState.Ready;
         sr.sprite = ovenFinishSprite;
-        Debug.Log("완료! 3초 안에 꺼내세요!");
 
         float timer = 0f;
         while (timer < 3f && ovenState == OvenState.Ready)
@@ -204,68 +170,63 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
             yield return null;
         }
 
-        // 이미 꺼냈으면 타지 않음
-        if (ovenState != OvenState.Ready)
-        {
-            bakingCoroutine = null;
-            yield break;
-        }
+        if (ovenState != OvenState.Ready) yield break;
 
         ovenState = OvenState.Burned;
         sr.sprite = ovenSprite;
-        Debug.Log("타버렸습니다!");
 
         SpawnBurned();
+    }
 
-        bakingCoroutine = null;
+    private void SetCurrentFoodPickable(bool canPick)
+    {
+        if (currentBakeObject == null) return;
+
+        // 🔥 음식 스크립트에 맡김 (핵심)
+        var pasta = currentBakeObject.GetComponent<BakedPasta>();
+        if (pasta != null)
+        {
+            pasta.SetPickable(canPick);
+            return;
+        }
+
+        var pane = currentBakeObject.GetComponent<Plate_BakedPane>();
+        if (pane != null)
+        {
+            pane.SetPickable(canPick);
+            return;
+        }
     }
 
     private void SpawnBaked()
     {
         if (currentBakeObject != null)
-        {
             Destroy(currentBakeObject);
-            currentBakeObject = null;
-        }
 
-        GameObject prefab = null;
+        GameObject prefab = (bakeItem == BakeItemType.Pane)
+            ? bakedPanePrefab
+            : bakedPastaPrefab;
 
-        switch (bakeItem)
-        {
-            case BakeItemType.Pane:
-                prefab = bakedPanePrefab;
-                break;
+        currentBakeObject = Instantiate(prefab, bakedSpawnPoint.position, Quaternion.identity, bakedSpawnPoint);
 
-            case BakeItemType.Pasta:
-                prefab = bakedPastaPrefab;
-                break;
-        }
-
-        GameObject obj = Instantiate(prefab, bakedSpawnPoint.position, Quaternion.identity, bakedSpawnPoint);
-        currentBakeObject = obj;
+        SetCurrentFoodPickable(false); // 🔥 무조건 막기
 
         if (bakeItem == BakeItemType.Pasta)
         {
-            BakedPasta baked = obj.GetComponent<BakedPasta>();
+            var baked = currentBakeObject.GetComponent<BakedPasta>();
             if (baked != null)
             {
                 baked.SetIngredients(savedIngredientIDs);
-                baked.SetState(BakedPasta.BakedState.InOven);
-                baked.SetPickable(false);   // 오븐 안에서는 클릭 불가
+                baked.SetPickable(false);
             }
         }
     }
 
     private void ReleaseBakedFood()
     {
-        if (currentBakeObject != null)
-        {
-            BakedPasta bakedPasta = currentBakeObject.GetComponent<BakedPasta>();
-            if (bakedPasta != null)
-            {
-                bakedPasta.SetPickable(true);
-            }
-        }
+        Debug.Log("꺼냄 → 클릭 가능");
+
+        SetCurrentFoodPickable(true);
 
         ovenState = OvenState.Empty;
         bakeItem = BakeItemType.None;
@@ -275,10 +236,7 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
             ovenCollider.enabled = false;
 
         if (colliderWaitCoroutine != null)
-        {
             StopCoroutine(colliderWaitCoroutine);
-            colliderWaitCoroutine = null;
-        }
 
         colliderWaitCoroutine = StartCoroutine(WaitUntilFoodLeavesOven());
     }
@@ -286,68 +244,23 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
     private void SpawnBurned()
     {
         if (currentBakeObject != null)
-        {
             Destroy(currentBakeObject);
-            currentBakeObject = null;
-        }
 
-        GameObject prefab = null;
+        GameObject prefab = (bakeItem == BakeItemType.Pane)
+            ? burnedPanePrefab
+            : burnedPastaPrefab;
 
-        switch (bakeItem)
-        {
-            case BakeItemType.Pane:
-                prefab = burnedPanePrefab;
-                break;
+        currentBakeObject = Instantiate(prefab, bakedSpawnPoint.position, Quaternion.identity, bakedSpawnPoint);
 
-            case BakeItemType.Pasta:
-                prefab = burnedPastaPrefab;
-                break;
-        }
-
-        GameObject obj = Instantiate(prefab, bakedSpawnPoint.position, Quaternion.identity, bakedSpawnPoint);
-        currentBakeObject = obj;
-
-        Burned burned = obj.GetComponent<Burned>();
-        if (burned != null)
-        {
-            if (bakeItem == BakeItemType.Pane)
-            {
-                burned.type = Burned.BurnedType.Pane;
-            }
-            else if (bakeItem == BakeItemType.Pasta)
-            {
-                burned.type = Burned.BurnedType.Pasta;
-                burned.SetIngredients(savedIngredientIDs);
-            }
-        }
+        SetCurrentFoodPickable(false);
     }
-
-    public void OnBurnedRemoved()
-    {
-        currentBakeObject = null;
-        ResetOven();
-    }
-
-
-
-    private void RemoveBurnedFood()
-    {
-        if (currentBakeObject != null)
-        {
-            Destroy(currentBakeObject);
-            currentBakeObject = null;
-        }
-
-        Debug.Log("탄 음식을 치웠습니다!");
-    }
-   
 
     private IEnumerator WaitUntilFoodLeavesOven()
     {
         while (currentBakeObject != null)
         {
             bool movedAway =
-                Vector2.Distance(currentBakeObject.transform.position, bakedSpawnPoint.position) > releaseDistance;
+                Vector3.Distance(currentBakeObject.transform.position, bakedSpawnPoint.position) > releaseDistance;
 
             bool parentChanged =
                 currentBakeObject.transform.parent != bakedSpawnPoint;
@@ -360,23 +273,20 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
 
         if (ovenCollider != null)
             ovenCollider.enabled = true;
-
-        colliderWaitCoroutine = null;
+    }
+    public void OnBurnedRemoved()
+    {
+        currentBakeObject = null;
+        ResetOven();
     }
 
     private void ResetOven()
     {
         if (bakingCoroutine != null)
-        {
             StopCoroutine(bakingCoroutine);
-            bakingCoroutine = null;
-        }
 
         if (colliderWaitCoroutine != null)
-        {
             StopCoroutine(colliderWaitCoroutine);
-            colliderWaitCoroutine = null;
-        }
 
         if (ovenCollider != null)
             ovenCollider.enabled = true;
@@ -386,8 +296,5 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
         sr.sprite = ovenSprite;
     }
 
-    public void Cancel()
-    {
-
-    }
+    public void Cancel() { }
 }

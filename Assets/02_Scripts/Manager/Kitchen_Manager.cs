@@ -44,7 +44,7 @@ public class Kitchen_Manager : MonoBehaviour
             {
                 return;
             }
-                
+
             bool used = clicked.Interact(currentSelected);
             // 사용당하는 쪽이 판단
 
@@ -94,7 +94,7 @@ public class Kitchen_Manager : MonoBehaviour
 
         Debug.Log("실행취소");
 
-        currentSelected?.Cancel(); 
+        currentSelected?.Cancel();
         currentSelected = null;
     }
 }

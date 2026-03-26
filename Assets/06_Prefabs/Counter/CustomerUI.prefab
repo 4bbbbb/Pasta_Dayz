@@ -302,6 +302,14 @@ MonoBehaviour:
   orderText: {fileID: 8395751259130021059}
   yesButton: {fileID: 5204705485384134479}
   autoButton: {fileID: 6580088266946054889}
+  orderSFX: {fileID: 8300000, guid: eef1094dbf86b124dbff9babdb5f2632, type: 3}
+  characterInterval: 0.03
+  buttonPopStartScale: 0.7
+  buttonPopOvershootScale: 1.12
+  buttonPopDuration: 0.18
+  buttonPopInterval: 0.06
+  yesButtonTargetScale: {x: 1, y: 1.4125, z: 1}
+  autoButtonTargetScale: {x: 1, y: 1.4125, z: 1}
 --- !u!1 &5204705485384134479
 GameObject:
   m_ObjectHideFlags: 0

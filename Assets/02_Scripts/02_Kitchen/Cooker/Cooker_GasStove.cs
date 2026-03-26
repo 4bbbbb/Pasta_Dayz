@@ -14,10 +14,11 @@ public class Cooker_GasStove : MonoBehaviour, IInteractable
 
     public bool CanBeSelected => false;
 
-    void Start()
+    void Awake()
     {
         fryingPan.SetActive(false);
         isFireOn = false;
+        isCooking = false;
     }
 
     public bool Interact(IInteractable target)
@@ -31,8 +32,16 @@ public class Cooker_GasStove : MonoBehaviour, IInteractable
         if (target == null)
         {
             Debug.Log("후라이팬이 준비 되었습니다 !");
+
             isCooking = true;
             fryingPan.SetActive(true);
+
+            Cooker_FryingPan pan = fryingPan.GetComponent<Cooker_FryingPan>();
+            if (pan != null)
+            {
+                pan.PrepareForReuse();
+            }
+
             return false;
         }
 

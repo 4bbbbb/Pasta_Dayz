@@ -132,7 +132,9 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             }
             else if (cheese.cheeseType == Cheese.CheeseType.Mozzarella)
             {
+                ClearExistingPlateToppings();
                 UpdatePlateSprite();
+                Destroy(cheese.gameObject);
             }
 
             return true;

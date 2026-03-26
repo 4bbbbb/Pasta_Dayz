@@ -138,8 +138,6 @@ public class Burned : MonoBehaviour, IInteractable
     }
 
 
-
-
     public void Cancel()
     {
         isSelected = false;

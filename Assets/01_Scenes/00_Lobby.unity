@@ -10881,7 +10881,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57eecf82b0831b8459d33e32d0c684e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bgmSource: {fileID: 0}
+  bgmSource: {fileID: 2076114261}
   sfxSource: {fileID: 2076114261}
   masterVolume: 1
   bgmVolume: 1

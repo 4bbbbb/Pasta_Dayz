@@ -25,12 +25,13 @@ public class SoundManager : MonoBehaviour
     private const string BGM_KEY = "BGM_VOLUME";
     private const string SFX_KEY = "SFX_VOLUME";
 
-    void Awake()
+    private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
             LoadVolume();
             ApplyVolume();
         }
@@ -43,7 +44,6 @@ public class SoundManager : MonoBehaviour
     public void SetMasterVolume(float value)
     {
         masterVolume = Mathf.Clamp01(value);
-
         ApplyVolume();
 
         PlayerPrefs.SetFloat(MASTER_KEY, masterVolume);
@@ -55,7 +55,6 @@ public class SoundManager : MonoBehaviour
     public void SetBgmVolume(float value)
     {
         bgmVolume = Mathf.Clamp01(value);
-
         ApplyVolume();
 
         PlayerPrefs.SetFloat(BGM_KEY, bgmVolume);
@@ -67,7 +66,6 @@ public class SoundManager : MonoBehaviour
     public void SetSfxVolume(float value)
     {
         sfxVolume = Mathf.Clamp01(value);
-
         ApplyVolume();
 
         PlayerPrefs.SetFloat(SFX_KEY, sfxVolume);
@@ -108,10 +106,13 @@ public class SoundManager : MonoBehaviour
 
     private void ApplyVolume()
     {
+        float finalBgm = masterVolume * bgmVolume;
+        float finalSfx = masterVolume * sfxVolume;
+
         if (bgmSource != null)
-            bgmSource.volume = masterVolume * bgmVolume;
+            bgmSource.volume = finalBgm;
 
         if (sfxSource != null)
-            sfxSource.volume = masterVolume * sfxVolume;
+            sfxSource.volume = finalSfx;
     }
 }

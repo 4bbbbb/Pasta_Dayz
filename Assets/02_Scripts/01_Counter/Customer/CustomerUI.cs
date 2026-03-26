@@ -24,6 +24,12 @@ public class CustomerUI : MonoBehaviour
     public GameObject yesButton;
     public GameObject autoButton;
 
+    [Header("Order SFX")]
+    [SerializeField] private AudioClip orderSFX;
+
+    [Header("Typing Settings")]
+    [SerializeField] private float characterInterval = 0.03f;
+
     [Header("Button Pop Animation")]
     [SerializeField] private float buttonPopStartScale = 0.7f;
     [SerializeField] private float buttonPopOvershootScale = 1.12f;
@@ -35,19 +41,21 @@ public class CustomerUI : MonoBehaviour
     [SerializeField] private Vector3 autoButtonTargetScale = new Vector3(1f, 1.4125f, 1f);
 
     private int currentIndex = -1;
-
     private Coroutine typingRoutine;
     private Coroutine buttonPopRoutine;
 
-    void Awake()
+    private void Awake()
     {
         bubbleObject.SetActive(false);
         yesButton.SetActive(false);
         autoButton.SetActive(false);
 
-        cg = bubbleObject.GetComponent<CanvasGroup>();
         if (cg == null)
-            cg = bubbleObject.AddComponent<CanvasGroup>();
+        {
+            cg = bubbleObject.GetComponent<CanvasGroup>();
+            if (cg == null)
+                cg = bubbleObject.AddComponent<CanvasGroup>();
+        }
 
         ResetButtonScale();
     }
@@ -59,26 +67,26 @@ public class CustomerUI : MonoBehaviour
         yesButton.SetActive(false);
         autoButton.SetActive(false);
 
+        StopAllUIRoutines();
         ResetButtonScale();
     }
 
     public void SetCustomerSprite(int index)
     {
         currentIndex = index;
-        customerImage.sprite = customerSprites[index].happy;
+
+        if (index >= 0 && index < customerSprites.Count)
+            customerImage.sprite = customerSprites[index].happy;
     }
 
     public void SetEmotion(bool success)
     {
-        Debug.Log("currentIndex: " + currentIndex);
-
         if (currentIndex < 0 || currentIndex >= customerSprites.Count)
             return;
 
-        if (success)
-            customerImage.sprite = customerSprites[currentIndex].happy;
-        else
-            customerImage.sprite = customerSprites[currentIndex].angry;
+        customerImage.sprite = success
+            ? customerSprites[currentIndex].happy
+            : customerSprites[currentIndex].angry;
     }
 
     public void ShowOrder(string message)
@@ -87,7 +95,7 @@ public class CustomerUI : MonoBehaviour
         typingRoutine = StartCoroutine(ShowBubbleDelay(message));
     }
 
-    IEnumerator ShowBubbleDelay(string message)
+    private IEnumerator ShowBubbleDelay(string message)
     {
         yield return new WaitForSeconds(0.7f);
 
@@ -112,7 +120,7 @@ public class CustomerUI : MonoBehaviour
         {
             time += Time.deltaTime;
             float t = time / duration;
-            float eased = 1 - Mathf.Pow(1 - t, 2);
+            float eased = 1f - Mathf.Pow(1f - t, 2f);
 
             bubble.localScale = Vector3.Lerp(startScale, targetScale, eased);
             cg.alpha = eased;
@@ -123,36 +131,38 @@ public class CustomerUI : MonoBehaviour
         bubble.localScale = targetScale;
         cg.alpha = 1f;
 
+        if (SoundManager.Instance != null && orderSFX != null)
+            SoundManager.Instance.PlaySFX(orderSFX);
+
         yield return StartCoroutine(TypeText(message));
 
         buttonPopRoutine = StartCoroutine(ShowButtonsPop());
     }
 
-    IEnumerator TypeText(string message)
+    private IEnumerator TypeText(string message)
     {
         orderText.text = "";
 
         foreach (char c in message)
         {
             orderText.text += c;
-            yield return new WaitForSeconds(0.03f);
+            yield return new WaitForSeconds(characterInterval);
         }
     }
 
-    IEnumerator ShowButtonsPop()
+    private IEnumerator ShowButtonsPop()
     {
         yield return StartCoroutine(PopButton(yesButton, yesButtonTargetScale));
         yield return new WaitForSeconds(buttonPopInterval);
         yield return StartCoroutine(PopButton(autoButton, autoButtonTargetScale));
     }
 
-    IEnumerator PopButton(GameObject buttonObj, Vector3 targetScale)
+    private IEnumerator PopButton(GameObject buttonObj, Vector3 targetScale)
     {
         if (buttonObj == null)
             yield break;
 
         Transform tr = buttonObj.transform;
-
         buttonObj.SetActive(true);
 
         Vector3 startScale = targetScale * buttonPopStartScale;
@@ -211,7 +221,7 @@ public class CustomerUI : MonoBehaviour
         {
             StopCoroutine(buttonPopRoutine);
             buttonPopRoutine = null;
-        }
+        }       
     }
 
     public void HideBubble()

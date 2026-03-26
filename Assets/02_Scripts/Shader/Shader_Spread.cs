@@ -1,10 +1,10 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
 public class Shader_Spread : MonoBehaviour
 {
-    [SerializeField] private SpriteRenderer sauceRenderer;    
-
+    [SerializeField] private SpriteRenderer sauceRenderer;
     [SerializeField] private float spreadDuration = 0.8f;
 
     private Material runtimeMat;
@@ -19,32 +19,35 @@ public class Shader_Spread : MonoBehaviour
         sauceRenderer.material = runtimeMat;
 
         runtimeMat.SetFloat(RevealID, 0f);
-
         runtimeMat.SetVector(CenterID, new Vector2(0.5f, 0.7f));
-        sauceRenderer.gameObject.SetActive(false);
     }
 
-    public void PlayOilSpread()
+    public void PlayOilSpread(Action onComplete = null)
     {
         if (spreadRoutine != null)
         {
             StopCoroutine(spreadRoutine);
         }
 
-        sauceRenderer.gameObject.SetActive(true);
-        spreadRoutine = StartCoroutine(CoSpread());
+        runtimeMat.SetFloat(RevealID, 0f);
+        spreadRoutine = StartCoroutine(CoSpread(onComplete));
     }
 
     public void HideOil()
     {
         if (spreadRoutine != null)
+        {
             StopCoroutine(spreadRoutine);
+            spreadRoutine = null;
+        }
+
+        if (runtimeMat == null)
+            return;
 
         runtimeMat.SetFloat(RevealID, 0f);
-        sauceRenderer.gameObject.SetActive(false);
     }
 
-    private IEnumerator CoSpread()
+    private IEnumerator CoSpread(Action onComplete)
     {
         float t = 0f;
         runtimeMat.SetFloat(RevealID, 0f);
@@ -62,5 +65,7 @@ public class Shader_Spread : MonoBehaviour
 
         runtimeMat.SetFloat(RevealID, 0.85f);
         spreadRoutine = null;
+
+        onComplete?.Invoke();
     }
 }

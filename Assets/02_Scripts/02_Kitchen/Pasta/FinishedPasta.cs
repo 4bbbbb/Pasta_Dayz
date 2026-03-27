@@ -315,7 +315,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
         if (dragToppingRoot != null)
         {
-            // 팬에서 끌고 온 토핑도 finishedpasta를 따라오게 유지
             dragToppingRoot.SetParent(transform, true);
         }
 
@@ -374,7 +373,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             }
         }
 
-        // 핵심
         if (placed && isOnPlate)
         {
             ApplyPlateSorting();
@@ -418,7 +416,16 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         if (oven != null)
         {
             Debug.Log("Oven 감지됨");
-            return oven.Interact(this);
+
+            bool accepted = oven.Interact(this);
+
+            if (accepted && dragStartOvenPlate != null)
+            {
+                Destroy(dragStartOvenPlate.gameObject);
+                dragStartOvenPlate = null;
+            }
+
+            return accepted;
         }
 
         Cooker_Trashcan trashcan = hit.collider.GetComponentInParent<Cooker_Trashcan>();
@@ -493,10 +500,8 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         Plates_BasicPlate basicPlate = GetComponentInParent<Plates_BasicPlate>();
         if (basicPlate != null)
         {
-            // 기본 플레이트 ID
             ingredientIDs.Add(501);
 
-            // 빠네 여부도 같이 반영
             if (basicPlate.HasPane())
                 ingredientIDs.Add(601);
 
@@ -544,7 +549,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
         isOnPlate = true;
 
-        // 추가
         SyncPlateInfoFromParent();
 
         originalScale = transform.localScale;
@@ -642,30 +646,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         RefreshDragCaches();
     }
 
-    private Transform GetSequentialEmptyPoint(int toppingIndex)
-    {
-        if (plateToppingGroupParents == null || plateToppingGroupParents.Length == 0)
-            return null;
-  
-        int preferredGroup = toppingIndex % plateToppingGroupParents.Length;
-
-        Transform point = FindFirstEmptyPointInGroup(preferredGroup);
-        if (point != null)
-            return point;
-
-        for (int g = 0; g < plateToppingGroupParents.Length; g++)
-        {
-            if (g == preferredGroup)
-                continue;
-
-            point = FindFirstEmptyPointInGroup(g);
-            if (point != null)
-                return point;
-        }
-
-        return null;
-    }
-
     private void MoveDraggedToppingsToPlateGroups()
     {
         if (dragToppingRoot == null || plateToppingGroupParents == null)
@@ -682,21 +662,17 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         if (toppings.Count == 0)
             return;
 
-        foreach (Transform topping in toppings)
+        for (int i = 0; i < toppings.Count; i++)
         {
-            IngredientIDs idComp = topping.GetComponentInChildren<IngredientIDs>(true);
-            if (idComp == null)
-            {
-                Debug.LogWarning($"IngredientIDs 없음: {topping.name}");
-                continue;
-            }
+            Transform topping = toppings[i];
 
-            int ingredientID = idComp.GetID();
-            Transform targetPoint = GetEmptyPointByIngredientId(ingredientID);
+            // 0,1,2 -> group 0 / 3,4,5 -> group 1
+            int targetGroupIndex = Mathf.Clamp(i / 3, 0, plateToppingGroupParents.Length - 1);
+            Transform targetPoint = FindFirstEmptyPointInGroup(targetGroupIndex);
 
             if (targetPoint == null)
             {
-                Debug.LogWarning($"배치 실패: ingredientID={ingredientID}, 빈 자리 없음");
+                Debug.LogWarning($"배치 실패: {topping.name}, group={targetGroupIndex}");
                 continue;
             }
 
@@ -731,22 +707,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         return null;
     }
 
-    private int GetGroupIndexByIngredientId(int ingredientID)
-    {
-        switch (ingredientID)
-        {
-            case 301: return 0; // ToppingGroup1
-            case 302: return 1; // ToppingGroup2
-            default: return 0; // 기본값
-        }
-    }
-
-    private Transform GetEmptyPointByIngredientId(int ingredientID)
-    {
-        int groupIndex = GetGroupIndexByIngredientId(ingredientID);
-        return FindFirstEmptyPointInGroup(groupIndex);
-    }
-
     public void BuildPlateToppingsFromPan(Transform[] sourceGroupParents)
     {
         if (sourceGroupParents == null || plateToppingGroupParents == null)
@@ -754,12 +714,13 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
         ClearExistingPlateToppings();
 
-        List<Transform> sourceToppings = new List<Transform>();
-
-        foreach (Transform sourceGroup in sourceGroupParents)
+        for (int sourceGroupIndex = 0; sourceGroupIndex < sourceGroupParents.Length; sourceGroupIndex++)
         {
+            Transform sourceGroup = sourceGroupParents[sourceGroupIndex];
             if (sourceGroup == null)
                 continue;
+
+            int targetGroupIndex = Mathf.Clamp(sourceGroupIndex, 0, plateToppingGroupParents.Length - 1);
 
             foreach (Transform sourcePoint in sourceGroup)
             {
@@ -768,48 +729,46 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
                 foreach (Transform sourceChild in sourcePoint)
                 {
-                    if (sourceChild != null)
-                        sourceToppings.Add(sourceChild);
+                    if (sourceChild == null)
+                        continue;
+
+                    IngredientIDs idComp = sourceChild.GetComponentInChildren<IngredientIDs>(true);
+                    if (idComp == null)
+                    {
+                        Debug.LogWarning($"IngredientIDs 없음: {sourceChild.name}");
+                        continue;
+                    }
+
+                    int ingredientID = idComp.GetID();
+                    GameObject prefab = Order_Manager.Instance.ingredientDB.GetPrefab(ingredientID);
+
+                    if (prefab == null)
+                    {
+                        Debug.LogWarning($"Prefab 없음: ingredientID={ingredientID}");
+                        continue;
+                    }
+
+                    Transform targetPoint = FindFirstEmptyPointInGroup(targetGroupIndex);
+
+                    if (targetPoint == null)
+                    {
+                        Debug.LogWarning($"배치 실패: ingredientID={ingredientID}, group={targetGroupIndex}");
+                        continue;
+                    }
+
+                    GameObject obj = Instantiate(prefab, targetPoint.position, Quaternion.identity, targetPoint);
+                    obj.transform.localPosition = Vector3.zero;
+                    obj.transform.localRotation = Quaternion.identity;
+                    obj.transform.localScale = Vector3.one;
+                    obj.SetActive(true);
+
+                    SpriteRenderer objSr = obj.GetComponentInChildren<SpriteRenderer>(true);
+                    if (objSr != null)
+                    {
+                        objSr.sortingLayerName = "Default";
+                        objSr.sortingOrder = 5;
+                    }
                 }
-            }
-        }
-
-        foreach (Transform sourceChild in sourceToppings)
-        {
-            IngredientIDs idComp = sourceChild.GetComponentInChildren<IngredientIDs>(true);
-            if (idComp == null)
-            {
-                Debug.LogWarning($"IngredientIDs 없음: {sourceChild.name}");
-                continue;
-            }
-
-            int ingredientID = idComp.GetID();
-            GameObject prefab = Order_Manager.Instance.ingredientDB.GetPrefab(ingredientID);
-
-            if (prefab == null)
-            {
-                Debug.LogWarning($"Prefab 없음: ingredientID={ingredientID}");
-                continue;
-            }
-
-            Transform targetPoint = GetEmptyPointByIngredientId(ingredientID);
-            if (targetPoint == null)
-            {
-                Debug.LogWarning($"배치 실패: ingredientID={ingredientID}, 빈 자리 없음");
-                continue;
-            }
-
-            GameObject obj = Instantiate(prefab, targetPoint.position, Quaternion.identity, targetPoint);
-            obj.transform.localPosition = Vector3.zero;
-            obj.transform.localRotation = Quaternion.identity;
-            obj.transform.localScale = Vector3.one;
-            obj.SetActive(true);
-
-            SpriteRenderer objSr = obj.GetComponentInChildren<SpriteRenderer>(true);
-            if (objSr != null)
-            {
-                objSr.sortingLayerName = "Default";
-                objSr.sortingOrder = 5;
             }
         }
     }
@@ -839,11 +798,9 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         if (sr == null)
             sr = GetComponent<SpriteRenderer>();
 
-        // FinishedPasta 본체
         sr.sortingLayerName = "Default";
         sr.sortingOrder = 3;
 
-        // 접시 위 토핑들
         if (plateToppingGroupParents != null)
         {
             foreach (Transform group in plateToppingGroupParents)
@@ -860,7 +817,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             }
         }
 
-        // 아직 dragToppingRoot에 남아 있는 토핑 대비
         if (dragToppingRoot != null)
         {
             SpriteRenderer[] renderers = dragToppingRoot.GetComponentsInChildren<SpriteRenderer>(true);
@@ -1246,6 +1202,26 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         }
 
         ClearExistingPlateToppings();
+
+        if (isOnPlate)
+        {
+            Plates_BasicPlate basicPlateToRemove = dragStartBasicPlate != null
+                ? dragStartBasicPlate
+                : GetComponentInParent<Plates_BasicPlate>();
+
+            Plates_OvenPlate ovenPlateToRemove = dragStartOvenPlate != null
+                ? dragStartOvenPlate
+                : GetComponentInParent<Plates_OvenPlate>();
+
+            if (basicPlateToRemove != null)
+            {
+                Destroy(basicPlateToRemove.gameObject);
+            }
+            else if (ovenPlateToRemove != null)
+            {
+                Destroy(ovenPlateToRemove.gameObject);
+            }
+        }
 
         dragStartBasicPlate = null;
         dragStartOvenPlate = null;

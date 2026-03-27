@@ -79,6 +79,8 @@ public class Cooker_PassTable : MonoBehaviour, IInteractable
 
         DebugFinalSet(box.GetIngredientSet(), "PastaBox 재료");
 
+        finishedPasta.gameObject.SetActive(false);
+
         Order_Manager orderManager = FindObjectOfType<Order_Manager>();
         if (orderManager != null)
         {
@@ -111,6 +113,8 @@ public class Cooker_PassTable : MonoBehaviour, IInteractable
         PastaBox pastaBox = Instantiate(boxPrefab).GetComponent<PastaBox>();
         pastaBox.SetIngredients(finalSet);
         pastaBox.SetBaked(true);
+
+        bakedPasta.gameObject.SetActive(false);
 
         Order_Manager orderManager = FindObjectOfType<Order_Manager>();
         if (orderManager != null)

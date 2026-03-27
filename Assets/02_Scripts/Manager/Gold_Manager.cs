@@ -23,7 +23,6 @@ public class Gold_Manager : MonoBehaviour
 
     public System.Action OnTipChanged;
 
-
     void Awake()
     {
         if (Instance == null)
@@ -54,13 +53,11 @@ public class Gold_Manager : MonoBehaviour
         totalGold += amount;
         dailyTip += amount;
 
-        dailyTipCount++; 
-
-        OnTipChanged?.Invoke(); 
+        dailyTipCount++;
+        OnTipChanged?.Invoke();
 
         UpdateUI();
     }
-
 
     // 장사용 재료비
     public void SpendBusinessCost(float amount)
@@ -95,6 +92,11 @@ public class Gold_Manager : MonoBehaviour
         UpdateUI();
     }
 
+    public bool CanAfford(float amount)
+    {
+        return totalGold >= amount;
+    }
+
     void UpdateUI()
     {
         if (goldText != null)
@@ -109,6 +111,6 @@ public class Gold_Manager : MonoBehaviour
         dailyCost = 0f;
         dailyRefund = 0f;
         dailyTip = 0f;
-        dailyTipCount = 0; 
+        dailyTipCount = 0;
     }
 }

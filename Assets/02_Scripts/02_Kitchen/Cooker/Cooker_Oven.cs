@@ -254,6 +254,15 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
 
         currentBakeObject = Instantiate(prefab, bakedSpawnPoint.position, Quaternion.identity, bakedSpawnPoint);
 
+        if (bakeItem == BakeItemType.Pasta)
+        {
+            Burned burned = currentBakeObject.GetComponent<Burned>();
+            if (burned != null)
+            {
+                burned.SetIngredients(savedIngredientIDs);
+            }
+        }
+
         SetCurrentFoodPickable(false);
     }
 

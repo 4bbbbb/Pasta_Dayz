@@ -119,5 +119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f85526deeac75494da5da4f9b4939312, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 0
+  dragLiftScaleMultiplier: 1.08
+  dragStartThreshold: 0.12
+  type: 1
   selectedScaleMultiplier: 1.4

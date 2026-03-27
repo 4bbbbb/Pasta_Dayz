@@ -62,8 +62,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     [SerializeField] private Transform[] plateToppingGroupParents;
 
     [Header("<<단일 토핑 배치>>")]
-    [SerializeField] private int singleToppingPreferredGroupIndex = 0;
-
     [SerializeField] private List<PanSpriteEntry> panSpriteEntries = new List<PanSpriteEntry>();
     [SerializeField] private List<BasicPlateSpriteEntry> basicplateSpriteEntries = new List<BasicPlateSpriteEntry>();
     [SerializeField] private List<OvenPlateSpriteEntry> ovenPlateSpriteEntries = new List<OvenPlateSpriteEntry>();
@@ -137,11 +135,11 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
         if (dragToppingRoot != null)
         {
-            // 드래그할 때 finishedpasta와 같이 움직이게 유지
             dragToppingRoot.SetParent(transform, true);
         }
     }
 
+    #region <<Drag>>
     private void RefreshDragCaches()
     {
         allRenderers = GetComponentsInChildren<SpriteRenderer>(true);
@@ -405,14 +403,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             return false;
         }
 
-        Debug.Log("드롭 시 맞은 오브젝트: " + hit.collider.name);
-
-        Cooker_PassTable passTable = hit.collider.GetComponentInParent<Cooker_PassTable>();
-        if (passTable != null)
-        {
-            Debug.Log("PassTable 감지됨");
-            return passTable.Interact(this);
-        }
+        Debug.Log("드롭 시 맞은 오브젝트: " + hit.collider.name);        
 
         Plates_BasicPlate basicPlate = hit.collider.GetComponentInParent<Plates_BasicPlate>();
         if (basicPlate != null)
@@ -428,6 +419,13 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             return ovenPlate.Interact(this);
         }
 
+        Cooker_Oven oven = hit.collider.GetComponentInParent<Cooker_Oven>();
+        if (oven != null)
+        {
+            Debug.Log("Oven 감지됨");
+            return oven.Interact(this);
+        }
+
         Cooker_Trashcan trashcan = hit.collider.GetComponentInParent<Cooker_Trashcan>();
         if (trashcan != null)
         {
@@ -435,9 +433,17 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             return trashcan.Interact(this);
         }
 
+        Cooker_PassTable passTable = hit.collider.GetComponentInParent<Cooker_PassTable>();
+        if (passTable != null)
+        {
+            Debug.Log("PassTable 감지됨");
+            return passTable.Interact(this);
+        }
+
         Debug.Log("드롭 실패: PassTable/접시/쓰레기통이 아님");
         return false;
     }
+    #endregion
 
     public void Init(Cooker_GasStove stove)
     {
@@ -449,6 +455,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         fryingPan = pan;
     }
 
+    #region <<Move>>
     public bool CanMoveToPlate(int plateID, bool targetHasPane)
     {
         int noodleID = GetNoodleID();
@@ -486,6 +493,96 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         return false;
     }
 
+    private void SyncPlateInfoFromParent()
+    {
+        Plates_BasicPlate basicPlate = GetComponentInParent<Plates_BasicPlate>();
+        if (basicPlate != null)
+        {
+            // 기본 플레이트 ID
+            ingredientIDs.Add(501);
+
+            // 빠네 여부도 같이 반영
+            if (basicPlate.HasPane())
+                ingredientIDs.Add(601);
+
+            HashSet<int> plateIngredients = basicPlate.GetIngredients();
+            if (plateIngredients != null)
+            {
+                foreach (int id in plateIngredients)
+                    ingredientIDs.Add(id);
+            }
+
+            return;
+        }
+
+        Plates_OvenPlate ovenPlate = GetComponentInParent<Plates_OvenPlate>();
+        if (ovenPlate != null)
+        {
+            ingredientIDs.Add(502);
+
+            HashSet<int> plateIngredients = ovenPlate.GetIngredientSet();
+            if (plateIngredients != null)
+            {
+                foreach (int id in plateIngredients)
+                    ingredientIDs.Add(id);
+            }
+
+            return;
+        }
+    }
+
+    public void OnMovedToPlate()
+    {
+        Debug.Log("OnMovedToPlate 호출됨");
+
+        if (sr == null)
+            sr = GetComponent<SpriteRenderer>();
+
+        if (spriteFadeRoutine != null)
+        {
+            StopCoroutine(spriteFadeRoutine);
+            spriteFadeRoutine = null;
+        }
+
+        Color c = sr.color;
+        sr.color = new Color(c.r, c.g, c.b, 1f);
+
+        isOnPlate = true;
+
+        // 추가
+        SyncPlateInfoFromParent();
+
+        originalScale = transform.localScale;
+        UpdatePlateSprite();
+
+        if (dragToppingRoot != null && dragToppingRoot.childCount > 0)
+        {
+            MoveDraggedToppingsToPlateGroups();
+        }
+        else
+        {
+            fryingPan?.CopyPanToppingsToFinishedPasta(this);
+        }
+
+        fryingPan?.ClearPanAfterServing();
+
+        if (gasStove != null)
+        {
+            gasStove.DestroyFryingPan();
+        }
+
+        fryingPan = null;
+        gasStove = null;
+
+        RefreshDragCaches();
+        ApplyPlateSorting();
+
+        Debug.Log("완성된 파스타를 그릇에 담았어요 !!");
+        PrintIngredients();
+    }
+    #endregion
+
+    #region <<Topping>>
     private void RaiseAllSortingForDrag()
     {
         if (allRenderers == null) return;
@@ -514,7 +611,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             allRenderers[i].sortingOrder = savedSortingOrders[i];
         }
     }
-
     public void MovePanToppingsForDrag(Transform[] sourceGroupParents)
     {
         if (sourceGroupParents == null || dragToppingRoot == null)
@@ -551,37 +647,28 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         RefreshDragCaches();
     }
 
-    private Transform FindNearestEmptyPlatePoint(Vector3 worldPos)
+    private Transform GetSequentialEmptyPoint(int toppingIndex)
     {
-        if (plateToppingGroupParents == null)
+        if (plateToppingGroupParents == null || plateToppingGroupParents.Length == 0)
             return null;
+  
+        int preferredGroup = toppingIndex % plateToppingGroupParents.Length;
 
-        Transform bestPoint = null;
-        float bestDist = float.MaxValue;
+        Transform point = FindFirstEmptyPointInGroup(preferredGroup);
+        if (point != null)
+            return point;
 
-        foreach (Transform group in plateToppingGroupParents)
+        for (int g = 0; g < plateToppingGroupParents.Length; g++)
         {
-            if (group == null)
+            if (g == preferredGroup)
                 continue;
 
-            foreach (Transform point in group)
-            {
-                if (point == null)
-                    continue;
-
-                if (point.childCount > 0)
-                    continue;
-
-                float dist = (point.position - worldPos).sqrMagnitude;
-                if (dist < bestDist)
-                {
-                    bestDist = dist;
-                    bestPoint = point;
-                }
-            }
+            point = FindFirstEmptyPointInGroup(g);
+            if (point != null)
+                return point;
         }
 
-        return bestPoint;
+        return null;
     }
 
     private void MoveDraggedToppingsToPlateGroups()
@@ -600,43 +687,23 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         if (toppings.Count == 0)
             return;
 
-        // 토핑이 1개면 무조건 지정한 group으로만 보냄
-        if (toppings.Count == 1)
-        {
-            Transform targetPoint = FindFirstEmptyPointInGroup(singleToppingPreferredGroupIndex);
-
-            // 지정한 그룹이 꽉 찼으면 반대 그룹 시도
-            if (targetPoint == null)
-            {
-                for (int g = 0; g < plateToppingGroupParents.Length; g++)
-                {
-                    if (g == singleToppingPreferredGroupIndex)
-                        continue;
-
-                    targetPoint = FindFirstEmptyPointInGroup(g);
-                    if (targetPoint != null)
-                        break;
-                }
-            }
-
-            if (targetPoint != null)
-            {
-                Transform topping = toppings[0];
-                topping.SetParent(targetPoint, true);
-                topping.localPosition = Vector3.zero;
-                topping.localRotation = Quaternion.identity;
-                topping.localScale = Vector3.one;
-            }
-
-            return;
-        }
-
-        // 토핑이 여러 개면 기존처럼 가까운 빈 포인트 사용
         foreach (Transform topping in toppings)
         {
-            Transform targetPoint = FindNearestEmptyPlatePoint(topping.position);
-            if (targetPoint == null)
+            IngredientIDs idComp = topping.GetComponentInChildren<IngredientIDs>(true);
+            if (idComp == null)
+            {
+                Debug.LogWarning($"IngredientIDs 없음: {topping.name}");
                 continue;
+            }
+
+            int ingredientID = idComp.GetID();
+            Transform targetPoint = GetEmptyPointByIngredientId(ingredientID);
+
+            if (targetPoint == null)
+            {
+                Debug.LogWarning($"배치 실패: ingredientID={ingredientID}, 빈 자리 없음");
+                continue;
+            }
 
             topping.SetParent(targetPoint, true);
             topping.localPosition = Vector3.zero;
@@ -669,84 +736,85 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         return null;
     }
 
+    private int GetGroupIndexByIngredientId(int ingredientID)
+    {
+        switch (ingredientID)
+        {
+            case 301: return 0; // ToppingGroup1
+            case 302: return 1; // ToppingGroup2
+            default: return 0; // 기본값
+        }
+    }
+
+    private Transform GetEmptyPointByIngredientId(int ingredientID)
+    {
+        int groupIndex = GetGroupIndexByIngredientId(ingredientID);
+        return FindFirstEmptyPointInGroup(groupIndex);
+    }
 
     public void BuildPlateToppingsFromPan(Transform[] sourceGroupParents)
     {
-        Debug.Log($"sourceGroupParents null? {sourceGroupParents == null}");
-        Debug.Log($"plateToppingGroupParents null? {plateToppingGroupParents == null}");
-
         if (sourceGroupParents == null || plateToppingGroupParents == null)
             return;
 
         ClearExistingPlateToppings();
 
-        int groupCount = Mathf.Min(sourceGroupParents.Length, plateToppingGroupParents.Length);
+        List<Transform> sourceToppings = new List<Transform>();
 
-        for (int g = 0; g < groupCount; g++)
+        foreach (Transform sourceGroup in sourceGroupParents)
         {
-            Transform sourceGroup = sourceGroupParents[g];
-            Transform targetGroup = plateToppingGroupParents[g];
-
-            if (sourceGroup == null || targetGroup == null)
-            {
-                Debug.Log($"group {g}: sourceGroup 또는 targetGroup null");
+            if (sourceGroup == null)
                 continue;
-            }
 
-            int pointCount = Mathf.Min(sourceGroup.childCount, targetGroup.childCount);
-
-            for (int p = 0; p < pointCount; p++)
+            foreach (Transform sourcePoint in sourceGroup)
             {
-                Transform sourcePoint = sourceGroup.GetChild(p);
-                Transform targetPoint = targetGroup.GetChild(p);
-
-                if (sourcePoint == null || targetPoint == null)
-                {
-                    Debug.Log($"group {g}, point {p}: sourcePoint 또는 targetPoint null");
+                if (sourcePoint == null)
                     continue;
-                }
-
-                Debug.Log($"group {g}, point {p}, sourcePoint childCount = {sourcePoint.childCount}");
 
                 foreach (Transform sourceChild in sourcePoint)
                 {
-                    if (sourceChild == null)
-                    {
-                        Debug.Log($"group {g}, point {p}: sourceChild null");
-                        continue;
-                    }
-
-                    IngredientIDs idComp = sourceChild.GetComponentInChildren<IngredientIDs>(true);
-                    if (idComp == null)
-                    {
-                        Debug.Log($"group {g}, point {p}: IngredientIDs 없음 -> {sourceChild.name}");
-                        continue;
-                    }
-
-                    int ingredientID = idComp.GetID();
-                    GameObject prefab = Order_Manager.Instance.ingredientDB.GetPrefab(ingredientID);
-
-                    Debug.Log($"group {g}, point {p}: ingredientID = {ingredientID}, prefab null? {prefab == null}");
-
-                    if (prefab == null)
-                        continue;
-
-                    GameObject obj = Instantiate(prefab, targetPoint.position, Quaternion.identity, targetPoint);
-                    obj.transform.localPosition = Vector3.zero;
-                    obj.transform.rotation = sourceChild.rotation;
-                    obj.transform.localScale = Vector3.one;
-                    obj.SetActive(true);
-
-                    SpriteRenderer objSr = obj.GetComponentInChildren<SpriteRenderer>(true);
-                    Debug.Log(
-                        $"group {g}, point {p}: 생성 성공 -> {obj.name}, " +
-                        $"activeSelf={obj.activeSelf}, activeInHierarchy={obj.activeInHierarchy}, " +
-                        $"localPos={obj.transform.localPosition}, worldPos={obj.transform.position}, " +
-                        $"localScale={obj.transform.localScale}, " +
-                        $"spriteRendererNull={objSr == null}" +
-                        $"{(objSr != null ? $", sortingLayer={objSr.sortingLayerName}, order={objSr.sortingOrder}, colorA={objSr.color.a}" : "")}"
-                    );
+                    if (sourceChild != null)
+                        sourceToppings.Add(sourceChild);
                 }
+            }
+        }
+
+        foreach (Transform sourceChild in sourceToppings)
+        {
+            IngredientIDs idComp = sourceChild.GetComponentInChildren<IngredientIDs>(true);
+            if (idComp == null)
+            {
+                Debug.LogWarning($"IngredientIDs 없음: {sourceChild.name}");
+                continue;
+            }
+
+            int ingredientID = idComp.GetID();
+            GameObject prefab = Order_Manager.Instance.ingredientDB.GetPrefab(ingredientID);
+
+            if (prefab == null)
+            {
+                Debug.LogWarning($"Prefab 없음: ingredientID={ingredientID}");
+                continue;
+            }
+
+            Transform targetPoint = GetEmptyPointByIngredientId(ingredientID);
+            if (targetPoint == null)
+            {
+                Debug.LogWarning($"배치 실패: ingredientID={ingredientID}, 빈 자리 없음");
+                continue;
+            }
+
+            GameObject obj = Instantiate(prefab, targetPoint.position, Quaternion.identity, targetPoint);
+            obj.transform.localPosition = Vector3.zero;
+            obj.transform.localRotation = Quaternion.identity;
+            obj.transform.localScale = Vector3.one;
+            obj.SetActive(true);
+
+            SpriteRenderer objSr = obj.GetComponentInChildren<SpriteRenderer>(true);
+            if (objSr != null)
+            {
+                objSr.sortingLayerName = "Default";
+                objSr.sortingOrder = 5;
             }
         }
     }
@@ -769,52 +837,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
                 }
             }
         }
-    }
-
-    public void OnMovedToPlate()
-    {
-        Debug.Log("OnMovedToPlate 호출됨");
-
-        if (sr == null)
-            sr = GetComponent<SpriteRenderer>();
-
-        if (spriteFadeRoutine != null)
-        {
-            StopCoroutine(spriteFadeRoutine);
-            spriteFadeRoutine = null;
-        }
-
-        Color c = sr.color;
-        sr.color = new Color(c.r, c.g, c.b, 1f);
-
-        isOnPlate = true;
-        originalScale = transform.localScale;
-        UpdatePlateSprite();
-
-        if (dragToppingRoot != null && dragToppingRoot.childCount > 0)
-        {
-            MoveDraggedToppingsToPlateGroups();
-        }
-        else
-        {
-            fryingPan?.CopyPanToppingsToFinishedPasta(this);
-        }
-
-        fryingPan?.ClearPanAfterServing();
-
-        if (gasStove != null)
-        {
-            gasStove.DestroyFryingPan();
-        }
-
-        fryingPan = null;
-        gasStove = null;
-
-        RefreshDragCaches();
-        ApplyPlateSorting();
-
-        Debug.Log("완성된 파스타를 그릇에 담았어요 !!");
-        PrintIngredients();
     }
 
     private void ApplyPlateSorting()
@@ -855,6 +877,9 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             }
         }
     }
+    #endregion    
+
+    #region <<Check>>
 
     public bool IsOnOvenPlate()
     {
@@ -871,30 +896,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         if (ingredientIDs.Contains(401)) return 401;
         if (ingredientIDs.Contains(402)) return 402;
         return -1;
-    }
-
-    public void SetIngredients(HashSet<int> ids)
-    {
-        ingredientIDs = new HashSet<int>(ids);
-    }
-
-    public void AddIngredient(int id)
-    {
-        ingredientIDs.Add(id);
-    }
-
-    public HashSet<int> GetIngredientSet()
-    {
-        return new HashSet<int>(ingredientIDs);
-    }
-
-    public void RefreshSprite()
-    {
-        if (isOnPlate)
-            UpdatePlateSprite();
-        else
-            UpdatePanSprite();
-    }
+    } 
 
     private int GetNoodleID()
     {
@@ -929,6 +931,31 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     private bool HasPane()
     {
         return ingredientIDs.Contains(601);
+    }
+
+    public void SetIngredients(HashSet<int> ids)
+    {
+        ingredientIDs = new HashSet<int>(ids);
+    }
+
+    public void AddIngredient(int id)
+    {
+        ingredientIDs.Add(id);
+    }
+
+    public HashSet<int> GetIngredientSet()
+    {
+        return new HashSet<int>(ingredientIDs);
+    }
+    #endregion
+
+    #region <<Sprite>>
+    public void RefreshSprite()
+    {
+        if (isOnPlate)
+            UpdatePlateSprite();
+        else
+            UpdatePanSprite();
     }
 
     public void UpdatePanSprite()
@@ -1095,6 +1122,14 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         int plateID = GetPlateID();
         bool hasPane = HasPane();
 
+        // 추가: plateID 못 찾으면 부모 플레이트에서 다시 동기화
+        if (plateID == -1)
+        {
+            SyncPlateInfoFromParent();
+            plateID = GetPlateID();
+            hasPane = HasPane();
+        }
+
         if (noodleID == -1 || sauceID == -1 || plateID == -1)
         {
             Debug.LogWarning($"ID를 찾지 못함. noodleID={noodleID}, sauceID={sauceID}, plateID={plateID}");
@@ -1187,7 +1222,9 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             Debug.Log("Plate에 포함된 ID: " + id);
         }
     }
+    #endregion
 
+    #region <<Trash>>
     public void OnTrashed()
     {
         if (isBeingTrashed)
@@ -1216,17 +1253,8 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
         ClearExistingPlateToppings();
 
-        if (dragStartBasicPlate != null)
-        {
-            Destroy(dragStartBasicPlate.gameObject);
-            dragStartBasicPlate = null;
-        }
-
-        if (dragStartOvenPlate != null)
-        {
-            Destroy(dragStartOvenPlate.gameObject);
-            dragStartOvenPlate = null;
-        }
+        dragStartBasicPlate = null;
+        dragStartOvenPlate = null;
 
         if (!isOnPlate)
         {
@@ -1267,35 +1295,11 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         });
     }
 
-    private void ResetIngredientState()
-    {
-        ingredientIDs.Clear();
-
-        addedCheeseType = null;
-        isSelected = false;
-        isOnPlate = false;
-        hasInitializedSprite = false;
-        transform.localScale = originalScale;
-
-        if (spriteFadeRoutine != null)
-        {
-            StopCoroutine(spriteFadeRoutine);
-            spriteFadeRoutine = null;
-        }
-
-        if (sr == null)
-            sr = GetComponent<SpriteRenderer>();
-
-        if (sr != null)
-        {
-            Color c = sr.color;
-            sr.color = new Color(c.r, c.g, c.b, 1f);
-        }
-    }
+    #endregion
 
     public void Cancel()
     {
-        if (isBeingTrashed)
+        if (!this || isBeingTrashed)
             return;
 
         isSelected = false;

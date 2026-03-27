@@ -7246,9 +7246,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   originalSprite: {fileID: 21300000, guid: b32e070da606c7f448d7c74f0db0f092, type: 3}
   selectedSprite: {fileID: 21300000, guid: 82f8bcb38b30ba74a8af436cf1786582, type: 3}
-  selectScaleDuration: 0.12
-  selectedScaleMultiplier: 1.05
-  pressedScaleMultiplier: 0.97
+  dragNoodleObject: {fileID: 0}
+  mouseFollowOffset: {x: 0.2, y: -0.1, z: 0}
+  cancelDuration: 0.2
 --- !u!65 &471312968
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -13314,12 +13314,12 @@ GameObject:
   - component: {fileID: 823750825}
   - component: {fileID: 823750826}
   m_Layer: 0
-  m_Name: DragPlateVisual (1)
+  m_Name: DragNoodleVisual
   m_TagString: Plate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &823750825
 Transform:
   m_ObjectHideFlags: 0
@@ -17560,9 +17560,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   originalSprite: {fileID: 21300000, guid: defe7c6e6d86fe74d87d7dda98063719, type: 3}
   selectedSprite: {fileID: 21300000, guid: 8a2e07704147735469c3b62627362a76, type: 3}
-  selectScaleDuration: 0.12
-  selectedScaleMultiplier: 1.05
-  pressedScaleMultiplier: 0.97
+  dragNoodleObject: {fileID: 0}
+  mouseFollowOffset: {x: 0.2, y: -0.1, z: 0}
+  cancelDuration: 0.2
 --- !u!65 &1003561978
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -20563,9 +20563,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   originalSprite: {fileID: 21300000, guid: d41453cdc02f16e49a236b1575c60fb8, type: 3}
   selectedSprite: {fileID: 21300000, guid: 2392acfe50b4b9e42ad2dc089c0572fc, type: 3}
-  selectScaleDuration: 0.12
-  selectedScaleMultiplier: 1.05
-  pressedScaleMultiplier: 0.97
+  dragNoodleObject: {fileID: 1680126231}
+  mouseFollowOffset: {x: 0.2, y: -0.1, z: 0}
+  cancelDuration: 0.2
 --- !u!114 &1166727145
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29859,12 +29859,12 @@ GameObject:
   - component: {fileID: 1680126232}
   - component: {fileID: 1680126233}
   m_Layer: 0
-  m_Name: DragPlateVisual
+  m_Name: DragNoodleVisual
   m_TagString: Plate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1680126232
 Transform:
   m_ObjectHideFlags: 0
@@ -31119,7 +31119,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1764266564
 Transform:
   m_ObjectHideFlags: 0
@@ -31215,9 +31215,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   originalSprite: {fileID: 21300000, guid: 63e07adf429fd7e489b8ffe1601d169c, type: 3}
   selectedSprite: {fileID: 21300000, guid: ab0f848dac68c204dac8d47c5c6ee690, type: 3}
-  selectScaleDuration: 0.12
-  selectedScaleMultiplier: 1.05
-  pressedScaleMultiplier: 0.97
+  dragNoodleObject: {fileID: 823750824}
+  mouseFollowOffset: {x: 0.2, y: -0.1, z: 0}
+  cancelDuration: 0.2
 --- !u!65 &1764266571
 BoxCollider:
   m_ObjectHideFlags: 0

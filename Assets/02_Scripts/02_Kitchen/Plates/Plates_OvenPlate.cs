@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using static IInteractableScript;
@@ -7,37 +8,57 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
 {
     private SpriteRenderer sr;
     private Collider plateCollider;
+    private Collider[] ownColliders;
 
     [Header("선택 연출")]
     [SerializeField] private float selectScaleDuration = 0.12f;
     [SerializeField] private float selectedScaleMultiplier = 1.08f;
 
+    [Header("드래그 설정")]
+    [SerializeField] private Vector3 mouseFollowOffset = Vector3.zero;
+    [SerializeField] private float returnDuration = 0.2f;
+
     public bool isSelected { get; private set; }
     public bool isBeingTrashed { get; private set; } = false;
-
-    // 빈 접시도 선택 가능
     public bool CanBeSelected => !isBeingTrashed;
 
     private bool hasPasta = false;
-    private int plateID;
+
+    private int plateID = -1;
     private IngredientIDs ingredientIDs;
     private HashSet<int> ingredients = new HashSet<int>();
 
     private Vector3 originalScale;
 
-    void Start()
+    private bool isDragging = false;
+    private bool isAnimating = false;
+
+    private Vector3 dragStartWorldPos;
+    private Transform dragStartParent;
+    private int dragStartSortingOrder;
+    private string dragStartSortingLayerName;
+    private float dragScreenZ;
+
+    private void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
         plateCollider = GetComponent<Collider>();
+        ownColliders = GetComponentsInChildren<Collider>(true);
+
         isSelected = false;
         originalScale = transform.localScale;
 
         ingredientIDs = GetComponent<IngredientIDs>();
+        if (ingredientIDs == null)
+            ingredientIDs = GetComponentInChildren<IngredientIDs>(true);
+
+        ingredients.Clear();
 
         if (ingredientIDs != null)
         {
             plateID = ingredientIDs.GetID();
-            ingredients.Add(plateID);   // 접시 ID만 먼저 넣어둠
+            if (plateID != -1)
+                ingredients.Add(plateID);
         }
         else
         {
@@ -45,12 +66,16 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
         }
     }
 
+    private void OnDisable()
+    {
+        transform.DOKill();
+    }
+
     public bool Interact(IInteractable target)
     {
         if (isBeingTrashed)
             return false;
 
-        // 빈 접시도 선택 가능
         if (target == null)
         {
             Select();
@@ -64,6 +89,10 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
                 Debug.Log("이미 파스타가 담겨 있어요!");
                 return false;
             }
+
+            // plate ID 보장
+            if (plateID != -1)
+                ingredients.Add(plateID);
 
             // oven plate는 hasPane 개념 없음
             if (!finishedPasta.CanMoveToPlate(plateID, false))
@@ -90,7 +119,7 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
             isSelected = false;
             transform.localScale = originalScale;
 
-            // 원래 오븐 접시 비주얼 숨김
+            // 기존 오븐 접시 비주얼 숨김
             if (sr != null)
                 sr.enabled = false;
 
@@ -105,7 +134,6 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
         return false;
     }
 
-    // 빈 접시는 비용 0원
     public float GetCost()
     {
         if (!hasPasta)
@@ -120,9 +148,7 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
         {
             IngredientData data = IngredientDatabase.Instance.GetIngredient(id);
             if (data != null)
-            {
                 total += data.ingredientCost;
-            }
         }
 
         return total;
@@ -132,10 +158,10 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
     {
         isBeingTrashed = true;
         isSelected = false;
+        isDragging = false;
         transform.localScale = originalScale;
 
-        if (plateCollider != null)
-            plateCollider.enabled = false;
+        SetOwnCollidersEnabled(false);
     }
 
     public void PlayTrashEffect(Transform trashTarget)
@@ -162,7 +188,7 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
         });
     }
 
-    void Select()
+    private void Select()
     {
         isSelected = true;
         transform.DOKill();
@@ -173,9 +199,7 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
     public void AddIngredient(int id)
     {
         if (!ingredients.Contains(id))
-        {
             ingredients.Add(id);
-        }
     }
 
     public HashSet<int> GetIngredientSet()
@@ -187,15 +211,195 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
     {
         foreach (int id in ingredients)
         {
-            Debug.Log("Plate에 포함된 ID: " + id);
+            Debug.Log("OvenPlate에 포함된 ID: " + id);
         }
     }
 
     public void Cancel()
     {
         isSelected = false;
+        isDragging = false;
+        isAnimating = true;
+
         transform.DOKill();
-        transform.DOScale(originalScale, selectScaleDuration)
-                 .SetEase(Ease.OutQuad);
+        transform.localScale = originalScale;
+
+        Sequence seq = DOTween.Sequence();
+        seq.Append(transform.DOMove(dragStartWorldPos, returnDuration).SetEase(Ease.OutQuad));
+        seq.Join(transform.DOScale(originalScale, returnDuration).SetEase(Ease.OutQuad));
+
+        seq.OnComplete(() =>
+        {
+            if (dragStartParent != null)
+                transform.SetParent(dragStartParent, true);
+
+            SetOwnCollidersEnabled(true);
+
+            if (sr != null)
+            {
+                sr.sortingOrder = dragStartSortingOrder;
+                sr.sortingLayerName = dragStartSortingLayerName;
+            }
+
+            transform.localScale = originalScale;
+            isAnimating = false;
+        });
+    }
+
+    private void OnMouseDown()
+    {
+        if (isBeingTrashed || isDragging || isAnimating)
+            return;
+
+        // 파스타가 올라간 뒤엔 접시 비주얼/콜라이더를 꺼두므로 사실상 드래그 안 됨.
+        // 그래도 안전하게 막아둠.
+        if (hasPasta)
+            return;
+
+        Kitchen_Manager.Instance?.ClearSelection(this);
+
+        if (Camera.main == null)
+            return;
+
+        transform.DOKill();
+
+        isDragging = true;
+        isSelected = true;
+
+        dragStartWorldPos = transform.position;
+        dragStartParent = transform.parent;
+
+        if (sr != null)
+        {
+            dragStartSortingOrder = sr.sortingOrder;
+            dragStartSortingLayerName = sr.sortingLayerName;
+            sr.sortingOrder = 999;
+        }
+
+        SetOwnCollidersEnabled(false);
+
+        transform.SetParent(null, true);
+        transform.localScale = originalScale * selectedScaleMultiplier;
+
+        dragScreenZ = Camera.main.WorldToScreenPoint(transform.position).z;
+        UpdateDragPosition();
+    }
+
+    private void OnMouseDrag()
+    {
+        if (!isDragging)
+            return;
+
+        UpdateDragPosition();
+    }
+
+    private void OnMouseUp()
+    {
+        if (!isDragging)
+            return;
+
+        isDragging = false;
+
+        bool dropped = TryDropTarget();
+
+        if (!dropped)
+            Cancel();
+        else
+            CompleteSuccessfulDrag();
+    }
+
+    private void UpdateDragPosition()
+    {
+        if (Camera.main == null)
+            return;
+
+        Vector3 mouse = Input.mousePosition;
+        mouse.z = dragScreenZ;
+
+        Vector3 world = Camera.main.ScreenToWorldPoint(mouse);
+        world.z = dragStartWorldPos.z;
+
+        transform.position = world + mouseFollowOffset;
+    }
+
+    private void SetOwnCollidersEnabled(bool value)
+    {
+        if (ownColliders == null)
+            return;
+
+        foreach (var col in ownColliders)
+        {
+            if (col != null)
+                col.enabled = value;
+        }
+    }
+
+    private bool TryDropTarget()
+    {
+        if (Camera.main == null)
+            return false;
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit[] hits = Physics.RaycastAll(ray, 100f);
+
+        if (hits == null || hits.Length == 0)
+            return false;
+
+        Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        foreach (var hit in hits)
+        {
+            if (hit.collider == null)
+                continue;
+
+            bool isOwnCollider = false;
+            foreach (var ownCol in ownColliders)
+            {
+                if (ownCol == hit.collider)
+                {
+                    isOwnCollider = true;
+                    break;
+                }
+            }
+
+            if (isOwnCollider)
+                continue;
+
+            MonoBehaviour[] behaviours = hit.collider.GetComponentsInParent<MonoBehaviour>(true);
+
+            foreach (var behaviour in behaviours)
+            {
+                if (behaviour == null)
+                    continue;
+
+                if (behaviour.gameObject == gameObject)
+                    continue;
+
+                if (behaviour is IInteractable interactable)
+                {
+                    bool accepted = interactable.Interact(this);
+                    if (accepted)
+                        return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private void CompleteSuccessfulDrag()
+    {
+        isSelected = false;
+        isAnimating = false;
+
+        SetOwnCollidersEnabled(true);
+
+        if (sr != null)
+        {
+            sr.sortingOrder = dragStartSortingOrder;
+            sr.sortingLayerName = dragStartSortingLayerName;
+        }
+
+        transform.localScale = originalScale;
     }
 }

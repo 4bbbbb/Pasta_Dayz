@@ -103,7 +103,7 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
 
         switch (target)
         {
-            case Plate_Pane:
+            case Plate_Pane pane:
                 bakeItem = BakeItemType.Pane;
                 savedIngredientIDs = null;
                 StartBaking();
@@ -126,6 +126,8 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
 
                     Destroy(plate.gameObject);
                 }
+
+                Destroy(pasta.gameObject);  
 
                 bakeItem = BakeItemType.Pasta;
                 StartBaking();
@@ -182,7 +184,7 @@ public class Cooker_Oven : MonoBehaviour, IInteractable
     {
         if (currentBakeObject == null) return;
 
-        // 🔥 음식 스크립트에 맡김 (핵심)
+        // 음식 스크립트에 맡김 
         var pasta = currentBakeObject.GetComponent<BakedPasta>();
         if (pasta != null)
         {

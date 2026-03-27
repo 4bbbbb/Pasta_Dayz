@@ -11,7 +11,7 @@ public class BakedPasta : MonoBehaviour, IInteractable
     [SerializeField] private GameObject parsleyPrefab;
 
     [Header("<<파슬리 스폰 위치>>")]
-    [SerializeField] Transform parsleySpawnPoint;
+    [SerializeField] private Transform parsleySpawnPoint;
 
     [Header("<<상태별 크기>>")]
     [SerializeField] private Vector3 inOvenScale = new Vector3(1f, 1f, 1f);
@@ -23,6 +23,10 @@ public class BakedPasta : MonoBehaviour, IInteractable
     [Header("<<선택 연출>>")]
     [SerializeField] private float selectScaleDuration = 0.12f;
     [SerializeField] private float selectedScaleMultiplier = 1.08f;
+
+    [Header("<<드래그 이동>>")]
+    [SerializeField] private float dragLiftScaleMultiplier = 1.08f;
+    [SerializeField] private float dragStartThreshold = 0.12f;
 
     public enum BakedState
     {
@@ -45,12 +49,28 @@ public class BakedPasta : MonoBehaviour, IInteractable
     [SerializeField] private List<BakedCheeseSpriteEntry> bakedCheeseEntries = new List<BakedCheeseSpriteEntry>();
 
     private SpriteRenderer sr;
+    private SpriteRenderer[] cachedRenderers;
+    private Collider[] cachedColliders;
+
+    private int[] savedSortingOrders;
+    private string[] savedSortingLayers;
 
     public bool isSelected { get; private set; }
     public bool isBeingTrashed { get; private set; } = false;
 
     private bool canPick = false;
     public bool CanBeSelected => canPick;
+
+    private bool isDragging = false;
+    private bool isPointerDown = false;
+    private bool hasStartedRealDrag = false;
+
+    private Vector3 dragStartWorldPos;
+    private Vector3 dragStartLocalPos;
+    private Transform dragStartParent;
+    private Vector3 dragOffset;
+    private float dragScreenZ;
+    private Vector3 mouseDownWorldPos;
 
     private HashSet<int> ingredientIDs = new HashSet<int>();
 
@@ -61,11 +81,22 @@ public class BakedPasta : MonoBehaviour, IInteractable
         if (foodCollider == null)
             foodCollider = GetComponent<Collider>();
 
+        RefreshDragCaches();
+
         currentState = BakedState.InOven;
         ApplyStateVisual();
 
         // 처음 생성될 때는 오븐 안에 있으므로 클릭 막기
         SetPickable(false);
+    }
+
+    private void RefreshDragCaches()
+    {
+        cachedRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+        savedSortingOrders = new int[cachedRenderers.Length];
+        savedSortingLayers = new string[cachedRenderers.Length];
+
+        cachedColliders = GetComponentsInChildren<Collider>(true);
     }
 
     public void SetIngredients(HashSet<int> ids)
@@ -89,11 +120,8 @@ public class BakedPasta : MonoBehaviour, IInteractable
         foreach (int id in ingredientIDs)
         {
             IngredientData data = IngredientDatabase.Instance.GetIngredient(id);
-
             if (data != null)
-            {
                 total += data.ingredientCost;
-            }
         }
 
         return total;
@@ -101,18 +129,25 @@ public class BakedPasta : MonoBehaviour, IInteractable
 
     public bool Interact(IInteractable target)
     {
-        if (!canPick || isBeingTrashed) return false;
+        if (!canPick || isBeingTrashed)
+            return false;
 
         if (target == null)
         {
-            Debug.Log("잘 구워진 파스타 선택!");
             Select();
             return true;
         }
 
         if (target is Topping_Parsley parsley)
         {
+            if (currentState != BakedState.Plated)
+            {
+                Debug.Log("플레이트 위에 올려진 baked pasta에만 파슬리를 추가할 수 있어요!");
+                return false;
+            }
+
             Debug.Log("파슬리를 뿌렸어요");
+
             parsley.Sprinkle(parsleySpawnPoint, () =>
             {
                 Instantiate(
@@ -140,6 +175,11 @@ public class BakedPasta : MonoBehaviour, IInteractable
         UpdateBakedSprite();
     }
 
+    public bool IsPlated()
+    {
+        return currentState == BakedState.Plated;
+    }
+
     public void SetPickable(bool value)
     {
         canPick = value;
@@ -155,6 +195,10 @@ public class BakedPasta : MonoBehaviour, IInteractable
     {
         isBeingTrashed = true;
         isSelected = false;
+        isDragging = false;
+        isPointerDown = false;
+        hasStartedRealDrag = false;
+
         SetPickable(false);
 
         if (sr != null)
@@ -165,21 +209,15 @@ public class BakedPasta : MonoBehaviour, IInteractable
     {
         float moveDuration = 0.9f;
         float fadeDuration = 0.31f;
-
         Vector3 targetPos = trashTarget.position;
 
         Sequence seq = DOTween.Sequence();
 
-        seq.Append(transform.DOMove(targetPos, moveDuration)
-            .SetEase(Ease.OutQuad));
-
-        seq.Join(transform.DOScale(Vector3.zero, moveDuration)
-            .SetEase(Ease.InQuad));
+        seq.Append(transform.DOMove(targetPos, moveDuration).SetEase(Ease.OutQuad));
+        seq.Join(transform.DOScale(Vector3.zero, moveDuration).SetEase(Ease.InQuad));
 
         if (sr != null)
-        {
-            seq.Append(sr.DOFade(0f, fadeDuration));
-        }
+            seq.Join(sr.DOFade(0f, fadeDuration));
 
         seq.OnComplete(() =>
         {
@@ -236,7 +274,8 @@ public class BakedPasta : MonoBehaviour, IInteractable
         int plateID = GetPlateID();
         int cheeseID = GetCheeseID();
 
-        if (sauceID == -1) return;
+        if (sauceID == -1)
+            return;
 
         foreach (var entry in bakedCheeseEntries)
         {
@@ -251,6 +290,198 @@ public class BakedPasta : MonoBehaviour, IInteractable
         }
 
         Debug.Log($"state={currentState}, sauce={sauceID}, plate={plateID}, cheese={cheeseID}");
+    }
+
+    private Vector3 GetMouseWorldPosition()
+    {
+        if (Camera.main == null)
+            return transform.position;
+
+        Vector3 mouse = Input.mousePosition;
+        mouse.z = dragScreenZ;
+
+        Vector3 world = Camera.main.ScreenToWorldPoint(mouse);
+        world.z = dragStartWorldPos.z;
+        return world;
+    }
+
+    private void OnMouseDown()
+    {
+        if (!canPick || isBeingTrashed)
+            return;
+
+        if (Camera.main == null)
+            return;
+
+        isPointerDown = true;
+        hasStartedRealDrag = false;
+
+        dragStartWorldPos = transform.position;
+        dragStartLocalPos = transform.localPosition;
+        dragStartParent = transform.parent;
+        dragScreenZ = Camera.main.WorldToScreenPoint(transform.position).z;
+
+        mouseDownWorldPos = GetMouseWorldPosition();
+        dragOffset = transform.position - mouseDownWorldPos;
+    }
+
+    private void OnMouseDrag()
+    {
+        if (!isPointerDown)
+            return;
+
+        Vector3 currentMouseWorld = GetMouseWorldPosition();
+
+        if (!hasStartedRealDrag)
+        {
+            float dragDistance = Vector3.Distance(currentMouseWorld, mouseDownWorldPos);
+            if (dragDistance >= dragStartThreshold)
+            {
+                BeginRealDrag();
+            }
+        }
+
+        if (!hasStartedRealDrag)
+            return;
+
+        transform.position = currentMouseWorld + dragOffset;
+    }
+
+    private void BeginRealDrag()
+    {
+        RefreshDragCaches();
+
+        hasStartedRealDrag = true;
+        isDragging = true;
+        isSelected = false;
+
+        transform.DOKill();
+        transform.localScale = GetBaseScale() * dragLiftScaleMultiplier;
+
+        RaiseAllSortingForDrag();
+
+        if (cachedColliders != null)
+        {
+            foreach (var col in cachedColliders)
+            {
+                if (col != null)
+                    col.enabled = false;
+            }
+        }
+
+        transform.SetParent(null, true);
+    }
+
+    private void OnMouseUp()
+    {
+        if (!isPointerDown)
+            return;
+
+        isPointerDown = false;
+
+        if (!hasStartedRealDrag)
+        {
+            Select();
+            isDragging = false;
+            return;
+        }
+
+        isDragging = false;
+        hasStartedRealDrag = false;
+
+        bool placed = TryDropTarget();
+
+        if (!placed)
+        {
+            transform.SetParent(dragStartParent, true);
+            transform.position = dragStartWorldPos;
+            transform.localPosition = dragStartLocalPos;
+            transform.localScale = GetBaseScale();
+        }
+
+        if (cachedColliders != null)
+        {
+            foreach (var col in cachedColliders)
+            {
+                if (col != null)
+                    col.enabled = !isBeingTrashed && canPick;
+            }
+        }
+
+        if (!placed)
+            RestoreAllSortingAfterDrag();
+        else
+            ApplyPlacedSorting();
+    }
+
+    private bool TryDropTarget()
+    {
+        if (Camera.main == null)
+            return false;
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        if (!Physics.Raycast(ray, out RaycastHit hit, 100f))
+        {
+            Debug.Log("BakedPasta 드롭 실패: 아무 콜라이더도 맞지 않음");
+            return false;
+        }
+
+        Cooker_Trashcan trashcan = hit.collider.GetComponentInParent<Cooker_Trashcan>();
+        if (trashcan != null)
+            return trashcan.Interact(this);
+
+        Cooker_PlateTable plateTable = hit.collider.GetComponentInParent<Cooker_PlateTable>();
+        if (plateTable != null)
+            return plateTable.Interact(this);
+
+        Cooker_PassTable passTable = hit.collider.GetComponentInParent<Cooker_PassTable>();
+        if (passTable != null)
+            return passTable.Interact(this);
+
+        return false;
+    }
+
+    private void RaiseAllSortingForDrag()
+    {
+        if (cachedRenderers == null)
+            return;
+
+        for (int i = 0; i < cachedRenderers.Length; i++)
+        {
+            if (cachedRenderers[i] == null)
+                continue;
+
+            savedSortingOrders[i] = cachedRenderers[i].sortingOrder;
+            savedSortingLayers[i] = cachedRenderers[i].sortingLayerName;
+
+            cachedRenderers[i].sortingLayerName = "Default";
+            cachedRenderers[i].sortingOrder = 999 + i;
+        }
+    }
+
+    private void RestoreAllSortingAfterDrag()
+    {
+        if (cachedRenderers == null)
+            return;
+
+        for (int i = 0; i < cachedRenderers.Length; i++)
+        {
+            if (cachedRenderers[i] == null)
+                continue;
+
+            cachedRenderers[i].sortingLayerName = savedSortingLayers[i];
+            cachedRenderers[i].sortingOrder = savedSortingOrders[i];
+        }
+    }
+
+    private void ApplyPlacedSorting()
+    {
+        if (sr == null)
+            sr = GetComponent<SpriteRenderer>();
+
+        sr.sortingLayerName = "Default";
+        sr.sortingOrder = 3;
     }
 
     void Select()

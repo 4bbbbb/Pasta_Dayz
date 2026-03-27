@@ -14,15 +14,9 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
     [Header("<<구워진 빠네 프리팹>>")]
     [SerializeField] private GameObject paneOnPlatePrefab;
 
-    [Header("<<드래그용 오브젝트(GameObject 자식)>>")]
-    [SerializeField] private GameObject dragPlateObject;
-
     [Header("<<드래그 설정>>")]
     [SerializeField] private Vector3 mouseFollowOffset = new Vector3(0.2f, -0.1f, 0f);
     [SerializeField] private float cancelDuration = 0.2f;
-
-    private bool isServing = false;
-    [SerializeField] private bool hidePlateBaseAfterServing = true;
 
     private SpriteRenderer sr;
     private Collider plateCollider;
@@ -36,13 +30,14 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
     private bool hasPasta = false;
     private bool hasPane = false;
 
-    private int plateID;
+    private int plateID = -1;
     private IngredientIDs ingredientIDs;
     private HashSet<int> ingredients = new HashSet<int>();
 
     private Vector3 originalScale;
 
     // 드래그용 내부 참조
+    private GameObject runtimeDragVisual;
     private Transform dragPlateTransform;
     private SpriteRenderer dragPlateRenderer;
 
@@ -62,7 +57,7 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
     private bool isAnimating = false;
     private bool isDragging = false;
 
-    void Start()
+    private void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
         plateCollider = GetComponent<Collider>();
@@ -70,42 +65,61 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
         originalScale = transform.localScale;
 
         ingredientIDs = GetComponent<IngredientIDs>();
+        if (ingredientIDs == null)
+            ingredientIDs = GetComponentInChildren<IngredientIDs>(true);
 
         ingredients.Clear();
 
         if (ingredientIDs != null)
         {
             plateID = ingredientIDs.GetID();
-            ingredients.Add(plateID);
+            if (plateID != -1)
+                ingredients.Add(plateID);
         }
         else
         {
             Debug.LogWarning($"{name}: IngredientIDs가 없습니다.");
         }
 
-        if (dragPlateObject == null)
-        {
-            Transform child = transform.Find("DragPlateVisual");
-            if (child != null)
-                dragPlateObject = child.gameObject;
-        }
+        CreateRuntimeDragVisual();
+        InitDragVisual();
+        ResetDragVisual();
+    }
 
-        if (dragPlateObject != null)
-        {
-            dragPlateTransform = dragPlateObject.transform;
-            dragPlateRenderer = dragPlateObject.GetComponent<SpriteRenderer>();
-            InitDragVisual();
-            ResetDragVisual();
-        }
-        else
-        {
-            Debug.LogWarning($"{name}: dragPlateObject가 연결되지 않았습니다.");
-        }
+    private void OnDisable()
+    {
+        KillDragSequence();
+        transform.DOKill();
+
+        if (runtimeDragVisual != null)
+            Destroy(runtimeDragVisual);
+    }
+
+    private void CreateRuntimeDragVisual()
+    {
+        if (sr == null)
+            sr = GetComponent<SpriteRenderer>();
+
+        runtimeDragVisual = new GameObject($"{name}_DragVisual");
+        dragPlateTransform = runtimeDragVisual.transform;
+        dragPlateRenderer = runtimeDragVisual.AddComponent<SpriteRenderer>();
+
+        dragPlateRenderer.sprite = sr != null ? sr.sprite : null;
+        dragPlateRenderer.sortingLayerName = sr != null ? sr.sortingLayerName : "Default";
+        dragPlateRenderer.sortingOrder = sr != null ? sr.sortingOrder : 0;
+        dragPlateRenderer.color = new Color(1f, 1f, 1f, 0f);
+
+        dragPlateTransform.SetParent(transform, false);
+        dragPlateTransform.localPosition = Vector3.zero;
+        dragPlateTransform.localRotation = Quaternion.identity;
+        dragPlateTransform.localScale = Vector3.one;
+
+        runtimeDragVisual.SetActive(false);
     }
 
     private void InitDragVisual()
     {
-        if (dragPlateObject == null || dragPlateTransform == null)
+        if (runtimeDragVisual == null || dragPlateTransform == null)
             return;
 
         dragOriginalParent = dragPlateTransform.parent;
@@ -127,7 +141,7 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
         if (isBeingTrashed)
             return false;
 
-        // 이제 BasicPlate는 클릭 선택형이 아니라 드래그형
+        // BasicPlate는 클릭 선택형이 아니라 받는 용도 + 드래그 쓰레기통용
         if (target == null)
             return false;
 
@@ -146,19 +160,27 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
                 return false;
             }
 
-            finishedPasta.transform.SetParent(pastaSpawnPoint, true);
-            finishedPasta.transform.localPosition = Vector3.zero;
-            finishedPasta.transform.localRotation = Quaternion.identity;
-            finishedPasta.transform.localScale = Vector3.one;
+            if (pastaSpawnPoint == null)
+            {
+                Debug.LogWarning($"{name}: pastaSpawnPoint가 비어 있습니다.");
+                return false;
+            }
 
+            // 플레이트 정보 먼저 합쳐줌
             HashSet<int> finalIngredients = new HashSet<int>(ingredients);
-
             foreach (int id in finishedPasta.GetIngredientSet())
             {
                 finalIngredients.Add(id);
             }
 
             finishedPasta.SetIngredients(finalIngredients);
+
+            // 원래 잘 되던 배치 방식 유지
+            finishedPasta.transform.SetParent(pastaSpawnPoint, true);
+            finishedPasta.transform.localPosition = Vector3.zero;
+            finishedPasta.transform.localRotation = Quaternion.identity;
+            finishedPasta.transform.localScale = Vector3.one;
+
             ingredients = new HashSet<int>(finalIngredients);
 
             hasPasta = true;
@@ -178,6 +200,13 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
                 plateCollider.enabled = false;
 
             finishedPasta.OnMovedToPlate();
+
+            // 혹시 OnMovedToPlate 내부에서 transform 건드렸어도
+            // 마지막으로 한 번 더 스폰포인트 기준으로 고정
+            finishedPasta.transform.SetParent(pastaSpawnPoint, true);
+            finishedPasta.transform.localPosition = Vector3.zero;
+            finishedPasta.transform.localRotation = Quaternion.identity;
+            finishedPasta.transform.localScale = Vector3.one;
 
             PrintIngredients();
             return true;
@@ -214,12 +243,20 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
                 currentPaneVisual.transform.localPosition = Vector3.zero;
                 currentPaneVisual.transform.localRotation = Quaternion.identity;
                 currentPaneVisual.transform.localScale = Vector3.one;
+
+                Collider[] cols = currentPaneVisual.GetComponentsInChildren<Collider>(true);
+                foreach (var col in cols)
+                {
+                    if (col != null)
+                        col.enabled = false;
+                }
             }
             else
             {
                 Debug.LogWarning("paneOnPlatePrefab 또는 paneSpawnPoint가 비어 있습니다.");
             }
 
+            bakedPane.SetPickable(false);
             Destroy(bakedPane.gameObject);
 
             PrintIngredients();
@@ -240,25 +277,28 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
         if (Camera.main == null)
             return;
 
-        if (dragPlateObject == null)
-        {
-            Debug.LogWarning($"{name}: dragPlateObject가 없어서 드래그할 수 없습니다.");
-            return;
-        }
+        if (runtimeDragVisual == null)
+            CreateRuntimeDragVisual();
 
         if (dragPlateTransform == null)
-            dragPlateTransform = dragPlateObject.transform;
+            dragPlateTransform = runtimeDragVisual.transform;
 
         if (dragPlateRenderer == null)
-            dragPlateRenderer = dragPlateObject.GetComponent<SpriteRenderer>();
+            dragPlateRenderer = runtimeDragVisual.GetComponent<SpriteRenderer>();
 
         KillDragSequence();
 
         isDragging = true;
         isSelected = true;
 
-        dragPlateObject.SetActive(true);
-        dragPlateTransform.SetParent(null, true);
+        if (runtimeDragVisual == null)
+            CreateRuntimeDragVisual();
+
+        if (dragPlateTransform == null)
+            dragPlateTransform = runtimeDragVisual.transform;
+
+        if (dragPlateRenderer == null)
+            dragPlateRenderer = runtimeDragVisual.GetComponent<SpriteRenderer>(); dragPlateTransform.SetParent(null, true);
 
         if (dragPlateRenderer != null)
         {
@@ -266,6 +306,7 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
             c.a = 1f;
             dragPlateRenderer.color = c;
             dragPlateRenderer.sortingOrder = 999;
+            dragPlateRenderer.sortingLayerName = dragOriginalSortingLayerName;
         }
 
         dragScreenZ = Camera.main.WorldToScreenPoint(transform.position).z;
@@ -323,8 +364,11 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
         foreach (var behaviour in behaviours)
         {
-            if (behaviour == null) continue;
-            if (behaviour.gameObject == gameObject) continue;
+            if (behaviour == null)
+                continue;
+
+            if (behaviour.gameObject == gameObject)
+                continue;
 
             if (behaviour is IInteractable interactable)
             {
@@ -376,8 +420,12 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
         isDragging = false;
         transform.localScale = originalScale;
 
+        transform.SetParent(null, true);   // 추가
+
         if (plateCollider != null)
             plateCollider.enabled = false;
+
+        ResetDragVisual();
     }
 
     public void PlayTrashEffect(Transform trashTarget)
@@ -415,6 +463,21 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
         return new HashSet<int>(ingredients);
     }
 
+    public HashSet<int> GetIngredients()
+    {
+        return new HashSet<int>(ingredients);
+    }
+
+    public bool HasPane()
+    {
+        return hasPane;
+    }
+
+    public bool HasPasta()
+    {
+        return hasPasta;
+    }
+
     public void PrintIngredients()
     {
         foreach (int id in ingredients)
@@ -425,7 +488,7 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
     public void Cancel()
     {
-        if (dragPlateObject == null || dragPlateTransform == null)
+        if (runtimeDragVisual == null || dragPlateTransform == null)
         {
             isSelected = false;
             isAnimating = false;
@@ -438,7 +501,7 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
         isSelected = false;
         isDragging = false;
 
-        if (!dragPlateObject.activeSelf)
+        if (!runtimeDragVisual.activeSelf)
         {
             isAnimating = false;
             return;
@@ -473,7 +536,7 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
     private void ResetDragVisual()
     {
-        if (dragPlateObject == null || dragPlateTransform == null)
+        if (runtimeDragVisual == null || dragPlateTransform == null)
             return;
 
         if (dragOriginalParent != null)
@@ -485,7 +548,9 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
         if (dragPlateRenderer != null)
         {
-            if (dragOriginalSprite != null)
+            if (sr != null)
+                dragPlateRenderer.sprite = sr.sprite;
+            else if (dragOriginalSprite != null)
                 dragPlateRenderer.sprite = dragOriginalSprite;
 
             Color c = dragOriginalColor;
@@ -496,7 +561,7 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
             dragPlateRenderer.sortingLayerName = dragOriginalSortingLayerName;
         }
 
-        dragPlateObject.SetActive(false);
+        runtimeDragVisual.SetActive(false);
     }
 
     private void KillDragSequence()

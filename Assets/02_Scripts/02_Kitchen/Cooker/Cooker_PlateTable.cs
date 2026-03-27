@@ -14,13 +14,28 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
 
     [Header("<<스폰위치>>")]
     [SerializeField] private Transform plateSpawnPoint;
-    
+
     public bool CanBeSelected => false;
 
+    private bool HasPlateOnTable()
+    {
+        if (plateSpawnPoint == null)
+            return false;
+
+        Plates_BasicPlate basicPlate = plateSpawnPoint.GetComponentInChildren<Plates_BasicPlate>(true);
+        if (basicPlate != null && !basicPlate.isBeingTrashed)
+            return true;
+
+        Plates_OvenPlate ovenPlate = plateSpawnPoint.GetComponentInChildren<Plates_OvenPlate>(true);
+        if (ovenPlate != null && !ovenPlate.isBeingTrashed)
+            return true;
+
+        return false;
+    }
 
     public bool Interact(IInteractable target)
     {
-        if (plateSpawnPoint.childCount > 0)
+        if (HasPlateOnTable())
         {
             Debug.Log("이미 그릇이 있습니다!");
             return false;
@@ -28,9 +43,9 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
 
         if (target == null)
         {
-            Debug.Log("그릇을 선택해주세요 !!");   
+            Debug.Log("그릇을 선택해주세요 !!");
             return true;
-        }        
+        }
 
         if (target is Plate plate)
         {
@@ -40,6 +55,9 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
                 Plate.PlateType.OvenPlate => ovenPlatePrefab,
                 _ => null
             };
+
+            if (platePrefab == null)
+                return false;
 
             Debug.Log("그릇이 준비되었어요 !");
             Instantiate(
@@ -56,8 +74,7 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
             bakedPasta.transform.SetParent(plateSpawnPoint);
             bakedPasta.transform.position = plateSpawnPoint.position;
 
-            bakedPasta.AddIngredient(502); 
-
+            bakedPasta.AddIngredient(502);
             bakedPasta.SetState(BakedPasta.BakedState.Plated);
 
             return true;
@@ -79,6 +96,5 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
 
     public void Cancel()
     {
-
     }
 }

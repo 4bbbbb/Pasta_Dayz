@@ -64,7 +64,6 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
             return true;
         }
 
-
         if (target is BakedPasta bakedPasta)
         {
             TrashBakedPasta(bakedPasta);
@@ -77,7 +76,6 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
     private void PlayTrashAnimation()
     {
         if (anim == null) return;
-
         if (isPlayingAnim) return;
 
         anim.SetTrigger(trashTriggerName);
@@ -87,28 +85,22 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
     private System.Collections.IEnumerator WaitForAnimation()
     {
         isPlayingAnim = true;
-
         yield return new WaitForSeconds(0.31f);
-
         isPlayingAnim = false;
     }
 
     private void TrashCookedNoodle(Noodles_CookedNoodle cookedNoodle)
     {
-
         if (cookedNoodle == null || cookedNoodle.isBeingTrashed)
             return;
 
         ClearKitchenSelection(cookedNoodle);
-
         PlayTrashAnimation();
 
         float totalCost = cookedNoodle.GetCost();
 
         if (Gold_Manager.Instance != null && totalCost > 0f)
-        {
             Gold_Manager.Instance.SpendBusinessCost(totalCost);
-        }
 
         Debug.Log($"삶은 면 버림. 재료비 {totalCost} 차감");
 
@@ -122,16 +114,12 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
             return;
 
         ClearKitchenSelection(fryingPan);
-
-
         PlayTrashAnimation();
 
         float totalCost = fryingPan.GetPanContentCost();
 
         if (Gold_Manager.Instance != null && totalCost > 0f)
-        {
             Gold_Manager.Instance.SpendBusinessCost(totalCost);
-        }
 
         Debug.Log($"팬 통째로 버림. 재료비 {totalCost} 차감");
 
@@ -145,21 +133,17 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
             return;
 
         ClearKitchenSelection(pasta);
-
-
         PlayTrashAnimation();
 
         float totalCost = CalculateIngredientCost(pasta.GetIngredientSet());
 
         if (Gold_Manager.Instance != null && totalCost > 0f)
-        {
             Gold_Manager.Instance.SpendBusinessCost(totalCost);
-        }
 
         Debug.Log($"완성 파스타를 버렸습니다. 재료비 {totalCost} 차감");
 
-        pasta.OnTrashed(); 
-        pasta.PlayTrashEffect(transform); 
+        pasta.OnTrashed();
+        pasta.PlayTrashEffect(transform);
     }
 
     private void TrashBurnedFood(Burned burned)
@@ -168,21 +152,17 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
             return;
 
         ClearKitchenSelection(burned);
-
-
         PlayTrashAnimation();
 
         float totalCost = burned.GetCost();
 
         if (Gold_Manager.Instance != null && totalCost > 0f)
-        {
             Gold_Manager.Instance.SpendBusinessCost(totalCost);
-        }
 
         Debug.Log($"탄 음식 버림. 재료비 {totalCost} 차감");
 
-        burned.OnTrashed(); 
-        burned.PlayTrashEffect(transform); 
+        burned.OnTrashed();
+        burned.PlayTrashEffect(transform);
     }
 
     private void TrashBakedPane(Plate_BakedPane bakedPane)
@@ -191,16 +171,12 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
             return;
 
         ClearKitchenSelection(bakedPane);
-
-
         PlayTrashAnimation();
 
         float totalCost = bakedPane.GetCost();
 
         if (Gold_Manager.Instance != null && totalCost > 0f)
-        {
             Gold_Manager.Instance.SpendBusinessCost(totalCost);
-        }
 
         Debug.Log($"구워진 빠네 버림. 재료비 {totalCost} 차감");
 
@@ -214,16 +190,12 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
             return;
 
         ClearKitchenSelection(basicPlate);
-
-
         PlayTrashAnimation();
 
         float totalCost = basicPlate.GetCost();
 
         if (Gold_Manager.Instance != null && totalCost > 0f)
-        {
             Gold_Manager.Instance.SpendBusinessCost(totalCost);
-        }
 
         Debug.Log($"기본 접시 버림. 재료비 {totalCost} 차감");
 
@@ -237,9 +209,7 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
             return;
 
         ClearKitchenSelection(ovenPlate);
-
-
-        PlayTrashAnimation();       
+        PlayTrashAnimation();
 
         ovenPlate.OnTrashed();
         ovenPlate.PlayTrashEffect(transform);
@@ -251,16 +221,12 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
             return;
 
         ClearKitchenSelection(bakedPasta);
-
-
         PlayTrashAnimation();
 
         float totalCost = bakedPasta.GetCost();
 
         if (Gold_Manager.Instance != null && totalCost > 0f)
-        {
             Gold_Manager.Instance.SpendBusinessCost(totalCost);
-        }
 
         Debug.Log($"구워진 파스타 버림. 재료비 {totalCost} 차감");
 
@@ -278,11 +244,8 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
         foreach (int id in ingredientIDs)
         {
             IngredientData data = IngredientDatabase.Instance.GetIngredient(id);
-
             if (data != null)
-            {
                 total += data.ingredientCost;
-            }
         }
 
         return total;
@@ -292,13 +255,10 @@ public class Cooker_Trashcan : MonoBehaviour, IInteractable
     {
         Kitchen_Manager km = FindObjectOfType<Kitchen_Manager>();
         if (km != null)
-        {
             km.ClearSelectionForTrashed(target);
-        }
     }
 
     public void Cancel()
     {
-
     }
 }

@@ -20,9 +20,7 @@ public class Burned : MonoBehaviour, IInteractable
     public bool CanBeSelected => true;
 
     private Vector3 originalScale;
-    [SerializeField] private float selectedScaleMultiplier = 1.2f;
-
-    private bool isSelected = false;
+    [SerializeField] private float selectedScaleMultiplier = 1.2f;    
 
     void Start()
     {
@@ -81,7 +79,6 @@ public class Burned : MonoBehaviour, IInteractable
 
     private void Select()
     {
-        isSelected = true;
         transform.localScale = originalScale * selectedScaleMultiplier;
     }
 
@@ -140,7 +137,6 @@ public class Burned : MonoBehaviour, IInteractable
 
     public void Cancel()
     {
-        isSelected = false;
         transform.localScale = originalScale;
     }
 

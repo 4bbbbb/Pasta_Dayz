@@ -22,10 +22,7 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
     [SerializeField] private Transform cookerVisual;
 
     [Header("쿠커 선택 연출")]
-    [SerializeField] private Vector3 normalScale = Vector3.one;
-    [SerializeField] private Vector3 selectedScale = new Vector3(1.17f, 1.17f, 1f);
-    [SerializeField] private Vector3 selectedOffset = new Vector3(0f, 0.12f, 0f);
-    [SerializeField] private float animDuration = 0.2f;
+    [SerializeField] private Vector3 normalScale = Vector3.one;    
 
     [Header("버블 이펙트")]
     [SerializeField] private GameObject bubbleEffect;

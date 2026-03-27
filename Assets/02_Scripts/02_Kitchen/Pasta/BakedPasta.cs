@@ -61,7 +61,6 @@ public class BakedPasta : MonoBehaviour, IInteractable
     private bool canPick = false;
     public bool CanBeSelected => canPick;
 
-    private bool isDragging = false;
     private bool isPointerDown = false;
     private bool hasStartedRealDrag = false;
 
@@ -195,7 +194,6 @@ public class BakedPasta : MonoBehaviour, IInteractable
     {
         isBeingTrashed = true;
         isSelected = false;
-        isDragging = false;
         isPointerDown = false;
         hasStartedRealDrag = false;
 
@@ -352,7 +350,6 @@ public class BakedPasta : MonoBehaviour, IInteractable
         RefreshDragCaches();
 
         hasStartedRealDrag = true;
-        isDragging = true;
         isSelected = false;
 
         transform.DOKill();
@@ -382,11 +379,9 @@ public class BakedPasta : MonoBehaviour, IInteractable
         if (!hasStartedRealDrag)
         {
             Select();
-            isDragging = false;
             return;
         }
 
-        isDragging = false;
         hasStartedRealDrag = false;
 
         bool placed = TryDropTarget();

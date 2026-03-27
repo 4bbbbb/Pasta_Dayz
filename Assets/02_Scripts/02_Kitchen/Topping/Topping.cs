@@ -31,11 +31,7 @@ public class Topping : MonoBehaviour, IInteractable
         Sausage,
     }
 
-    /// <summary>
-    /// ingredientID에 따른 ToppingType을 반환하는 헬퍼 함수
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
+  
     static ToppingType GetToppingType(int id)
     {
         if (id < 301 || id > 313)
@@ -48,7 +44,6 @@ public class Topping : MonoBehaviour, IInteractable
 
     }
 
-    // 초기화 작업이기에 Start() -> Awake() 변경
     void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
@@ -56,10 +51,7 @@ public class Topping : MonoBehaviour, IInteractable
         isSelected = false;
     }
 
-    /// <summary>
-    /// 초기화 함수(IconData 적용)
-    /// </summary>
-    /// <param name="data"></param>
+    
     public void Initialize(IngredientDatabase.IngredientIconData data)
     {
         ingredientIDs.ingredientID = data.id;
@@ -73,7 +65,6 @@ public class Topping : MonoBehaviour, IInteractable
             Destroy(this);
         }
     }
-
 
     public bool Interact(IInteractable target)
     {

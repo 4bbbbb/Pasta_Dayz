@@ -131,7 +131,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b263b104e08a92c488f59379e76f56a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pastaSpawnPoint: {fileID: 3453082486549904651}
+  selectScaleDuration: 0.12
+  selectedScaleMultiplier: 1.01
+  mouseFollowOffset: {x: 0, y: 0, z: 0}
+  returnDuration: 0.2
 --- !u!65 &2776701380325156188
 BoxCollider:
   m_ObjectHideFlags: 0

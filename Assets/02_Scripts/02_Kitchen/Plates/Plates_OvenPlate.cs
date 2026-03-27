@@ -11,8 +11,7 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
     private Collider[] ownColliders;
 
     [Header("선택 연출")]
-    [SerializeField] private float selectScaleDuration = 0.12f;
-    [SerializeField] private float selectedScaleMultiplier = 1.08f;
+    [SerializeField] private float selectedScaleMultiplier = 1.01f;
 
     [Header("드래그 설정")]
     [SerializeField] private Vector3 mouseFollowOffset = Vector3.zero;
@@ -192,8 +191,7 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
     {
         isSelected = true;
         transform.DOKill();
-        transform.DOScale(originalScale * selectedScaleMultiplier, selectScaleDuration)
-                 .SetEase(Ease.OutBack);
+        transform.localScale = originalScale;
     }
 
     public void AddIngredient(int id)
@@ -222,7 +220,17 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
         isAnimating = true;
 
         transform.DOKill();
-        transform.localScale = originalScale;
+
+        if (dragStartParent != null)
+            transform.SetParent(dragStartParent, true);
+
+        SetOwnCollidersEnabled(true);
+
+        if (sr != null)
+        {
+            sr.sortingOrder = dragStartSortingOrder;
+            sr.sortingLayerName = dragStartSortingLayerName;
+        }
 
         Sequence seq = DOTween.Sequence();
         seq.Append(transform.DOMove(dragStartWorldPos, returnDuration).SetEase(Ease.OutQuad));
@@ -230,17 +238,6 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
 
         seq.OnComplete(() =>
         {
-            if (dragStartParent != null)
-                transform.SetParent(dragStartParent, true);
-
-            SetOwnCollidersEnabled(true);
-
-            if (sr != null)
-            {
-                sr.sortingOrder = dragStartSortingOrder;
-                sr.sortingLayerName = dragStartSortingLayerName;
-            }
-
             transform.localScale = originalScale;
             isAnimating = false;
         });
@@ -251,8 +248,6 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
         if (isBeingTrashed || isDragging || isAnimating)
             return;
 
-        // 파스타가 올라간 뒤엔 접시 비주얼/콜라이더를 꺼두므로 사실상 드래그 안 됨.
-        // 그래도 안전하게 막아둠.
         if (hasPasta)
             return;
 
@@ -269,6 +264,8 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
         dragStartWorldPos = transform.position;
         dragStartParent = transform.parent;
 
+        Vector3 dragStartWorldScale = transform.lossyScale;
+
         if (sr != null)
         {
             dragStartSortingOrder = sr.sortingOrder;
@@ -279,7 +276,8 @@ public class Plates_OvenPlate : MonoBehaviour, IInteractable
         SetOwnCollidersEnabled(false);
 
         transform.SetParent(null, true);
-        transform.localScale = originalScale * selectedScaleMultiplier;
+
+        transform.localScale = dragStartWorldScale * selectedScaleMultiplier;
 
         dragScreenZ = Camera.main.WorldToScreenPoint(transform.position).z;
         UpdateDragPosition();

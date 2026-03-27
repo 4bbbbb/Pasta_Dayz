@@ -17,7 +17,6 @@ public class Plate_BakedPane : MonoBehaviour, IInteractable
     private bool CanDrag => canPick && !isBeingTrashed;
 
     [Header("<<선택 연출>>")]
-    [SerializeField] private float selectScaleDuration = 0.12f;
     [SerializeField] private float selectedScaleMultiplier = 1.08f;
 
     [SerializeField] private float paneCost = 3f;

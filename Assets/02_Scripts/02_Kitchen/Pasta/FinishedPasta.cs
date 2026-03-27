@@ -72,7 +72,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
     [Header("<<선택 연출>>")]
     [SerializeField] private float selectScaleDuration = 0.12f;
-    [SerializeField] private float selectedScaleMultiplier = 1.08f;
 
     [Header("<<쓰레기 이펙트>>")]
     [SerializeField] private float trashEffectDuration = 0.22f;
@@ -90,7 +89,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
     private int[] savedSortingOrders;
     private string[] savedSortingLayers;
 
-    private bool isDragging = false;
     private Vector3 dragStartWorldPos;
     private Vector3 dragStartLocalPos;
     private Transform dragStartParent;
@@ -324,7 +322,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         RefreshDragCaches();
 
         hasStartedRealDrag = true;
-        isDragging = true;
         isSelected = false;
 
         transform.DOKill();
@@ -353,11 +350,9 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
         if (!hasStartedRealDrag)
         {
-            isDragging = false;
             return;
         }
 
-        isDragging = false;
         hasStartedRealDrag = false;
 
         bool placed = TryDropTarget();
@@ -1232,7 +1227,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
         isBeingTrashed = true;
         isSelected = false;
-        isDragging = false;
 
         transform.DOKill();
 

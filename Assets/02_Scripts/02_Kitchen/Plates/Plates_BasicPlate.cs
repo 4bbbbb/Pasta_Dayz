@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using static IInteractableScript;
@@ -14,12 +15,14 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
     [Header("<<구워진 빠네 프리팹>>")]
     [SerializeField] private GameObject paneOnPlatePrefab;
 
-    [Header("<<드래그 설정>>")]
+    [Header("<<선택/드래그 설정>>")]
+    [SerializeField] private float selectedScaleMultiplier = 1.01f;
     [SerializeField] private Vector3 mouseFollowOffset = new Vector3(0.2f, -0.1f, 0f);
-    [SerializeField] private float cancelDuration = 0.2f;
+    [SerializeField] private float returnDuration = 0.2f;
 
     private SpriteRenderer sr;
     private Collider plateCollider;
+    private Collider[] ownColliders;
 
     public bool isSelected { get; private set; }
     public bool isBeingTrashed { get; private set; } = false;
@@ -36,31 +39,21 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
     private Vector3 originalScale;
 
-    // 드래그용 내부 참조
-    private GameObject runtimeDragVisual;
-    private Transform dragPlateTransform;
-    private SpriteRenderer dragPlateRenderer;
-
-    private Transform dragOriginalParent;
-    private Vector3 dragOriginalLocalPos;
-    private Quaternion dragOriginalLocalRot;
-    private Vector3 dragOriginalLocalScale;
-
-    private Color dragOriginalColor;
-    private int dragOriginalSortingOrder;
-    private string dragOriginalSortingLayerName;
-    private Sprite dragOriginalSprite;
-
-    private float dragScreenZ;
-    private Sequence dragSequence;
-
-    private bool isAnimating = false;
     private bool isDragging = false;
+    private bool isAnimating = false;
+
+    private Vector3 dragStartWorldPos;
+    private Transform dragStartParent;
+    private int dragStartSortingOrder;
+    private string dragStartSortingLayerName;
+    private float dragScreenZ;
 
     private void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
         plateCollider = GetComponent<Collider>();
+        ownColliders = GetComponentsInChildren<Collider>(true);
+
         isSelected = false;
         originalScale = transform.localScale;
 
@@ -80,60 +73,11 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
         {
             Debug.LogWarning($"{name}: IngredientIDs가 없습니다.");
         }
-
-        CreateRuntimeDragVisual();
-        InitDragVisual();
-        ResetDragVisual();
     }
 
     private void OnDisable()
     {
-        KillDragSequence();
         transform.DOKill();
-
-        if (runtimeDragVisual != null)
-            Destroy(runtimeDragVisual);
-    }
-
-    private void CreateRuntimeDragVisual()
-    {
-        if (sr == null)
-            sr = GetComponent<SpriteRenderer>();
-
-        runtimeDragVisual = new GameObject($"{name}_DragVisual");
-        dragPlateTransform = runtimeDragVisual.transform;
-        dragPlateRenderer = runtimeDragVisual.AddComponent<SpriteRenderer>();
-
-        dragPlateRenderer.sprite = sr != null ? sr.sprite : null;
-        dragPlateRenderer.sortingLayerName = sr != null ? sr.sortingLayerName : "Default";
-        dragPlateRenderer.sortingOrder = sr != null ? sr.sortingOrder : 0;
-        dragPlateRenderer.color = new Color(1f, 1f, 1f, 0f);
-
-        dragPlateTransform.SetParent(transform, false);
-        dragPlateTransform.localPosition = Vector3.zero;
-        dragPlateTransform.localRotation = Quaternion.identity;
-        dragPlateTransform.localScale = Vector3.one;
-
-        runtimeDragVisual.SetActive(false);
-    }
-
-    private void InitDragVisual()
-    {
-        if (runtimeDragVisual == null || dragPlateTransform == null)
-            return;
-
-        dragOriginalParent = dragPlateTransform.parent;
-        dragOriginalLocalPos = dragPlateTransform.localPosition;
-        dragOriginalLocalRot = dragPlateTransform.localRotation;
-        dragOriginalLocalScale = dragPlateTransform.localScale;
-
-        if (dragPlateRenderer != null)
-        {
-            dragOriginalColor = dragPlateRenderer.color;
-            dragOriginalSortingOrder = dragPlateRenderer.sortingOrder;
-            dragOriginalSortingLayerName = dragPlateRenderer.sortingLayerName;
-            dragOriginalSprite = dragPlateRenderer.sprite;
-        }
     }
 
     public bool Interact(IInteractable target)
@@ -166,7 +110,6 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
                 return false;
             }
 
-            // 플레이트 정보 먼저 합쳐줌
             HashSet<int> finalIngredients = new HashSet<int>(ingredients);
             foreach (int id in finishedPasta.GetIngredientSet())
             {
@@ -175,7 +118,6 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
             finishedPasta.SetIngredients(finalIngredients);
 
-            // 원래 잘 되던 배치 방식 유지
             finishedPasta.transform.SetParent(pastaSpawnPoint, true);
             finishedPasta.transform.localPosition = Vector3.zero;
             finishedPasta.transform.localRotation = Quaternion.identity;
@@ -201,8 +143,6 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
             finishedPasta.OnMovedToPlate();
 
-            // 혹시 OnMovedToPlate 내부에서 transform 건드렸어도
-            // 마지막으로 한 번 더 스폰포인트 기준으로 고정
             finishedPasta.transform.SetParent(pastaSpawnPoint, true);
             finishedPasta.transform.localPosition = Vector3.zero;
             finishedPasta.transform.localRotation = Quaternion.identity;
@@ -268,49 +208,49 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
     private void OnMouseDown()
     {
-        if (isBeingTrashed || isAnimating || isDragging)
+        if (isBeingTrashed || isDragging || isAnimating)
             return;
 
         if (hasPasta)
             return;
 
+        Kitchen_Manager.Instance?.ClearSelection(this);
+
         if (Camera.main == null)
             return;
 
-        if (runtimeDragVisual == null)
-            CreateRuntimeDragVisual();
-
-        if (dragPlateTransform == null)
-            dragPlateTransform = runtimeDragVisual.transform;
-
-        if (dragPlateRenderer == null)
-            dragPlateRenderer = runtimeDragVisual.GetComponent<SpriteRenderer>();
-
-        KillDragSequence();
+        transform.DOKill();
 
         isDragging = true;
         isSelected = true;
 
-        if (runtimeDragVisual == null)
-            CreateRuntimeDragVisual();
+        dragStartWorldPos = transform.position;
+        dragStartParent = transform.parent;
 
-        if (dragPlateTransform == null)
-            dragPlateTransform = runtimeDragVisual.transform;
+        Vector3 dragStartWorldScale = transform.lossyScale;
 
-        if (dragPlateRenderer == null)
-            dragPlateRenderer = runtimeDragVisual.GetComponent<SpriteRenderer>(); dragPlateTransform.SetParent(null, true);
-
-        if (dragPlateRenderer != null)
+        if (sr != null)
         {
-            Color c = dragOriginalColor;
-            c.a = 1f;
-            dragPlateRenderer.color = c;
-            dragPlateRenderer.sortingOrder = 999;
-            dragPlateRenderer.sortingLayerName = dragOriginalSortingLayerName;
+            dragStartSortingOrder = sr.sortingOrder;
+            dragStartSortingLayerName = sr.sortingLayerName;
+            sr.sortingOrder = 999;
+
+            SpriteRenderer[] childRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+            foreach (var r in childRenderers)
+            {
+                if (r == null) continue;
+                r.sortingLayerName = dragStartSortingLayerName;
+                r.sortingOrder = 1000;
+            }
         }
 
+        SetOwnCollidersEnabled(false);
+
+        transform.SetParent(null, true);
+        transform.localScale = dragStartWorldScale * selectedScaleMultiplier;
+
         dragScreenZ = Camera.main.WorldToScreenPoint(transform.position).z;
-        UpdateDragVisualPosition();
+        UpdateDragPosition();
     }
 
     private void OnMouseDrag()
@@ -318,7 +258,7 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
         if (!isDragging)
             return;
 
-        UpdateDragVisualPosition();
+        UpdateDragPosition();
     }
 
     private void OnMouseUp()
@@ -328,26 +268,38 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
         isDragging = false;
 
-        bool droppedSuccessfully = TryDropTarget();
+        bool dropped = TryDropTarget();
 
-        if (!droppedSuccessfully)
+        if (!dropped)
             Cancel();
         else
             CompleteSuccessfulDrag();
     }
 
-    private void UpdateDragVisualPosition()
+    private void UpdateDragPosition()
     {
-        if (dragPlateTransform == null || Camera.main == null)
+        if (Camera.main == null)
             return;
 
         Vector3 mouse = Input.mousePosition;
         mouse.z = dragScreenZ;
 
         Vector3 world = Camera.main.ScreenToWorldPoint(mouse);
-        world.z = transform.position.z;
+        world.z = dragStartWorldPos.z;
 
-        dragPlateTransform.position = world + mouseFollowOffset;
+        transform.position = world + mouseFollowOffset;
+    }
+
+    private void SetOwnCollidersEnabled(bool value)
+    {
+        if (ownColliders == null)
+            return;
+
+        foreach (var col in ownColliders)
+        {
+            if (col != null)
+                col.enabled = value;
+        }
     }
 
     private bool TryDropTarget()
@@ -356,25 +308,47 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
             return false;
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit[] hits = Physics.RaycastAll(ray, 100f);
 
-        if (!Physics.Raycast(ray, out RaycastHit hit, 100f))
+        if (hits == null || hits.Length == 0)
             return false;
 
-        MonoBehaviour[] behaviours = hit.collider.GetComponentsInParent<MonoBehaviour>(true);
+        Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
 
-        foreach (var behaviour in behaviours)
+        foreach (var hit in hits)
         {
-            if (behaviour == null)
+            if (hit.collider == null)
                 continue;
 
-            if (behaviour.gameObject == gameObject)
-                continue;
-
-            if (behaviour is IInteractable interactable)
+            bool isOwnCollider = false;
+            foreach (var ownCol in ownColliders)
             {
-                bool accepted = interactable.Interact(this);
-                if (accepted)
-                    return true;
+                if (ownCol == hit.collider)
+                {
+                    isOwnCollider = true;
+                    break;
+                }
+            }
+
+            if (isOwnCollider)
+                continue;
+
+            MonoBehaviour[] behaviours = hit.collider.GetComponentsInParent<MonoBehaviour>(true);
+
+            foreach (var behaviour in behaviours)
+            {
+                if (behaviour == null)
+                    continue;
+
+                if (behaviour.gameObject == gameObject)
+                    continue;
+
+                if (behaviour is IInteractable interactable)
+                {
+                    bool accepted = interactable.Interact(this);
+                    if (accepted)
+                        return true;
+                }
             }
         }
 
@@ -383,13 +357,48 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
 
     private void CompleteSuccessfulDrag()
     {
-        KillDragSequence();
-
         isSelected = false;
         isAnimating = false;
-        isDragging = false;
 
-        ResetDragVisual();
+        SetOwnCollidersEnabled(true);
+
+        if (sr != null)
+        {
+            sr.sortingOrder = dragStartSortingOrder;
+            sr.sortingLayerName = dragStartSortingLayerName;
+        }
+
+        transform.localScale = originalScale;
+    }
+
+    public void Cancel()
+    {
+        isSelected = false;
+        isDragging = false;
+        isAnimating = true;
+
+        transform.DOKill();
+
+        if (dragStartParent != null)
+            transform.SetParent(dragStartParent, true);
+
+        SetOwnCollidersEnabled(true);
+
+        if (sr != null)
+        {
+            sr.sortingOrder = dragStartSortingOrder;
+            sr.sortingLayerName = dragStartSortingLayerName;
+        }
+
+        Sequence seq = DOTween.Sequence();
+        seq.Append(transform.DOMove(dragStartWorldPos, returnDuration).SetEase(Ease.OutQuad));
+        seq.Join(transform.DOScale(originalScale, returnDuration).SetEase(Ease.OutQuad));
+
+        seq.OnComplete(() =>
+        {
+            transform.localScale = originalScale;
+            isAnimating = false;
+        });
     }
 
     // 완전히 빈 접시는 비용 0원
@@ -420,12 +429,8 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
         isDragging = false;
         transform.localScale = originalScale;
 
-        transform.SetParent(null, true);   // 추가
-
-        if (plateCollider != null)
-            plateCollider.enabled = false;
-
-        ResetDragVisual();
+        transform.SetParent(null, true);
+        SetOwnCollidersEnabled(false);
     }
 
     public void PlayTrashEffect(Transform trashTarget)
@@ -483,93 +488,6 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
         foreach (int id in ingredients)
         {
             Debug.Log("Plate에 포함된 ID: " + id);
-        }
-    }
-
-    public void Cancel()
-    {
-        if (runtimeDragVisual == null || dragPlateTransform == null)
-        {
-            isSelected = false;
-            isAnimating = false;
-            isDragging = false;
-            return;
-        }
-
-        KillDragSequence();
-
-        isSelected = false;
-        isDragging = false;
-
-        if (!runtimeDragVisual.activeSelf)
-        {
-            isAnimating = false;
-            return;
-        }
-
-        isAnimating = true;
-
-        Vector3 homeWorldPos = dragOriginalParent != null
-            ? dragOriginalParent.TransformPoint(dragOriginalLocalPos)
-            : dragOriginalLocalPos;
-
-        dragSequence = DOTween.Sequence();
-
-        dragSequence.Append(
-            dragPlateTransform.DOMove(homeWorldPos, cancelDuration)
-                .SetEase(Ease.InSine)
-        );
-
-        if (dragPlateRenderer != null)
-        {
-            dragSequence.Join(
-                dragPlateRenderer.DOFade(0f, cancelDuration)
-            );
-        }
-
-        dragSequence.OnComplete(() =>
-        {
-            ResetDragVisual();
-            isAnimating = false;
-        });
-    }
-
-    private void ResetDragVisual()
-    {
-        if (runtimeDragVisual == null || dragPlateTransform == null)
-            return;
-
-        if (dragOriginalParent != null)
-            dragPlateTransform.SetParent(dragOriginalParent, false);
-
-        dragPlateTransform.localPosition = dragOriginalLocalPos;
-        dragPlateTransform.localRotation = dragOriginalLocalRot;
-        dragPlateTransform.localScale = dragOriginalLocalScale;
-
-        if (dragPlateRenderer != null)
-        {
-            if (sr != null)
-                dragPlateRenderer.sprite = sr.sprite;
-            else if (dragOriginalSprite != null)
-                dragPlateRenderer.sprite = dragOriginalSprite;
-
-            Color c = dragOriginalColor;
-            c.a = 0f;
-            dragPlateRenderer.color = c;
-
-            dragPlateRenderer.sortingOrder = dragOriginalSortingOrder;
-            dragPlateRenderer.sortingLayerName = dragOriginalSortingLayerName;
-        }
-
-        runtimeDragVisual.SetActive(false);
-    }
-
-    private void KillDragSequence()
-    {
-        if (dragSequence != null)
-        {
-            dragSequence.Kill();
-            dragSequence = null;
         }
     }
 }

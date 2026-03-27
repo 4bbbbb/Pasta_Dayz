@@ -6,7 +6,6 @@ using static IInteractableScript;
 public class Cooker_GasStove : MonoBehaviour, IInteractable
 {
     public GameObject fryingPan;
-    private bool isFireOn = false;
     bool isCooking = false;
 
     [Header("<< 가스 사운드 >>")]
@@ -17,7 +16,6 @@ public class Cooker_GasStove : MonoBehaviour, IInteractable
     void Awake()
     {
         fryingPan.SetActive(false);
-        isFireOn = false;
         isCooking = false;
     }
 
@@ -50,7 +48,6 @@ public class Cooker_GasStove : MonoBehaviour, IInteractable
 
     public void TurnOn()
     {
-        isFireOn = true;
 
         if (SoundManager.Instance != null && fireOnSound != null)
         {
@@ -60,7 +57,6 @@ public class Cooker_GasStove : MonoBehaviour, IInteractable
 
     public void TurnOff()
     {
-        isFireOn = false;
     }
 
     public void DestroyFryingPan()

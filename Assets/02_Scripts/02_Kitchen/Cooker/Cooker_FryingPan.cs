@@ -56,6 +56,25 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
     [SerializeField] private float trashFinalScaleMultiplier = 0.2f;
     [SerializeField] private Vector3 trashFadeOffset = new Vector3(0f, -0.15f, 0f);
 
+    [Header("<<드래그 이동>>")]
+    [SerializeField] private float dragLiftScaleMultiplier = 1.08f;
+    [SerializeField] private float dragStartThreshold = 0.12f;
+
+    private SpriteRenderer[] cachedRenderers;
+    private Collider[] cachedColliders;
+    private int[] savedSortingOrders;
+    private string[] savedSortingLayers;
+
+    private bool isPointerDown = false;
+    private bool hasStartedRealDrag = false;
+
+    private Vector3 dragStartWorldPos;
+    private Vector3 dragStartLocalPos;
+    private Transform dragStartParent;
+    private Vector3 dragOffset;
+    private float dragScreenZ;
+    private Vector3 mouseDownWorldPos;
+
     private bool hasOil = false;
     private bool isCooking = false;
     private bool hasFinishedPastaOnPan = false;
@@ -80,6 +99,8 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         originalLocalPosition = transform.localPosition;
         originalLocalRotation = transform.localRotation;
         originalScale = transform.localScale;
+
+        RefreshDragCaches();
     }
 
     void Start()
@@ -112,6 +133,181 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         }
     }
 
+    private void RefreshDragCaches()
+    {
+        cachedRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+        savedSortingOrders = new int[cachedRenderers.Length];
+        savedSortingLayers = new string[cachedRenderers.Length];
+
+        cachedColliders = GetComponentsInChildren<Collider>(true);
+    }
+
+    private Vector3 GetMouseWorldPosition()
+    {
+        if (Camera.main == null)
+            return transform.position;
+
+        Vector3 mouse = Input.mousePosition;
+        mouse.z = dragScreenZ;
+
+        Vector3 world = Camera.main.ScreenToWorldPoint(mouse);
+        world.z = dragStartWorldPos.z;
+        return world;
+    }
+
+    private void OnMouseDown()
+    {
+        if (!CanBeSelected || isBeingTrashed)
+            return;
+
+        if (Camera.main == null)
+            return;
+
+        isPointerDown = true;
+        hasStartedRealDrag = false;
+
+        dragStartWorldPos = transform.position;
+        dragStartLocalPos = transform.localPosition;
+        dragStartParent = transform.parent;
+        dragScreenZ = Camera.main.WorldToScreenPoint(transform.position).z;
+
+        mouseDownWorldPos = GetMouseWorldPosition();
+        dragOffset = transform.position - mouseDownWorldPos;
+    }
+
+    private void OnMouseDrag()
+    {
+        if (!isPointerDown)
+            return;
+
+        Vector3 currentMouseWorld = GetMouseWorldPosition();
+
+        if (!hasStartedRealDrag)
+        {
+            float dragDistance = Vector3.Distance(currentMouseWorld, mouseDownWorldPos);
+            if (dragDistance >= dragStartThreshold)
+            {
+                BeginRealDrag();
+            }
+        }
+
+        if (!hasStartedRealDrag)
+            return;
+
+        transform.position = currentMouseWorld + dragOffset;
+    }
+
+    private void BeginRealDrag()
+    {
+        RefreshDragCaches();
+
+        hasStartedRealDrag = true;
+        isSelected = false;
+
+        transform.DOKill();
+        transform.localScale = originalScale * dragLiftScaleMultiplier;
+
+        RaiseAllSortingForDrag();
+
+        if (cachedColliders != null)
+        {
+            foreach (var col in cachedColliders)
+            {
+                if (col != null)
+                    col.enabled = false;
+            }
+        }
+
+        transform.SetParent(null, true);
+    }
+
+    private void OnMouseUp()
+    {
+        if (!isPointerDown)
+            return;
+
+        isPointerDown = false;
+
+        if (!hasStartedRealDrag)
+        {
+            Select();
+            return;
+        }
+
+        hasStartedRealDrag = false;
+
+        bool trashed = TryDropTrashcan();
+
+        if (!trashed)
+        {
+            transform.SetParent(dragStartParent, true);
+            transform.position = dragStartWorldPos;
+            transform.localPosition = dragStartLocalPos;
+            transform.localScale = originalScale;
+
+            RestoreAllSortingAfterDrag();
+
+            if (cachedColliders != null)
+            {
+                foreach (var col in cachedColliders)
+                {
+                    if (col != null)
+                        col.enabled = true;
+                }
+            }
+        }
+    }
+
+    private bool TryDropTrashcan()
+    {
+        if (Camera.main == null)
+            return false;
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        if (!Physics.Raycast(ray, out RaycastHit hit, 100f))
+            return false;
+
+        Cooker_Trashcan trashcan = hit.collider.GetComponentInParent<Cooker_Trashcan>();
+        if (trashcan != null)
+            return trashcan.Interact(this);
+
+        return false;
+    }
+
+    private void RaiseAllSortingForDrag()
+    {
+        if (cachedRenderers == null)
+            return;
+
+        for (int i = 0; i < cachedRenderers.Length; i++)
+        {
+            if (cachedRenderers[i] == null)
+                continue;
+
+            savedSortingOrders[i] = cachedRenderers[i].sortingOrder;
+            savedSortingLayers[i] = cachedRenderers[i].sortingLayerName;
+
+            cachedRenderers[i].sortingLayerName = "Default";
+            cachedRenderers[i].sortingOrder = 999 + i;
+        }
+    }
+
+    private void RestoreAllSortingAfterDrag()
+    {
+        if (cachedRenderers == null)
+            return;
+
+        for (int i = 0; i < cachedRenderers.Length; i++)
+        {
+            if (cachedRenderers[i] == null)
+                continue;
+
+            cachedRenderers[i].sortingLayerName = savedSortingLayers[i];
+            cachedRenderers[i].sortingOrder = savedSortingOrders[i];
+        }
+    }
+
     public void PrepareForReuse()
     {
         transform.DOKill();
@@ -123,6 +319,9 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         isBeingTrashed = false;
         isCooking = false;
         hasFinishedPastaOnPan = false;
+
+        isPointerDown = false;
+        hasStartedRealDrag = false;
 
         StopAllCoroutines();
         fryingSoundFadeRoutine = null;
@@ -282,7 +481,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         }
 
         if (gasStove != null)
-            gasStove.TurnOff();
+            gasStove.DestroyFryingPan();
     }
 
     public void PlayTrashEffect(Transform trashTarget)
@@ -308,7 +507,12 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
         seq.OnComplete(() =>
         {
-            Destroy(gameObject);
+            PrepareForReuse();
+
+            if (gasStove != null)
+                gasStove.DestroyFryingPan();
+            else
+                gameObject.SetActive(false);
         });
     }
 
@@ -647,7 +851,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         float cycleDuration = 0.25f;
         float totalTime = cycleCount * cycleDuration;
 
-        float panMoveAmount = 0.12f;
+        float panMoveAmount = 0.20f;
         float elapsed = 0f;
 
         Dictionary<Transform, Vector3> ingredientOriginalLocalPos = new Dictionary<Transform, Vector3>();
@@ -709,8 +913,8 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
                 Vector3 basePos = pair.Value;
                 float phase = ingredient.GetInstanceID() * 0.01f;
 
-                float offsetY = Mathf.Sin(angle - 0.6f + phase) * 0.05f * envelope;
-                float offsetX = Mathf.Cos(angle * 1.2f + phase) * 0.02f * envelope;
+                float offsetY = Mathf.Sin(angle - 0.6f + phase) * 0.08f * envelope;
+                float offsetX = Mathf.Cos(angle * 1.2f + phase) * 0.04f * envelope;
 
                 ingredient.localPosition = basePos + new Vector3(offsetX, offsetY, 0f);
             }

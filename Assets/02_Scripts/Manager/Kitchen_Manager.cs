@@ -27,46 +27,50 @@ public class Kitchen_Manager : MonoBehaviour
     {
         if (!Input.GetMouseButtonDown(0)) return;
 
+        if (!IsValidInteractable(currentSelected))
+            currentSelected = null;
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         if (!Physics.Raycast(ray, out RaycastHit hit)) return;
 
-        IInteractable clicked = hit.collider.GetComponent<IInteractable>();
+        IInteractable clicked = hit.collider.GetComponentInParent<IInteractable>();
+
         if (clicked == null) return;
 
-        //Debug.Log(hit.collider.gameObject.name);
-
-        // 1️. 이미 손에 뭔가 들고 있을 때
         if (currentSelected != null)
         {
-            // 같은 거 다시 클릭 → 무시
             if (currentSelected == clicked)
             {
                 return;
             }
 
             bool used = clicked.Interact(currentSelected);
-            // 사용당하는 쪽이 판단
 
             if (used)
             {
-                // 정상 사용
-                currentSelected.Cancel();
+                SafeCancelCurrentSelected();
                 currentSelected = null;
             }
             else
             {
                 if (clicked.CanBeSelected)
                 {
-                    // 재료 ↔ 재료 : 교체 선택
-                    currentSelected.Cancel();
-                    clicked.Interact(null);
-                    currentSelected = clicked;
+                    SafeCancelCurrentSelected();
+
+                    if (IsValidInteractable(clicked))
+                    {
+                        clicked.Interact(null);
+                        currentSelected = clicked;
+                    }
+                    else
+                    {
+                        currentSelected = null;
+                    }
                 }
                 else
                 {
-                    // 재료 ↔ 잘못된 기기 : 취소
-                    currentSelected.Cancel();
+                    SafeCancelCurrentSelected();
                     currentSelected = null;
                 }
             }
@@ -74,16 +78,13 @@ public class Kitchen_Manager : MonoBehaviour
             return;
         }
 
-        // 2️. 아무것도 손에 안 들고 있을 때
         if (clicked.CanBeSelected)
         {
-            // 선택 가능한 대상만 손에 든다
-            clicked.Interact(null);   // 선택 연출
+            clicked.Interact(null);
             currentSelected = clicked;
         }
         else
         {
-            // 선택 불가 기기 → 그냥 행동만
             clicked.Interact(null);
         }
     }
@@ -101,6 +102,28 @@ public class Kitchen_Manager : MonoBehaviour
 
         currentSelected?.Cancel();
         currentSelected = null;
+    }
+
+    private bool IsValidInteractable(IInteractable target)
+    {
+        if (target == null)
+            return false;
+
+        if (target is UnityEngine.Object unityObj && unityObj == null)
+            return false;
+
+        return true;
+    }
+
+    private void SafeCancelCurrentSelected()
+    {
+        if (!IsValidInteractable(currentSelected))
+        {
+            currentSelected = null;
+            return;
+        }
+
+        currentSelected.Cancel();
     }
 
     public void ClearSelectionForTrashed(IInteractable trashedTarget)
@@ -123,7 +146,7 @@ public class Kitchen_Manager : MonoBehaviour
         }
 
         // 다른 게 선택돼 있으면 정상 취소
-        currentSelected.Cancel();
+        SafeCancelCurrentSelected();
         currentSelected = null;
     }
 

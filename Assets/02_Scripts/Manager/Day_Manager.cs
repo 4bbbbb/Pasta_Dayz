@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -8,14 +7,15 @@ public class Day_Manager : MonoBehaviour
     public Order_Manager orderManager;
     public static Day_Manager Instance;
 
-    public float dayDuration = 180f; // 3분
+    public float dayDuration = 180f;
     private float timer;
 
-    public int day;
+    public int day;                 // 현재 진행 중이거나 방금 시작한 day
+    private int completedDay = 0;   // 마지막으로 완료한 day
 
     public bool isDayActive = false;
     public bool isTakingOrder = true;
-    public bool hasEndedDay = false;   
+    public bool hasEndedDay = false;
 
     void Awake()
     {
@@ -29,6 +29,7 @@ public class Day_Manager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
     void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -41,8 +42,12 @@ public class Day_Manager : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-       
-        if (scene.name == "01_Counter" && !isDayActive)
+        if (scene.name == "01_Counter")
+        {
+            orderManager = FindFirstObjectByType<Order_Manager>();
+        }
+
+        if (scene.name == "01_Counter" && !isDayActive && orderManager != null)
         {
             StartDay();
         }
@@ -51,9 +56,7 @@ public class Day_Manager : MonoBehaviour
     void Update()
     {
         if (!isDayActive)
-        {
             return;
-        }
 
         timer -= Time.deltaTime;
 
@@ -67,20 +70,15 @@ public class Day_Manager : MonoBehaviour
     void StopTakingOrders()
     {
         if (!isTakingOrder)
-        {
             return;
-        }
 
         isTakingOrder = false;
 
         if (hasEndedDay)
-        {
             return;
-        }
 
         orderManager.OnOrderTimeEnded();
     }
-
 
     public float GetRemainingTime()
     {
@@ -89,10 +87,12 @@ public class Day_Manager : MonoBehaviour
 
     void StartDay()
     {
-        day++;
-        timer = dayDuration;        
+        day = completedDay + 1;   // 핵심: 다음 시작 day는 마지막 완료 day + 1
+        timer = dayDuration;
         isDayActive = true;
-        isTakingOrder = true;        
+        isTakingOrder = true;
+        hasEndedDay = false;
+
         orderManager.SetState(Order_Manager.ServiceState.WaitingForOrder);
     }
 
@@ -101,14 +101,21 @@ public class Day_Manager : MonoBehaviour
         return day;
     }
 
+    public int GetCompletedDay()
+    {
+        return completedDay;
+    }
+
     public void EndDay()
     {
         if (hasEndedDay)
             return;
 
         hasEndedDay = true;
-
         isDayActive = false;
+
+        completedDay = day;   // 핵심: 하루를 끝냈을 때만 완료 day 갱신
+
         orderManager.SetState(Order_Manager.ServiceState.DayEnded);
 
         Debug.Log("하루 종료! +20");
@@ -135,9 +142,12 @@ public class Day_Manager : MonoBehaviour
             Level_Manager.Instance.EarnXP(10);
             Debug.Log("흑자 : +10");
         }
+
+        if (Game_Manager.Instance != null)
+        {
+            Game_Manager.Instance.SaveGame();
+        }
     }
-
-
 
     public void ResetForNextDay()
     {
@@ -146,8 +156,18 @@ public class Day_Manager : MonoBehaviour
         isTakingOrder = true;
         hasEndedDay = false;
 
+        day = completedDay;
+
         orderManager.SetState(Order_Manager.ServiceState.WaitingForOrder);
     }
 
-   
+    public void LoadDayData(int savedCompletedDay)
+    {
+        completedDay = Mathf.Max(0, savedCompletedDay);
+        day = completedDay;   // 아직 새 day 시작 전 상태
+        timer = dayDuration;
+        isDayActive = false;
+        isTakingOrder = true;
+        hasEndedDay = false;
+    }
 }

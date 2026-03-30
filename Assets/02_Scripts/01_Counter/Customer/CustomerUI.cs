@@ -27,6 +27,9 @@ public class CustomerUI : MonoBehaviour
     [Header("Order SFX")]
     [SerializeField] private AudioClip orderSFX;
 
+    [Header("Result SFX")]
+    [SerializeField] private AudioClip resultSFX;
+
     [Header("Typing Settings")]
     [SerializeField] private float characterInterval = 0.03f;
 
@@ -244,6 +247,16 @@ public class CustomerUI : MonoBehaviour
         autoButton.SetActive(false);
 
         ResetButtonScale();
+
+        orderText.text = "";
+
+        if (SoundManager.Instance != null)
+        {
+            if (resultSFX != null)
+                SoundManager.Instance.PlaySFX(resultSFX);
+            else if (orderSFX != null)
+                SoundManager.Instance.PlaySFX(orderSFX);
+        }
 
         typingRoutine = StartCoroutine(TypeText(result));
     }

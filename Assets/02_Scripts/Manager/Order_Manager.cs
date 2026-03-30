@@ -801,4 +801,25 @@ public class Order_Manager : MonoBehaviour
             Debug.Log($"{label} - 메뉴 총 가격: {menuPrice} / 재료 비용: {ingredientCost}");
         }
     }
+
+    public void ResetForAbandonDay()
+    {
+        StopAllCoroutines();
+        StopCustomerEntranceAnimation();
+
+        pendingResult = null;
+        pendingSatisfactionZero = false;
+        isAutoCooking = false;
+
+        currentOrder = null;
+        currentCustomerSpriteIndex = -1;
+
+        if (currentCustomer != null)
+        {
+            currentCustomer.HideBubble();
+            currentCustomer.gameObject.SetActive(false);
+        }
+
+        currentState = ServiceState.WaitingForOrder;
+    }
 }

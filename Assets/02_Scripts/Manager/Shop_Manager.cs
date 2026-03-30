@@ -4,24 +4,6 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static IngredientData;
 
-
-//[System.Serializable]
-//public class PlayerSaveData
-//{
-//    public float Gold;
-//    public string Nickname;
-//    public List<int> Items;
-
-
-//    //PlayerSaveData saveData = new PlayerSaveData();
-//    //string json = JsonUtility.ToJson(saveData);
-
-//    //saveData = JsonUtility.FromJson<PlayerSaveData>(json);
-//}
-
-
-
-
 public class Shop_Manager : MonoBehaviour
 {
     public static Shop_Manager Instance;
@@ -92,7 +74,6 @@ public class Shop_Manager : MonoBehaviour
         }
     }
 
-    // 구매 처리
     public void PurchaseItem(IngredientData item)
     {
         if (!CanPurchase(item))
@@ -100,7 +81,7 @@ public class Shop_Manager : MonoBehaviour
             return;
         }
 
-        Gold_Manager.Instance.SpendShop(item.unlockCost); // 상점 구매라 dailyCost에 안 들어감
+        Gold_Manager.Instance.SpendShop(item.unlockCost);
 
         IngredientDatabase.Instance.UpdateUnlockState(item.id, true);
 
@@ -110,9 +91,18 @@ public class Shop_Manager : MonoBehaviour
         }
 
         UpdateShopUI();
+
+        if (Game_Manager.Instance != null)
+        {
+            Game_Manager.Instance.SaveGame();
+        }
+
+        if (ToppingManager.Instance != null)
+        {
+            ToppingManager.Instance.RefreshToppingUI();
+        }
     }
 
-    // 구매 가능 조건
     bool CanPurchase(IngredientData item)
     {
         return !item.isUnlocked &&

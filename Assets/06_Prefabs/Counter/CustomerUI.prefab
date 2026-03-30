@@ -304,6 +304,7 @@ MonoBehaviour:
   yesButton: {fileID: 5204705485384134479}
   autoButton: {fileID: 6580088266946054889}
   orderSFX: {fileID: 8300000, guid: eef1094dbf86b124dbff9babdb5f2632, type: 3}
+  resultSFX: {fileID: 8300000, guid: eef1094dbf86b124dbff9babdb5f2632, type: 3}
   characterInterval: 0.03
   buttonPopStartScale: 0.7
   buttonPopOvershootScale: 1.12

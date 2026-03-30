@@ -35,7 +35,6 @@ public class Level_Manager : MonoBehaviour
         }
     }
 
-    // UI용 데이터만 반환
     public void GetXPInfo(out int level, out float current, out float max)
     {
         level = currentLevel;
@@ -47,5 +46,11 @@ public class Level_Manager : MonoBehaviour
 
         current = currentXP - prevLevelXP;
         max = nextLevelXP - prevLevelXP;
+    }
+
+    public void LoadLevelData(int savedLevel, float savedXP)
+    {
+        currentLevel = Mathf.Max(1, savedLevel);
+        currentXP = Mathf.Max(0f, savedXP);
     }
 }

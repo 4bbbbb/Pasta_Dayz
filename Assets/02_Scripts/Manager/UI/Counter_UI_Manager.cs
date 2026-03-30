@@ -375,6 +375,42 @@ public class Counter_UI_Manager : MonoBehaviour
         }).SetUpdate(true);
     }
 
+    public void OnClickHomeYesButton()
+    {
+        PlayButtonJelly(homeYesButton);
+        StartCoroutine(ReturnHomeWithoutSaveRoutine());
+    }
+
+    private IEnumerator ReturnHomeWithoutSaveRoutine()
+    {
+        yield return new WaitForSecondsRealtime(buttonAnimDelay);
+
+        StopPauseMenuButtonsAnimation();
+        IsPaused = false;
+        Time.timeScale = 1f;
+
+        if (pausePanel != null)
+            pausePanel.SetActive(false);
+
+        if (homeCanvasGroup != null)
+        {
+            homeCanvasGroup.alpha = 0f;
+            homeCanvasGroup.interactable = false;
+            homeCanvasGroup.blocksRaycasts = false;
+            homeCanvasGroup.gameObject.SetActive(false);
+        }
+
+        // 주문/손님 상태 먼저 초기화
+        if (Order_Manager.Instance != null)
+            Order_Manager.Instance.ResetForAbandonDay();
+
+        // 진행 중이던 하루는 저장 없이 폐기
+        if (Day_Manager.Instance != null)
+            Day_Manager.Instance.ResetForNextDay();
+
+        SceneManager.LoadScene(0);
+    }
+
     void StartClose(CanvasGroup cg, RectTransform panel)
     {
         if (cg == null || panel == null) return;

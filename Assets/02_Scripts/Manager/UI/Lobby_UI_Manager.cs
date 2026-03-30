@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class Lobby_UI_Manager : MonoBehaviour
 {
@@ -41,6 +42,15 @@ public class Lobby_UI_Manager : MonoBehaviour
     [SerializeField] private CanvasGroup profileCanvasGroup;
     [SerializeField] private RectTransform profilePanel;
 
+    [Header("닉네임 표시")]
+    [SerializeField] private TMP_Text nicknameText;
+    [SerializeField] private string defaultNickname = "Player";
+
+    [Header("닉네임 변경 패널")]
+    [SerializeField] private CanvasGroup nicknameChangeCanvasGroup;
+    [SerializeField] private RectTransform nicknameChangePanel;
+    [SerializeField] private TMP_InputField nicknameInputField;
+
     [Header("사운드")]
     [SerializeField] private AudioClip buttonClickSFX;
 
@@ -60,6 +70,46 @@ public class Lobby_UI_Manager : MonoBehaviour
         InitPanel(settingCanvasGroup, settingPanel);
         InitPanel(shopCanvasGroup, shopPanel);
         InitPanel(profileCanvasGroup, profilePanel);
+        InitPanel(nicknameChangeCanvasGroup, nicknameChangePanel);
+
+        InitNickname();
+    }
+
+    void Start()
+    {
+        if (Game_Manager.Instance != null && nicknameText != null)
+        {
+            nicknameText.text = Game_Manager.Instance.currentNickname;
+        }
+
+        SyncNicknameUI();
+    }
+
+    void OnEnable()
+    {
+        SyncNicknameUI();
+    }
+
+    public void SyncNicknameUI()
+    {
+        if (nicknameText == null) return;
+        if (Game_Manager.Instance == null) return;
+
+        nicknameText.text = Game_Manager.Instance.currentNickname;
+    }
+
+    void InitNickname()
+    {
+        if (nicknameText != null && string.IsNullOrWhiteSpace(nicknameText.text))
+        {
+            nicknameText.text = defaultNickname;
+        }
+
+        if (nicknameInputField != null)
+        {
+            nicknameInputField.text = "";
+            nicknameInputField.characterLimit = 8;
+        }
     }
 
     void CacheButtonScale(RectTransform button)
@@ -109,7 +159,6 @@ public class Lobby_UI_Manager : MonoBehaviour
             SoundManager.Instance.PlaySFX(buttonClickSFX);
         }
 
-
         if (!originalScales.TryGetValue(target, out Vector3 originalScale))
             originalScale = target.localScale;
 
@@ -132,7 +181,7 @@ public class Lobby_UI_Manager : MonoBehaviour
 
     public void OnClickStartButton()
     {
-        StartCoroutine(LoadSceneAfterDelay());        
+        StartCoroutine(LoadSceneAfterDelay());
     }
 
     private IEnumerator LoadSceneAfterDelay()
@@ -176,6 +225,59 @@ public class Lobby_UI_Manager : MonoBehaviour
     {
         PlayButtonJelly(profileCloseButton);
         StartClose(profileCanvasGroup, profilePanel);
+    }
+
+    public void OpenNicknameChangePanel()
+    {
+        PlayButtonClickSFXOnly();
+
+        if (nicknameInputField != null && nicknameText != null)
+        {
+            nicknameInputField.text = nicknameText.text;
+            nicknameInputField.ActivateInputField();
+            nicknameInputField.Select();
+        }
+
+        StartOpen(nicknameChangeCanvasGroup, nicknameChangePanel);
+    }
+
+    public void ConfirmNicknameChange()
+    {
+        PlayButtonClickSFXOnly();
+
+        if (nicknameText == null || nicknameInputField == null)
+            return;
+
+        string newNickname = nicknameInputField.text.Trim();
+
+        if (string.IsNullOrEmpty(newNickname))
+            return;
+
+        if (newNickname.Length > 8)
+            return;
+
+        nicknameText.text = newNickname;
+
+        if (Game_Manager.Instance != null)
+        {
+            Game_Manager.Instance.SetNickname(newNickname);
+            Game_Manager.Instance.SaveGame();
+        }
+
+        SyncNicknameUI();
+        StartClose(nicknameChangeCanvasGroup, nicknameChangePanel);
+    }
+
+    public void CancelNicknameChange()
+    {
+        PlayButtonClickSFXOnly();
+
+        if (nicknameInputField != null && nicknameText != null)
+        {
+            nicknameInputField.text = nicknameText.text;
+        }
+
+        StartClose(nicknameChangeCanvasGroup, nicknameChangePanel);
     }
 
     void StartOpen(CanvasGroup cg, RectTransform panel)

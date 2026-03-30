@@ -105,4 +105,15 @@ public class IngredientDatabase : MonoBehaviour
             item.isUnlocked = unlocked;
         }
     }
+
+    public void ResetToDefaultFromCSV()
+    {
+        ingredientList.Clear();
+        ingredientDict = null;
+
+        LoadIngredientData();
+        ingredientDict = ingredientList.ToDictionary(i => i.id);
+
+        Debug.Log("IngredientDatabase 기본값으로 초기화 완료");
+    }
 }

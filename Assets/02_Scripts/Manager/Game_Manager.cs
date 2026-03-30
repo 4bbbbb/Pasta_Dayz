@@ -38,7 +38,7 @@ public class Game_Manager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            LoadGame();   // 여기로 이동
+            LoadGame();   
         }
         else
         {
@@ -67,8 +67,8 @@ public class Game_Manager : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        ApplyCoreLoadedDataOnce();   // 아직 적용 안 됐으면 1회만
-        ApplyUnlockDataToDatabase(); // 이건 씬 로드 때 다시 해도 괜찮음
+        ApplyCoreLoadedDataOnce();  
+        ApplyUnlockDataToDatabase(); 
     }
 
     public void SetNickname(string newNickname)
@@ -200,7 +200,6 @@ public class Game_Manager : MonoBehaviour
 
         DeleteSave();
 
-        // 핵심: 메모리에 남아 있는 세이브 정보도 초기화
         loadedSaveData = new PlayerSaveData();
         hasLoadedSave = false;
         hasAppliedCoreData = false;

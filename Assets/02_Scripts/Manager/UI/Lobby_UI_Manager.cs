@@ -50,11 +50,22 @@ public class Lobby_UI_Manager : MonoBehaviour
     [SerializeField] private CanvasGroup nicknameChangeCanvasGroup;
     [SerializeField] private RectTransform nicknameChangePanel;
     [SerializeField] private TMP_InputField nicknameInputField;
+    [SerializeField] private GameObject nicknameCancelButtonObject;
+
+    [Header("튜토리얼 선택 패널")]
+    [SerializeField] private CanvasGroup tutorialChoiceCanvasGroup;
+    [SerializeField] private RectTransform tutorialChoicePanel;
 
     [Header("사운드")]
     [SerializeField] private AudioClip buttonClickSFX;
 
     private Dictionary<RectTransform, Vector3> originalScales = new Dictionary<RectTransform, Vector3>();
+
+    private bool isForcedNicknameFlow = false;
+    private bool isStartingGame = false;
+
+    private const string KEY_FIRST_START_FLOW_DONE = "FIRST_START_FLOW_DONE";
+    private const string KEY_SHOULD_PLAY_TUTORIAL = "SHOULD_PLAY_TUTORIAL";
 
     void Awake()
     {
@@ -71,6 +82,7 @@ public class Lobby_UI_Manager : MonoBehaviour
         InitPanel(shopCanvasGroup, shopPanel);
         InitPanel(profileCanvasGroup, profilePanel);
         InitPanel(nicknameChangeCanvasGroup, nicknameChangePanel);
+        InitPanel(tutorialChoiceCanvasGroup, tutorialChoicePanel);
 
         InitNickname();
     }
@@ -123,9 +135,7 @@ public class Lobby_UI_Manager : MonoBehaviour
     void InitPanel(CanvasGroup cg, RectTransform panel)
     {
         if (cg == null || panel == null)
-        {
             return;
-        }
 
         cg.gameObject.SetActive(false);
         cg.alpha = 0f;
@@ -150,9 +160,7 @@ public class Lobby_UI_Manager : MonoBehaviour
     void PlayButtonJelly(RectTransform target)
     {
         if (target == null)
-        {
             return;
-        }
 
         if (SoundManager.Instance != null)
         {
@@ -179,15 +187,62 @@ public class Lobby_UI_Manager : MonoBehaviour
         );
     }
 
+    bool HasCompletedFirstStartFlow()
+    {
+        return PlayerPrefs.GetInt(KEY_FIRST_START_FLOW_DONE, 0) == 1;
+    }
+
+    void SetFirstStartFlowDone(bool shouldPlayTutorial)
+    {
+        PlayerPrefs.SetInt(KEY_FIRST_START_FLOW_DONE, 1);
+        PlayerPrefs.SetInt(KEY_SHOULD_PLAY_TUTORIAL, shouldPlayTutorial ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+
+    public static bool ShouldPlayTutorial()
+    {
+        return PlayerPrefs.GetInt(KEY_SHOULD_PLAY_TUTORIAL, 0) == 1;
+    }
+
     public void OnClickStartButton()
     {
+        if (isStartingGame)
+            return;
+
+        if (!HasCompletedFirstStartFlow())
+        {
+            StartCoroutine(HandleFirstStartFlow());
+            return;
+        }
+
         StartCoroutine(LoadSceneAfterDelay());
+    }
+
+    private IEnumerator HandleFirstStartFlow()
+    {
+        isStartingGame = true;
+
+        PlayButtonJelly(startButton);
+        yield return new WaitForSeconds(0.3f);
+
+        OpenNicknameChangePanelForced();
+
+        isStartingGame = false;
     }
 
     private IEnumerator LoadSceneAfterDelay()
     {
+        isStartingGame = true;
+
         PlayButtonJelly(startButton);
         yield return new WaitForSeconds(0.3f);
+        SceneManager.LoadScene(1);
+    }
+
+    private IEnumerator LoadSceneAfterChoiceDelay()
+    {
+        isStartingGame = true;
+        yield return new WaitForSeconds(0.15f);
         SceneManager.LoadScene(1);
     }
 
@@ -229,11 +284,32 @@ public class Lobby_UI_Manager : MonoBehaviour
 
     public void OpenNicknameChangePanel()
     {
+        OpenNicknameChangePanelInternal(false);
+    }
+
+    private void OpenNicknameChangePanelForced()
+    {
+        OpenNicknameChangePanelInternal(true);
+    }
+
+    private void OpenNicknameChangePanelInternal(bool forced)
+    {
         PlayButtonClickSFXOnly();
 
-        if (nicknameInputField != null && nicknameText != null)
+        isForcedNicknameFlow = forced;
+
+        if (nicknameCancelButtonObject != null)
         {
-            nicknameInputField.text = nicknameText.text;
+            nicknameCancelButtonObject.SetActive(!forced);
+        }
+
+        if (nicknameInputField != null)
+        {
+            if (Game_Manager.Instance != null)
+                nicknameInputField.text = Game_Manager.Instance.currentNickname;
+            else if (nicknameText != null)
+                nicknameInputField.text = nicknameText.text;
+
             nicknameInputField.ActivateInputField();
             nicknameInputField.Select();
         }
@@ -265,12 +341,41 @@ public class Lobby_UI_Manager : MonoBehaviour
         }
 
         SyncNicknameUI();
+
+        bool shouldOpenTutorialChoice = isForcedNicknameFlow && !HasCompletedFirstStartFlow();
+
         StartClose(nicknameChangeCanvasGroup, nicknameChangePanel);
+
+        if (shouldOpenTutorialChoice)
+        {
+            isForcedNicknameFlow = false;
+            StartCoroutine(OpenTutorialChoiceAfterNicknameClose());
+        }
+        else
+        {
+            isForcedNicknameFlow = false;
+            if (nicknameCancelButtonObject != null)
+                nicknameCancelButtonObject.SetActive(true);
+        }
+    }
+
+    private IEnumerator OpenTutorialChoiceAfterNicknameClose()
+    {
+        yield return new WaitForSeconds(buttonAnimDelay + panelCloseDuration + 0.05f);
+
+        if (nicknameCancelButtonObject != null)
+            nicknameCancelButtonObject.SetActive(true);
+
+        StartOpen(tutorialChoiceCanvasGroup, tutorialChoicePanel);
     }
 
     public void CancelNicknameChange()
     {
         PlayButtonClickSFXOnly();
+
+        // 처음 강제 닉네임 입력 흐름에서는 취소 막기
+        if (isForcedNicknameFlow)
+            return;
 
         if (nicknameInputField != null && nicknameText != null)
         {
@@ -280,12 +385,35 @@ public class Lobby_UI_Manager : MonoBehaviour
         StartClose(nicknameChangeCanvasGroup, nicknameChangePanel);
     }
 
+    public void OnClickViewTutorialButton()
+    {
+        PlayButtonClickSFXOnly();
+        CompleteFirstStartAndLoad(true);
+    }
+
+    public void OnClickSkipTutorialButton()
+    {
+        PlayButtonClickSFXOnly();
+        CompleteFirstStartAndLoad(false);
+    }
+
+    private void CompleteFirstStartAndLoad(bool shouldPlayTutorial)
+    {
+        SetFirstStartFlowDone(shouldPlayTutorial);
+
+        if (Game_Manager.Instance != null)
+        {
+            Game_Manager.Instance.SaveGame();
+        }
+
+        StartClose(tutorialChoiceCanvasGroup, tutorialChoicePanel);
+        StartCoroutine(LoadSceneAfterChoiceDelay());
+    }
+
     void StartOpen(CanvasGroup cg, RectTransform panel)
     {
         if (cg == null || panel == null)
-        {
             return;
-        }
 
         DOVirtual.DelayedCall(buttonAnimDelay, () =>
         {
@@ -312,9 +440,7 @@ public class Lobby_UI_Manager : MonoBehaviour
     void StartClose(CanvasGroup cg, RectTransform panel)
     {
         if (cg == null || panel == null)
-        {
             return;
-        }
 
         DOVirtual.DelayedCall(buttonAnimDelay, () =>
         {

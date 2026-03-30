@@ -156,6 +156,12 @@ public class Order_Manager : MonoBehaviour
             currentCustomer.gameObject.SetActive(true);
         }
 
+        if (TutorialController.Instance != null && TutorialController.Instance.IsTutorialActive)
+        {
+            TutorialController.Instance.NotifyCounterSceneReady();
+            return;
+        }
+
         if (pendingSatisfactionZero)
         {
             pendingSatisfactionZero = false;
@@ -515,6 +521,12 @@ public class Order_Manager : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
 
+        if (TutorialController.Instance != null && TutorialController.Instance.IsTutorialActive)
+        {
+            TutorialController.Instance.NotifyServeSequenceFinished(success);
+            yield break;
+        }
+
         SpawnCustomer();
         CheckDayEndCondition();
     }
@@ -636,6 +648,12 @@ public class Order_Manager : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
 
+        if (TutorialController.Instance != null && TutorialController.Instance.IsTutorialActive)
+        {
+            TutorialController.Instance.NotifyServeSequenceFinished(false);
+            yield break;
+        }
+
         SpawnCustomer();
 
     }
@@ -666,7 +684,7 @@ public class Order_Manager : MonoBehaviour
         currentCustomer.HideBubble();
 
         Vector2 startPos = rect.anchoredPosition;
-        Vector2 endPos = startPos + new Vector2(0f, -700f); 
+        Vector2 endPos = startPos + new Vector2(0f, -700f);
 
         yield return rect.DOAnchorPos(endPos, 0.4f)
             .SetEase(Ease.InQuad)
@@ -704,6 +722,9 @@ public class Order_Manager : MonoBehaviour
 
     public void OnClickAutoButton()
     {
+        if (TutorialController.Instance != null && TutorialController.Instance.ShouldBlockAutoCook())
+            return;
+
         if (isAutoCooking)
             return;
 
@@ -785,7 +806,7 @@ public class Order_Manager : MonoBehaviour
             dayManager.EndDay();
         }
     }
-    
+
     void DebugIngredientSet(IHasIngredients target, string label)
     {
         HashSet<int> set = target.GetIngredientSet();
@@ -822,4 +843,100 @@ public class Order_Manager : MonoBehaviour
 
         currentState = ServiceState.WaitingForOrder;
     }
+
+    #region <<Tutorial>>
+    public void SpawnTutorialCustomer(Order tutorialOrder, int spriteIndex, string forcedMessage)
+    {
+        if (tutorialOrder == null)
+            return;
+
+        currentState = ServiceState.TakingOrder;
+
+        if (customerUIParent == null)
+        {
+            if (!BindCounterParents())
+                return;
+        }
+
+        if (currentCustomer == null)
+        {
+            GameObject obj = Instantiate(customerUIPrefab, customerUIParent);
+            currentCustomer = obj.GetComponent<CustomerUI>();
+            currentCustomer.transform.SetAsFirstSibling();
+        }
+        else
+        {
+            currentCustomer.transform.SetParent(customerUIParent, false);
+            currentCustomer.transform.SetAsFirstSibling();
+            currentCustomer.gameObject.SetActive(true);
+        }
+
+        currentCustomerSpriteIndex = spriteIndex;
+        lastCustomerSpriteIndex = spriteIndex;
+
+        currentCustomer.Appear();
+        currentCustomer.SetCustomerSprite(currentCustomerSpriteIndex);
+
+        currentOrder = tutorialOrder;
+
+        string message = string.IsNullOrEmpty(forcedMessage)
+            ? currentOrder.GetOrderText(generator.ingredientDB)
+            : forcedMessage;
+
+        StopCustomerEntranceAnimation();
+        customerEntranceRoutine = StartCoroutine(CustomerEntranceRoutine(message));
+
+        if (currentCustomer.yesButton != null)
+            currentCustomer.yesButton.SetActive(false);
+
+        if (currentCustomer.autoButton != null)
+            currentCustomer.autoButton.SetActive(false);
+    }
+
+    public void ShowTutorialDecisionButtons(bool showYes, bool showAuto, bool enableYes, bool enableAuto)
+    {
+        if (currentCustomer == null)
+            return;
+
+        if (currentCustomer.yesButton != null)
+        {
+            currentCustomer.yesButton.SetActive(showYes);
+
+            Button yesBtn = currentCustomer.yesButton.GetComponent<Button>();
+            if (yesBtn != null)
+                yesBtn.interactable = enableYes;
+        }
+
+        if (currentCustomer.autoButton != null)
+        {
+            currentCustomer.autoButton.SetActive(showAuto);
+
+            Button autoBtn = currentCustomer.autoButton.GetComponent<Button>();
+            if (autoBtn != null)
+                autoBtn.interactable = enableAuto;
+        }
+    }
+
+    public void ResetForTutorialToRealGame()
+    {
+        StopAllCoroutines();
+        StopCustomerEntranceAnimation();
+
+        pendingResult = null;
+        pendingSatisfactionZero = false;
+        isAutoCooking = false;
+
+        currentOrder = null;
+        currentCustomerSpriteIndex = -1;
+        lastCustomerSpriteIndex = -1;
+
+        if (currentCustomer != null)
+        {
+            currentCustomer.HideBubble();
+            currentCustomer.gameObject.SetActive(false);
+        }
+
+        currentState = ServiceState.WaitingForOrder;
+    }
+    #endregion
 }

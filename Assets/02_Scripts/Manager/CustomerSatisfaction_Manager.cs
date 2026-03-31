@@ -26,6 +26,7 @@ public class CustomerSatisfaction_Manager : MonoBehaviour
     public void StartSatisfaction()
     {
         currentSatisfaction = maxSatisfaction;
+
         if (!isRunning)
         {
             StartCoroutine(SatisfactionTimer());
@@ -38,7 +39,17 @@ public class CustomerSatisfaction_Manager : MonoBehaviour
 
         while (currentSatisfaction > 0)
         {
+            // 튜토리얼 중에는 만족도 감소 멈춤
+            while (IsTutorialFrozen())
+            {
+                yield return null;
+            }
+
             yield return new WaitForSeconds(1f);
+
+            // 기다리는 도중 튜토리얼이 시작됐으면 이번 감소도 스킵
+            if (IsTutorialFrozen())
+                continue;
 
             currentSatisfaction -= decreasePerSecond;
 
@@ -49,29 +60,35 @@ public class CustomerSatisfaction_Manager : MonoBehaviour
 
             if (currentSatisfaction == 0)
             {
-                //  만족도 0 시 바로 OrderManager에게 알려주기
                 if (Order_Manager.Instance != null)
                 {
                     Order_Manager.Instance.SatisfactionZero();
                 }
             }
-
         }
 
         isRunning = false;
+    }
+
+    private bool IsTutorialFrozen()
+    {
+        return TutorialController.Instance != null &&
+               TutorialController.Instance.IsTutorialActive;
     }
 
     public float GetSatisfactionRatio()
     {
         return currentSatisfaction / maxSatisfaction;
     }
+
     public void ResetSatisfaction()
     {
         currentSatisfaction = maxSatisfaction;
-        
+
         if (isRunning)
         {
             StopAllCoroutines();
+            isRunning = false;
         }
 
         StartCoroutine(SatisfactionTimer());

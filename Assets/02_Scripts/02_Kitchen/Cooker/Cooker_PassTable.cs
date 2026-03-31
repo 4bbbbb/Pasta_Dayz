@@ -23,6 +23,9 @@ public class Cooker_PassTable : MonoBehaviour, IInteractable
             return true;
         }
 
+        if (!CanAcceptTutorialServe())
+            return false;
+
         if (target is FinishedPasta finishedPasta)
         {
             if (!HasPlateID(finishedPasta))
@@ -93,6 +96,14 @@ public class Cooker_PassTable : MonoBehaviour, IInteractable
 
         Debug.Log("완성된 파스타를 서빙합니다!");
 
+        if (IsFirstKitchenTutorialActive())
+        {
+            TutorialController.Instance?.TryConsumeKitchenAction(
+                TutorialController.KitchenPracticeTarget.DragPlateToPassTable
+            );
+            yield break;
+        }
+
         yield return new WaitForSeconds(1f);
 
         SceneManager.LoadScene(1);
@@ -126,6 +137,14 @@ public class Cooker_PassTable : MonoBehaviour, IInteractable
             Debug.LogWarning("Order_Manager를 찾지 못했습니다.");
         }
 
+        if (IsFirstKitchenTutorialActive())
+        {
+            TutorialController.Instance?.TryConsumeKitchenAction(
+                TutorialController.KitchenPracticeTarget.DragPlateToPassTable
+            );
+            yield break;
+        }
+
         yield return new WaitForSeconds(1f);
 
         SceneManager.LoadScene(1);
@@ -139,5 +158,25 @@ public class Cooker_PassTable : MonoBehaviour, IInteractable
 
     public void Cancel()
     {
+    }
+
+    private bool IsFirstKitchenTutorialActive()
+    {
+        return TutorialController.Instance != null
+            && TutorialController.Instance.IsTutorialActive
+            && TutorialController.Instance.CurrentStep == TutorialController.TutorialStep.Kitchen_FirstCookProgress;
+    }
+
+    private bool CanAcceptTutorialServe()
+    {
+        if (!IsFirstKitchenTutorialActive())
+            return true;
+
+        if (TutorialController.Instance == null)
+            return true;
+
+        return TutorialController.Instance.IsKitchenActionAllowed(
+            TutorialController.KitchenPracticeTarget.DragPlateToPassTable
+        );
     }
 }

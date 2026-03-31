@@ -29,6 +29,9 @@ public class Cooker_GasStove : MonoBehaviour, IInteractable
 
         if (target == null)
         {
+            if (!CanClickTutorialGasStove())
+                return false;
+
             Debug.Log("후라이팬이 준비 되었습니다 !");
 
             isCooking = true;
@@ -40,6 +43,13 @@ public class Cooker_GasStove : MonoBehaviour, IInteractable
                 pan.PrepareForReuse();
             }
 
+            if (IsFirstKitchenTutorialActive())
+            {
+                TutorialController.Instance?.TryConsumeKitchenAction(
+                    TutorialController.KitchenPracticeTarget.ClickGasStove
+                );
+            }
+
             return false;
         }
 
@@ -48,7 +58,6 @@ public class Cooker_GasStove : MonoBehaviour, IInteractable
 
     public void TurnOn()
     {
-
         if (SoundManager.Instance != null && fireOnSound != null)
         {
             SoundManager.Instance.PlaySFX(fireOnSound);
@@ -67,5 +76,29 @@ public class Cooker_GasStove : MonoBehaviour, IInteractable
 
     public void Cancel()
     {
+    }
+
+    private bool IsFirstKitchenTutorialActive()
+    {
+        return TutorialController.Instance != null
+            && TutorialController.Instance.IsTutorialActive
+            && TutorialController.Instance.CurrentStep == TutorialController.TutorialStep.Kitchen_FirstCookProgress;
+    }
+
+    //private bool CanClickTutorialGasStove()
+    //{
+    //    if (!IsFirstKitchenTutorialActive())
+    //        return true;
+
+    //    if (TutorialController.Instance == null)
+    //        return true;
+
+    //    return TutorialController.Instance.IsKitchenActionAllowed(
+    //        TutorialController.KitchenPracticeTarget.ClickGasStove
+    //    );
+    //}
+    private bool CanClickTutorialGasStove()
+    {
+        return true;
     }
 }

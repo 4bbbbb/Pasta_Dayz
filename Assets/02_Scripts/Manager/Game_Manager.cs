@@ -205,6 +205,11 @@ public class Game_Manager : MonoBehaviour
         hasAppliedCoreData = false;
 
         Debug.Log("저장 데이터 전체 초기화 완료");
+
+        PlayerPrefs.DeleteKey("FIRST_START_FLOW_DONE");
+        PlayerPrefs.DeleteKey("SHOULD_PLAY_TUTORIAL");
+        PlayerPrefs.DeleteKey("TUTORIAL_COMPLETED");
+        PlayerPrefs.Save();
     }
 
     public void DeleteSave()

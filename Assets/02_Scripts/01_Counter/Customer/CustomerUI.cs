@@ -16,6 +16,7 @@ public class CustomerUI : MonoBehaviour
     [Header("Customer Sprites")]
     public List<CustomerSpriteSet> customerSprites;
 
+
     [Header("UI References")]
     public Image customerImage;
     public GameObject bubbleObject;

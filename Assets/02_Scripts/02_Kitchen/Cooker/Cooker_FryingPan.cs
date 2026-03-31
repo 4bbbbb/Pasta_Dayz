@@ -452,6 +452,9 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
     private bool AddOil(Topping_OliveOil oil)
     {
+        if (!IsKitchenActionAllowed(TutorialController.KitchenPracticeTarget.DragOilToPan))
+            return false;
+
         if (hasOil) return false;
 
         hasOil = true;
@@ -479,16 +482,24 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         if (id != null)
             ingredientIDs.Add(id.GetID());
 
+        ConsumeKitchenAction(TutorialController.KitchenPracticeTarget.DragOilToPan);
         return true;
     }
 
+
     private bool AddTopping(Topping topping)
     {
-        if (addedToppings.Count >= 2) return false;
-        if (addedToppings.Contains(topping.toppingType)) return false;
+        if (!IsKitchenActionAllowed(TutorialController.KitchenPracticeTarget.DragGarlicToPan))
+            return false;
 
         IngredientIDs id = topping.GetComponent<IngredientIDs>();
         if (id == null) return false;
+
+        if (IsFirstKitchenTutorialActive() && id.GetID() != 302)
+            return false;
+
+        if (addedToppings.Count >= 2) return false;
+        if (addedToppings.Contains(topping.toppingType)) return false;
 
         int groupIndex = addedToppings.Count;
         Transform[] spawnPoints = GetSpawnPointsFromGroup(groupIndex);
@@ -499,10 +510,14 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         addedToppings.Add(topping.toppingType);
         ingredientIDs.Add(id.GetID());
 
-        topping.Cancel();  
+        topping.Cancel();
         StartCoroutine(SpawnToppingBurst(id.GetID(), spawnPoints));
+
+        ConsumeKitchenAction(TutorialController.KitchenPracticeTarget.DragGarlicToPan);
         return true;
     }
+
+
 
     private Transform[] GetSpawnPointsFromGroup(int groupIndex)
     {
@@ -550,6 +565,10 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
     private bool AddSauce(Sauces sauce)
     {
+        if (IsFirstKitchenTutorialActive())
+            return false;
+
+
         IngredientIDs id = sauce.GetComponent<IngredientIDs>();
         if (id == null) return false;
 
@@ -663,6 +682,9 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
     private bool AddNoodle(Noodles_CookedNoodle cookedNoodle)
     {
+        if (!IsKitchenActionAllowed(TutorialController.KitchenPracticeTarget.DragCookedNoodleToPan))
+            return false;
+
         if (!hasOil) return false;
         if (noodleSpawnPoint == null) return false;
         if (noodleSpawnPoint.childCount > 0) return false;
@@ -670,12 +692,18 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
         IngredientIDs id = cookedNoodle.GetComponent<IngredientIDs>();
         if (id == null) return false;
 
+        if (IsFirstKitchenTutorialActive() && id.GetID() != 101)
+            return false;
+
         SpawnIngredientByID(id.GetID(), noodleSpawnPoint);
         Destroy(cookedNoodle.gameObject);
 
         StartCoroutine(CookRoutine());
+
+        ConsumeKitchenAction(TutorialController.KitchenPracticeTarget.DragCookedNoodleToPan);
         return true;
     }
+
 
     private void SpawnIngredientByID(int ingredientID, Transform spawnPoint)
     {
@@ -1078,5 +1106,32 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
                 SoundManager.Instance.MasterVolume * SoundManager.Instance.SfxVolume;
         else
             fryingAudioSource.volume = 1f;
+    }
+
+    private bool IsFirstKitchenTutorialActive()
+    {
+        return TutorialController.Instance != null
+            && TutorialController.Instance.IsTutorialActive
+            && TutorialController.Instance.CurrentStep == TutorialController.TutorialStep.Kitchen_FirstCookProgress;
+    }
+
+    private bool IsKitchenActionAllowed(TutorialController.KitchenPracticeTarget action)
+    {
+        if (!IsFirstKitchenTutorialActive())
+            return true;
+
+        if (TutorialController.Instance == null)
+            return true;
+
+        return TutorialController.Instance.IsKitchenActionAllowed(action);
+    }
+
+    private void ConsumeKitchenAction(TutorialController.KitchenPracticeTarget action)
+    {
+        if (!IsFirstKitchenTutorialActive())
+            return;
+
+        TutorialController.Instance?.TryConsumeKitchenAction(action);
+
     }
 }

@@ -206,12 +206,11 @@ public class Lobby_UI_Manager : MonoBehaviour
 
     public void OnClickStartButton()
     {
-        if (isStartingGame)
-            return;
+        bool firstStartDone = PlayerPrefs.GetInt("FIRST_START_FLOW_DONE", 0) == 1;
 
-        if (!HasCompletedFirstStartFlow())
+        if (!firstStartDone)
         {
-            StartCoroutine(HandleFirstStartFlow());
+            OpenNicknameChangePanelForced();
             return;
         }
 
@@ -387,14 +386,23 @@ public class Lobby_UI_Manager : MonoBehaviour
 
     public void OnClickViewTutorialButton()
     {
-        PlayButtonClickSFXOnly();
-        CompleteFirstStartAndLoad(true);
+        if (TutorialController.Instance != null)
+            TutorialController.Instance.StartTutorial();
+
+        PlayerPrefs.SetInt("FIRST_START_FLOW_DONE", 1);
+        PlayerPrefs.SetInt("SHOULD_PLAY_TUTORIAL", 1);
+        PlayerPrefs.Save();
+
+        SceneManager.LoadScene(1);
     }
 
     public void OnClickSkipTutorialButton()
     {
-        PlayButtonClickSFXOnly();
-        CompleteFirstStartAndLoad(false);
+        PlayerPrefs.SetInt("FIRST_START_FLOW_DONE", 1);
+        PlayerPrefs.SetInt("SHOULD_PLAY_TUTORIAL", 0);
+        PlayerPrefs.Save();
+
+        SceneManager.LoadScene(1);
     }
 
     private void CompleteFirstStartAndLoad(bool shouldPlayTutorial)
@@ -412,11 +420,13 @@ public class Lobby_UI_Manager : MonoBehaviour
 
     void StartOpen(CanvasGroup cg, RectTransform panel)
     {
-        if (cg == null || panel == null)
-            return;
+        if (cg == null || panel == null) return;
 
         DOVirtual.DelayedCall(buttonAnimDelay, () =>
         {
+            if (cg == null || panel == null) return;
+            if (cg.gameObject == null || panel.gameObject == null) return;
+
             cg.DOKill();
             panel.DOKill();
 
@@ -426,37 +436,48 @@ public class Lobby_UI_Manager : MonoBehaviour
             cg.blocksRaycasts = false;
             panel.localScale = Vector3.one * panelStartScale;
 
-            cg.DOFade(1f, panelFadeDuration);
+            cg.DOFade(1f, panelFadeDuration).SetLink(cg.gameObject, LinkBehaviour.KillOnDestroy);
             panel.DOScale(Vector3.one, panelFadeDuration)
+                .SetLink(panel.gameObject, LinkBehaviour.KillOnDestroy)
                 .SetEase(Ease.OutCubic)
                 .OnComplete(() =>
                 {
+                    if (cg == null || panel == null) return;
                     cg.interactable = true;
                     cg.blocksRaycasts = true;
                 });
-        });
+        }).SetLink(gameObject, LinkBehaviour.KillOnDestroy);
     }
 
     void StartClose(CanvasGroup cg, RectTransform panel)
     {
-        if (cg == null || panel == null)
-            return;
+        if (cg == null || panel == null) return;
 
         DOVirtual.DelayedCall(buttonAnimDelay, () =>
         {
+            if (cg == null || panel == null) return;
+            if (cg.gameObject == null || panel.gameObject == null) return;
+
             cg.DOKill();
             panel.DOKill();
 
             cg.interactable = false;
             cg.blocksRaycasts = false;
 
-            cg.DOFade(0f, panelCloseDuration);
+            cg.DOFade(0f, panelCloseDuration).SetLink(cg.gameObject, LinkBehaviour.KillOnDestroy);
             panel.DOScale(Vector3.one * panelStartScale, panelCloseDuration)
+                .SetLink(panel.gameObject, LinkBehaviour.KillOnDestroy)
                 .SetEase(Ease.InCubic)
                 .OnComplete(() =>
                 {
+                    if (cg == null) return;
                     cg.gameObject.SetActive(false);
                 });
-        });
+        }).SetLink(gameObject, LinkBehaviour.KillOnDestroy);
+    }
+
+    void OnDestroy()
+    {
+        DOTween.Kill(gameObject);
     }
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SoundManager : MonoBehaviour
 {
@@ -12,6 +13,9 @@ public class SoundManager : MonoBehaviour
     [Range(0f, 1f)][SerializeField] private float masterVolume = 1f;
     [Range(0f, 1f)][SerializeField] private float bgmVolume = 1f;
     [Range(0f, 1f)][SerializeField] private float sfxVolume = 1f;
+
+    [Header("BGM")]
+    [SerializeField] private AudioClip mainBgm;
 
     public float MasterVolume => masterVolume;
     public float BgmVolume => bgmVolume;
@@ -34,10 +38,34 @@ public class SoundManager : MonoBehaviour
 
             LoadVolume();
             ApplyVolume();
+
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
         {
             Destroy(gameObject);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // 0번 씬에서는 브금 끄기
+        if (scene.buildIndex == 0)
+        {
+            StopBGM();
+            return;
+        }
+
+        // 1번, 2번 씬에서는 같은 브금 유지/재생
+        if (mainBgm != null)
+        {
+            PlayBGM(mainBgm);
         }
     }
 
@@ -83,6 +111,10 @@ public class SoundManager : MonoBehaviour
     public void PlayBGM(AudioClip clip, bool loop = true)
     {
         if (clip == null || bgmSource == null) return;
+
+        // 같은 곡이 이미 재생 중이면 재시작 안 함
+        if (bgmSource.clip == clip && bgmSource.isPlaying)
+            return;
 
         bgmSource.clip = clip;
         bgmSource.loop = loop;

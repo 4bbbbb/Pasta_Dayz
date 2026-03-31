@@ -60,10 +60,10 @@ public class Counter_UI_Manager : MonoBehaviour
     [Header("사운드")]
     [SerializeField] private AudioClip buttonClickSFX;
 
-    private Dictionary<RectTransform, Vector3> originalScales = new Dictionary<RectTransform, Vector3>();
+    private readonly Dictionary<RectTransform, Vector3> originalScales = new Dictionary<RectTransform, Vector3>();
     private Coroutine pauseMenuButtonsRoutine;
 
-    void Awake()
+    private void Awake()
     {
         CacheButtonScale(pauseButton);
         CacheButtonScale(settingOpenButton);
@@ -80,12 +80,41 @@ public class Counter_UI_Manager : MonoBehaviour
         InitPanel(homeCanvasGroup, homePanel);
     }
 
-    void CacheButtonScale(RectTransform button)
+    private void OnDisable()
+    {
+        StopPauseMenuButtonsAnimation();
+        Time.timeScale = 1f;
+        IsPaused = false;
+    }
+
+    private void CacheButtonScale(RectTransform button)
     {
         if (button == null) return;
 
         if (!originalScales.ContainsKey(button))
             originalScales.Add(button, button.localScale);
+    }
+
+    private TutorialController Tutorial => TutorialController.Instance;
+
+    private bool IsTutorialActive => Tutorial != null && Tutorial.IsTutorialActive;
+
+    private bool IsTutorialStep(TutorialController.TutorialStep step)
+    {
+        return Tutorial != null && Tutorial.IsTutorialActive && Tutorial.CurrentStep == step;
+    }
+
+    private bool IsPausePracticeFlowActive()
+    {
+        if (!IsTutorialActive)
+            return false;
+
+        var step = Tutorial.CurrentStep;
+        return step == TutorialController.TutorialStep.Counter_Pause ||
+               step == TutorialController.TutorialStep.Counter_Setting ||
+               step == TutorialController.TutorialStep.Counter_Book ||
+               step == TutorialController.TutorialStep.Counter_Home ||
+               step == TutorialController.TutorialStep.Counter_Resume;
     }
 
     public void TogglePause()
@@ -96,6 +125,9 @@ public class Counter_UI_Manager : MonoBehaviour
 
     public void PauseGame()
     {
+        if (IsPaused)
+            return;
+
         IsPaused = true;
         pauseOpenedTime = Time.unscaledTime;
 
@@ -111,6 +143,9 @@ public class Counter_UI_Manager : MonoBehaviour
             StopCoroutine(pauseMenuButtonsRoutine);
 
         pauseMenuButtonsRoutine = StartCoroutine(ShowPauseMenuButtonsRoutine());
+
+        if (IsTutorialStep(TutorialController.TutorialStep.Counter_Pause))
+            Tutorial.OnTutorialPausePressed();
     }
 
     public void OnPausePanelClicked()
@@ -121,11 +156,17 @@ public class Counter_UI_Manager : MonoBehaviour
         if (Time.unscaledTime - pauseOpenedTime < resumeClickDelay)
             return;
 
+        if (IsPausePracticeFlowActive() && !IsTutorialStep(TutorialController.TutorialStep.Counter_Resume))
+            return;
+
         ResumeGame();
     }
 
     public void ResumeGame()
     {
+        if (!IsPaused)
+            return;
+
         StopPauseMenuButtonsAnimation();
 
         IsPaused = false;
@@ -133,17 +174,12 @@ public class Counter_UI_Manager : MonoBehaviour
 
         if (pausePanel != null)
             pausePanel.SetActive(false);
+
+        if (IsTutorialStep(TutorialController.TutorialStep.Counter_Resume))
+            Tutorial.OnTutorialResumePressed();
     }
 
-    void OnDisable()
-    {
-        StopPauseMenuButtonsAnimation();
-
-        Time.timeScale = 1f;
-        IsPaused = false;
-    }
-
-    void InitPanel(CanvasGroup cg, RectTransform panel)
+    private void InitPanel(CanvasGroup cg, RectTransform panel)
     {
         if (cg == null || panel == null) return;
 
@@ -159,17 +195,17 @@ public class Counter_UI_Manager : MonoBehaviour
         PlayButtonClickSFXOnly();
     }
 
-    void PlayButtonClickSFXOnly()
+    private void PlayButtonClickSFXOnly()
     {
-        if (SoundManager.Instance != null)
+        if (SoundManager.Instance != null && buttonClickSFX != null)
             SoundManager.Instance.PlaySFX(buttonClickSFX);
     }
 
-    void PlayButtonJelly(RectTransform target)
+    private void PlayButtonJelly(RectTransform target)
     {
         if (target == null) return;
 
-        if (SoundManager.Instance != null)
+        if (SoundManager.Instance != null && buttonClickSFX != null)
             SoundManager.Instance.PlaySFX(buttonClickSFX);
 
         if (!originalScales.TryGetValue(target, out Vector3 originalScale))
@@ -189,14 +225,14 @@ public class Counter_UI_Manager : MonoBehaviour
         );
     }
 
-    void PreparePauseMenuButtons()
+    private void PreparePauseMenuButtons()
     {
         PreparePauseMenuButton(settingOpenButton);
         PreparePauseMenuButton(bookOpenButton);
         PreparePauseMenuButton(homeOpenButton);
     }
 
-    void PreparePauseMenuButton(RectTransform target)
+    private void PreparePauseMenuButton(RectTransform target)
     {
         if (target == null) return;
 
@@ -216,7 +252,7 @@ public class Counter_UI_Manager : MonoBehaviour
         cg.blocksRaycasts = false;
     }
 
-    IEnumerator ShowPauseMenuButtonsRoutine()
+    private IEnumerator ShowPauseMenuButtonsRoutine()
     {
         yield return StartCoroutine(PopPauseMenuButton(settingOpenButton));
         yield return new WaitForSecondsRealtime(menuButtonPopInterval);
@@ -229,7 +265,7 @@ public class Counter_UI_Manager : MonoBehaviour
         pauseMenuButtonsRoutine = null;
     }
 
-    IEnumerator PopPauseMenuButton(RectTransform target)
+    private IEnumerator PopPauseMenuButton(RectTransform target)
     {
         if (target == null)
             yield break;
@@ -269,7 +305,7 @@ public class Counter_UI_Manager : MonoBehaviour
         cg.alpha = 1f;
     }
 
-    void StopPauseMenuButtonsAnimation()
+    private void StopPauseMenuButtonsAnimation()
     {
         if (pauseMenuButtonsRoutine != null)
         {
@@ -282,7 +318,7 @@ public class Counter_UI_Manager : MonoBehaviour
         ResetPauseMenuButton(homeOpenButton);
     }
 
-    void ResetPauseMenuButton(RectTransform target)
+    private void ResetPauseMenuButton(RectTransform target)
     {
         if (target == null) return;
 
@@ -300,7 +336,7 @@ public class Counter_UI_Manager : MonoBehaviour
         cg.blocksRaycasts = true;
     }
 
-    CanvasGroup GetOrAddCanvasGroup(RectTransform target)
+    private CanvasGroup GetOrAddCanvasGroup(RectTransform target)
     {
         CanvasGroup cg = target.GetComponent<CanvasGroup>();
         if (cg == null)
@@ -312,6 +348,14 @@ public class Counter_UI_Manager : MonoBehaviour
     public void OpenSettingWithDelay()
     {
         PlayButtonJelly(settingOpenButton);
+
+        if (IsPausePracticeFlowActive())
+        {
+            if (IsTutorialStep(TutorialController.TutorialStep.Counter_Setting))
+                Tutorial.OnTutorialSettingPressed();
+            return;
+        }
+
         StartOpen(settingCanvasGroup, settingPanel);
     }
 
@@ -324,6 +368,14 @@ public class Counter_UI_Manager : MonoBehaviour
     public void OpenBookWithDelay()
     {
         PlayButtonJelly(bookOpenButton);
+
+        if (IsPausePracticeFlowActive())
+        {
+            if (IsTutorialStep(TutorialController.TutorialStep.Counter_Book))
+                Tutorial.OnTutorialBookPressed();
+            return;
+        }
+
         StartOpen(bookCanvasGroup, bookPanel);
     }
 
@@ -336,6 +388,14 @@ public class Counter_UI_Manager : MonoBehaviour
     public void OpenHomeWithDelay()
     {
         PlayButtonJelly(homeOpenButton);
+
+        if (IsPausePracticeFlowActive())
+        {
+            if (IsTutorialStep(TutorialController.TutorialStep.Counter_Home))
+                Tutorial.OnTutorialHomePressed();
+            return;
+        }
+
         StartOpen(homeCanvasGroup, homePanel);
     }
 
@@ -345,7 +405,7 @@ public class Counter_UI_Manager : MonoBehaviour
         StartClose(homeCanvasGroup, homePanel);
     }
 
-    void StartOpen(CanvasGroup cg, RectTransform panel)
+    private void StartOpen(CanvasGroup cg, RectTransform panel)
     {
         if (cg == null || panel == null) return;
 
@@ -400,18 +460,16 @@ public class Counter_UI_Manager : MonoBehaviour
             homeCanvasGroup.gameObject.SetActive(false);
         }
 
-        // 주문/손님 상태 먼저 초기화
         if (Order_Manager.Instance != null)
             Order_Manager.Instance.ResetForAbandonDay();
 
-        // 진행 중이던 하루는 저장 없이 폐기
         if (Day_Manager.Instance != null)
             Day_Manager.Instance.ResetForNextDay();
 
         SceneManager.LoadScene(0);
     }
 
-    void StartClose(CanvasGroup cg, RectTransform panel)
+    private void StartClose(CanvasGroup cg, RectTransform panel)
     {
         if (cg == null || panel == null) return;
 

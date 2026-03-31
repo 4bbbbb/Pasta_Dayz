@@ -58,6 +58,10 @@ public class Day_Manager : MonoBehaviour
         if (!isDayActive)
             return;
 
+        // 튜토리얼 중에는 시간 정지
+        if (IsTutorialTimeFrozen())
+            return;
+
         timer -= Time.deltaTime;
 
         if (timer <= 0)
@@ -65,6 +69,12 @@ public class Day_Manager : MonoBehaviour
             timer = 0;
             StopTakingOrders();
         }
+    }
+
+    private bool IsTutorialTimeFrozen()
+    {
+        return TutorialController.Instance != null &&
+               TutorialController.Instance.IsTutorialActive;
     }
 
     void StopTakingOrders()
@@ -77,7 +87,8 @@ public class Day_Manager : MonoBehaviour
         if (hasEndedDay)
             return;
 
-        orderManager.OnOrderTimeEnded();
+        if (orderManager != null)
+            orderManager.OnOrderTimeEnded();
     }
 
     public float GetRemainingTime()
@@ -87,13 +98,14 @@ public class Day_Manager : MonoBehaviour
 
     void StartDay()
     {
-        day = completedDay + 1;   // 핵심: 다음 시작 day는 마지막 완료 day + 1
+        day = completedDay + 1;   // 다음 시작 day는 마지막 완료 day + 1
         timer = dayDuration;
         isDayActive = true;
         isTakingOrder = true;
         hasEndedDay = false;
 
-        orderManager.SetState(Order_Manager.ServiceState.WaitingForOrder);
+        if (orderManager != null)
+            orderManager.SetState(Order_Manager.ServiceState.WaitingForOrder);
     }
 
     public int GetDay()
@@ -114,9 +126,10 @@ public class Day_Manager : MonoBehaviour
         hasEndedDay = true;
         isDayActive = false;
 
-        completedDay = day;   // 핵심: 하루를 끝냈을 때만 완료 day 갱신
+        completedDay = day;
 
-        orderManager.SetState(Order_Manager.ServiceState.DayEnded);
+        if (orderManager != null)
+            orderManager.SetState(Order_Manager.ServiceState.DayEnded);
 
         Debug.Log("하루 종료! +20");
 
@@ -158,13 +171,14 @@ public class Day_Manager : MonoBehaviour
 
         day = completedDay;
 
-        orderManager.SetState(Order_Manager.ServiceState.WaitingForOrder);
+        if (orderManager != null)
+            orderManager.SetState(Order_Manager.ServiceState.WaitingForOrder);
     }
 
     public void LoadDayData(int savedCompletedDay)
     {
         completedDay = Mathf.Max(0, savedCompletedDay);
-        day = completedDay;   // 아직 새 day 시작 전 상태
+        day = completedDay;
         timer = dayDuration;
         isDayActive = false;
         isTakingOrder = true;

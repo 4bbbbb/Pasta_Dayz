@@ -22,7 +22,7 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
     [SerializeField] private Transform cookerVisual;
 
     [Header("쿠커 선택 연출")]
-    [SerializeField] private Vector3 normalScale = Vector3.one;    
+    [SerializeField] private Vector3 normalScale = Vector3.one;
 
     [Header("버블 이펙트")]
     [SerializeField] private GameObject bubbleEffect;
@@ -44,9 +44,8 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
 
     public bool CanBeSelected => false;
 
-    void Awake()
+    private void Awake()
     {
-
         if (cookerVisual == null)
             cookerVisual = transform;
 
@@ -64,7 +63,7 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
         boilingAudioSource.clip = boilingLoopClip;
     }
 
-    void Start()
+    private void Start()
     {
         SyncSfxVolume();
 
@@ -81,7 +80,7 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
         }
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
         if (SoundManager.Instance != null)
         {
@@ -102,17 +101,29 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
 
         if (target is Noodles noodles)
         {
-            StartBoiling(noodles);
+            if (!CanAcceptTutorialNoodle(noodles))
+                return false;
+
+            if (!StartBoiling(noodles))
+                return false;
+
+            if (IsFirstKitchenTutorialActive())
+            {
+                TutorialController.Instance?.TryConsumeKitchenAction(
+                    TutorialController.KitchenPracticeTarget.DragSpaghettiToCooker
+                );
+            }
+
             return true;
         }
 
         return false;
     }
 
-    public void StartBoiling(Noodles noodles)
+    private bool StartBoiling(Noodles noodles)
     {
         if (noodles == null || isCooking)
-            return;
+            return false;
 
         OnBoiling();
 
@@ -120,6 +131,7 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
             StopCoroutine(cookingRoutine);
 
         cookingRoutine = StartCoroutine(BoilingRoutine(noodles));
+        return true;
     }
 
     private IEnumerator BoilingRoutine(Noodles noodles)
@@ -171,7 +183,6 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
         }
     }
 
-
     private GameObject GetNoodlePrefab(int id)
     {
         foreach (var data in noodlePrefabs)
@@ -188,47 +199,37 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
         SetBubbleAlpha(0f);
 
         foreach (var b in bubbleEffect.GetComponentsInChildren<Bubble>())
-        {
             b.StartBubble();
-        }
 
         StartCoroutine(StartBubbleRoutine());
 
         PlayBoilingSound();
     }
 
-
-    IEnumerator StartBubbleRoutine()
+    private IEnumerator StartBubbleRoutine()
     {
         yield return new WaitForSeconds(0.2f);
-
         FadeBubble(0f, 1f, 0.5f);
     }
-
 
     public void StopBoiling()
     {
         isCooking = false;
 
         FadeBubble(1f, 0f, 1f);
-
         StartCoroutine(StopBubbleAfterFade());
-
         StopBoilingSoundWithFade();
     }
 
-    IEnumerator StopBubbleAfterFade()
+    private IEnumerator StopBubbleAfterFade()
     {
-        yield return new WaitForSeconds(0.8f); // ← Fade 시간과 맞추기
+        yield return new WaitForSeconds(0.8f);
 
         foreach (var b in bubbleEffect.GetComponentsInChildren<Bubble>())
-        {
             b.StopBubble();
-        }
     }
 
-
-    void FadeBubble(float start, float end, float duration)
+    private void FadeBubble(float start, float end, float duration)
     {
         if (bubbleFadeRoutine != null)
             StopCoroutine(bubbleFadeRoutine);
@@ -236,7 +237,7 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
         bubbleFadeRoutine = StartCoroutine(FadeBubbleRoutine(start, end, duration));
     }
 
-    IEnumerator FadeBubbleRoutine(float start, float end, float duration)
+    private IEnumerator FadeBubbleRoutine(float start, float end, float duration)
     {
         float time = 0f;
 
@@ -253,7 +254,7 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
         SetBubbleAlpha(end);
     }
 
-    void SetBubbleAlpha(float alpha)
+    private void SetBubbleAlpha(float alpha)
     {
         if (bubbleRenderers == null) return;
 
@@ -264,7 +265,6 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
             r.color = c;
         }
     }
-    
 
     private void PlayBoilingSound()
     {
@@ -310,11 +310,10 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
         if (boilingAudioSource == null) return;
 
         if (SoundManager.Instance != null)
-            boilingAudioSource.volume =
-                SoundManager.Instance.MasterVolume * SoundManager.Instance.SfxVolume;
+            boilingAudioSource.volume = SoundManager.Instance.MasterVolume * SoundManager.Instance.SfxVolume;
         else
             boilingAudioSource.volume = 1f;
-    }    
+    }
 
     private void StopAllRunningProcesses()
     {
@@ -330,7 +329,6 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
         }
 
         SetBubbleAlpha(0f);
-
         isCooking = false;
     }
 
@@ -344,6 +342,31 @@ public class Cooker_PastaCooker : MonoBehaviour, IInteractable
         SyncSfxVolume();
     }
 
+    private bool IsFirstKitchenTutorialActive()
+    {
+        return TutorialController.Instance != null
+            && TutorialController.Instance.IsTutorialActive
+            && TutorialController.Instance.CurrentStep == TutorialController.TutorialStep.Kitchen_FirstCookProgress;
+    }
+
+    private bool CanAcceptTutorialNoodle(Noodles noodles)
+    {
+        if (!IsFirstKitchenTutorialActive())
+            return true;
+
+        if (TutorialController.Instance == null)
+            return true;
+
+        if (!TutorialController.Instance.IsKitchenActionAllowed(
+                TutorialController.KitchenPracticeTarget.DragSpaghettiToCooker))
+            return false;
+
+        IngredientIDs id = noodles.GetComponent<IngredientIDs>();
+        if (id == null)
+            return false;
+
+        return id.GetID() == 101;
+    }
 
     public void Cancel() { }
 }

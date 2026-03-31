@@ -49,6 +49,9 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
 
         if (target is Plate plate)
         {
+            if (!CanAcceptTutorialPlate(plate))
+                return false;
+
             GameObject platePrefab = plate.plateType switch
             {
                 Plate.PlateType.BasicPlate => basicPlatePrefab,
@@ -66,6 +69,14 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
                 Quaternion.identity,
                 plateSpawnPoint
             );
+
+            if (IsFirstKitchenTutorialActive())
+            {
+                TutorialController.Instance?.TryConsumeKitchenAction(
+                    TutorialController.KitchenPracticeTarget.DragPlateToTable
+                );
+            }
+
             return true;
         }
 
@@ -89,9 +100,29 @@ public class Cooker_PlateTable : MonoBehaviour, IInteractable
             return;
 
         for (int i = plateSpawnPoint.childCount - 1; i >= 0; i--)
-        {
             Destroy(plateSpawnPoint.GetChild(i).gameObject);
-        }
+    }
+
+    private bool IsFirstKitchenTutorialActive()
+    {
+        return TutorialController.Instance != null
+            && TutorialController.Instance.IsTutorialActive
+            && TutorialController.Instance.CurrentStep == TutorialController.TutorialStep.Kitchen_FirstCookProgress;
+    }
+
+    private bool CanAcceptTutorialPlate(Plate plate)
+    {
+        if (!IsFirstKitchenTutorialActive())
+            return true;
+
+        if (TutorialController.Instance == null)
+            return true;
+
+        if (!TutorialController.Instance.IsKitchenActionAllowed(
+                TutorialController.KitchenPracticeTarget.DragPlateToTable))
+            return false;
+
+        return plate != null && plate.plateType == Plate.PlateType.BasicPlate;
     }
 
     public void Cancel()

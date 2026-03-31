@@ -14,13 +14,24 @@ public class Setting_UI : MonoBehaviour
     [SerializeField] private CanvasGroup gameCanvasGroup;
     [SerializeField] private RectTransform gamePanel;
 
+    [Header("SFX")]
+    [SerializeField] private AudioClip buttonClickSFX;
+
     private void Start()
     {
-        OpenSoundPanel();
+        OpenSoundPanel(false);
     }
 
     public void OpenSoundPanel()
     {
+        OpenSoundPanel(true);
+    }
+
+    private void OpenSoundPanel(bool playSFX)
+    {
+        if (playSFX)
+            PlayButtonSFX();
+
         ShowPanel(soundCanvasGroup, soundPanel);
         HidePanel(languageCanvasGroup, languagePanel);
         HidePanel(gameCanvasGroup, gamePanel);
@@ -28,6 +39,8 @@ public class Setting_UI : MonoBehaviour
 
     public void OpenLanguagePanel()
     {
+        PlayButtonSFX();
+
         HidePanel(soundCanvasGroup, soundPanel);
         ShowPanel(languageCanvasGroup, languagePanel);
         HidePanel(gameCanvasGroup, gamePanel);
@@ -35,9 +48,19 @@ public class Setting_UI : MonoBehaviour
 
     public void OpenGamePanel()
     {
+        PlayButtonSFX();
+
         HidePanel(soundCanvasGroup, soundPanel);
         HidePanel(languageCanvasGroup, languagePanel);
         ShowPanel(gameCanvasGroup, gamePanel);
+    }
+
+    private void PlayButtonSFX()
+    {
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlaySFX(buttonClickSFX);
+        }
     }
 
     private void ShowPanel(CanvasGroup cg, RectTransform panel)

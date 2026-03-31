@@ -92,7 +92,14 @@ public class CustomerButton : MonoBehaviour
 
         if (manager.dayManager != null && manager.dayManager.isTakingOrder)
         {
-            manager.GetPrice();
+            if (TutorialController.Instance != null && TutorialController.Instance.IsTutorialActive)
+            {
+                TutorialController.Instance.OnClickCounterYes();
+            }
+            else
+            {
+                manager.GetPrice();
+            }
         }
         else
         {

@@ -1,87 +1,267 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
 public class KitchenTutorialView : MonoBehaviour
 {
+    public enum KitchenHighlight
+    {
+        None,
+        PastaCooker,
+        GasStove,
+        PlateTable,
+        PassTable,
+        Parmesan,
+        Parsley
+    }
+
     [Header("공통")]
     [SerializeField] private GameObject root;
+    [SerializeField] private GameObject messagePanelRoot;
     [SerializeField] private TMP_Text messageText;
 
-    [Header("강조 오브젝트")]
-    [SerializeField] private GameObject noodleHighlight;
-    [SerializeField] private GameObject sauceHighlight;
-    [SerializeField] private GameObject toppingHighlight;
-    [SerializeField] private GameObject cookHighlight;
-    [SerializeField] private GameObject plateHighlight;
-    [SerializeField] private GameObject passHighlight;
+    [Header("Next")]
+    [SerializeField] private GameObject nextButton;
+    [SerializeField] private CanvasGroup nextButtonCanvasGroup;
 
-    void Awake()
+    [Header("포인트")]
+    [SerializeField] private GameObject pastaCookerPoint;
+    [SerializeField] private GameObject gasStovePoint;
+    [SerializeField] private GameObject plateTablePoint;
+    [SerializeField] private GameObject passTablePoint;
+    [SerializeField] private GameObject parmesanPoint;
+    [SerializeField] private GameObject parsleyPoint;
+
+    [Header("타이핑")]
+    [SerializeField] private float typeInterval = 0.04f;
+    [SerializeField] private float nextFadeDuration = 0.2f;
+    [SerializeField] private AudioClip typingSFX;
+
+    private Coroutine typingCoroutine;
+    private Coroutine nextFadeCoroutine;
+
+    private void Awake()
     {
         if (TutorialController.Instance != null)
             TutorialController.Instance.RegisterKitchenView(this);
+
+        HideNextImmediate();
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
         if (TutorialController.Instance != null)
             TutorialController.Instance.UnregisterKitchenView(this);
     }
 
+    private void OnDisable()
+    {
+        StopAllCoroutinesSafe();
+    }
+
     public void ResetView()
     {
-        if (root != null) root.SetActive(true);
+        StopAllCoroutinesSafe();
+
+        if (root != null)
+            root.SetActive(true);
+
+        if (messagePanelRoot != null)
+            messagePanelRoot.SetActive(true);
+
         HideAllHighlights();
+
+        if (messageText != null)
+        {
+            messageText.text = string.Empty;
+            messageText.maxVisibleCharacters = 99999;
+        }
+
+        HideNextImmediate();
     }
 
     public void HideAll()
     {
-        if (root != null) root.SetActive(false);
+        StopAllCoroutinesSafe();
+
+        if (root != null)
+            root.SetActive(false);
+
         HideAllHighlights();
+        HideNextImmediate();
+    }
+
+    public void ShowStep(string msg, KitchenHighlight highlight, bool showNextAfterTyping, bool showMessagePanel = true)
+    {
+        ResetView();
+
+        if (messagePanelRoot != null)
+            messagePanelRoot.SetActive(showMessagePanel);
+
+        ShowHighlight(highlight);
+
+        if (showMessagePanel)
+            PlayTyping(msg, showNextAfterTyping);
+        else
+            HideNextImmediate();
+    }
+
+    public void OnClickNextButton()
+    {
+        if (TutorialController.Instance != null)
+            TutorialController.Instance.OnClickKitchenNext();
+    }
+
+    public void HideMessagePanelOnly()
+    {
+        if (messagePanelRoot != null)
+            messagePanelRoot.SetActive(false);
+
+        if (nextButton != null)
+            nextButton.SetActive(false);
+
+        if (nextButtonCanvasGroup != null)
+        {
+            nextButtonCanvasGroup.alpha = 0f;
+            nextButtonCanvasGroup.interactable = false;
+            nextButtonCanvasGroup.blocksRaycasts = false;
+        }
+    }
+
+    private void ShowHighlight(KitchenHighlight highlight)
+    {
+        HideAllHighlights();
+
+        switch (highlight)
+        {
+            case KitchenHighlight.PastaCooker:
+                if (pastaCookerPoint != null) pastaCookerPoint.SetActive(true);
+                break;
+            case KitchenHighlight.GasStove:
+                if (gasStovePoint != null) gasStovePoint.SetActive(true);
+                break;
+            case KitchenHighlight.PlateTable:
+                if (plateTablePoint != null) plateTablePoint.SetActive(true);
+                break;
+            case KitchenHighlight.PassTable:
+                if (passTablePoint != null) passTablePoint.SetActive(true);
+                break;
+            case KitchenHighlight.Parmesan:
+                if (parmesanPoint != null) parmesanPoint.SetActive(true);
+                break;
+            case KitchenHighlight.Parsley:
+                if (parsleyPoint != null) parsleyPoint.SetActive(true);
+                break;
+        }
     }
 
     private void HideAllHighlights()
     {
-        if (noodleHighlight != null) noodleHighlight.SetActive(false);
-        if (sauceHighlight != null) sauceHighlight.SetActive(false);
-        if (toppingHighlight != null) toppingHighlight.SetActive(false);
-        if (cookHighlight != null) cookHighlight.SetActive(false);
-        if (plateHighlight != null) plateHighlight.SetActive(false);
-        if (passHighlight != null) passHighlight.SetActive(false);
+        if (pastaCookerPoint != null) pastaCookerPoint.SetActive(false);
+        if (gasStovePoint != null) gasStovePoint.SetActive(false);
+        if (plateTablePoint != null) plateTablePoint.SetActive(false);
+        if (passTablePoint != null) passTablePoint.SetActive(false);
+        if (parmesanPoint != null) parmesanPoint.SetActive(false);
+        if (parsleyPoint != null) parsleyPoint.SetActive(false);
     }
 
-    public void StartFirstKitchenTutorial()
+    private void PlayTyping(string msg, bool showNextAfterTyping)
     {
-        ResetView();
-        if (messageText != null)
-            messageText.text = "첫 번째 주문을 만들어볼게요. 튜토리얼 순서대로 진행해보세요.";
+        StopAllCoroutinesSafe();
+        HideNextImmediate();
 
-        // 여기서 첫 주문용 단계 시작
-        // 예: 면만 선택 가능, 소스/토핑은 잠금 등
+        if (messageText == null)
+            return;
+
+        messageText.text = msg;
+        messageText.maxVisibleCharacters = 0;
+        messageText.ForceMeshUpdate();
+
+        typingCoroutine = StartCoroutine(TypeRoutine(showNextAfterTyping));
     }
 
-    public void ResumeFirstKitchenTutorial()
+    private IEnumerator TypeRoutine(bool showNextAfterTyping)
     {
-        // 씬 다시 바인딩됐을 때 이어서 표시할 내용
+        if (messageText == null)
+            yield break;
+
+        messageText.ForceMeshUpdate();
+        int total = messageText.textInfo.characterCount;
+
+        for (int i = 1; i <= total; i++)
+        {
+            messageText.maxVisibleCharacters = i;
+
+            char c = messageText.textInfo.characterInfo[i - 1].character;
+            if (!char.IsWhiteSpace(c) && SoundManager.Instance != null && typingSFX != null)
+                SoundManager.Instance.PlaySFX(typingSFX);
+
+            yield return new WaitForSecondsRealtime(typeInterval);
+        }
+
+        messageText.maxVisibleCharacters = total;
+        typingCoroutine = null;
+
+        if (showNextAfterTyping)
+            nextFadeCoroutine = StartCoroutine(FadeNextRoutine());
     }
 
-    public void StartSecondKitchenTutorial()
+    private IEnumerator FadeNextRoutine()
     {
-        ResetView();
-        if (messageText != null)
-            messageText.text = "이번에는 두 번째 주문을 직접 만들어볼게요.";
+        if (nextButton == null)
+            yield break;
 
-        // 여기서 두 번째 주문용 단계 시작
+        nextButton.SetActive(true);
+
+        if (nextButtonCanvasGroup == null)
+        {
+            nextFadeCoroutine = null;
+            yield break;
+        }
+
+        nextButtonCanvasGroup.alpha = 0f;
+        nextButtonCanvasGroup.interactable = false;
+        nextButtonCanvasGroup.blocksRaycasts = false;
+
+        float t = 0f;
+        while (t < nextFadeDuration)
+        {
+            t += Time.unscaledDeltaTime;
+            nextButtonCanvasGroup.alpha = Mathf.Clamp01(t / nextFadeDuration);
+            yield return null;
+        }
+
+        nextButtonCanvasGroup.alpha = 1f;
+        nextButtonCanvasGroup.interactable = true;
+        nextButtonCanvasGroup.blocksRaycasts = true;
+        nextFadeCoroutine = null;
     }
 
-    public void ResumeSecondKitchenTutorial()
+    private void HideNextImmediate()
     {
-        // 필요하면 이어서 표시
+        if (nextButton != null)
+            nextButton.SetActive(false);
+
+        if (nextButtonCanvasGroup != null)
+        {
+            nextButtonCanvasGroup.alpha = 0f;
+            nextButtonCanvasGroup.interactable = false;
+            nextButtonCanvasGroup.blocksRaycasts = false;
+        }
     }
 
-    // 주방에서 마지막 완성 후 카운터로 돌아갈 때 호출
-    public void NotifyDishCompleted()
+    private void StopAllCoroutinesSafe()
     {
-        if (TutorialController.Instance != null)
-            TutorialController.Instance.OnKitchenDishCompleted();
+        if (typingCoroutine != null)
+        {
+            StopCoroutine(typingCoroutine);
+            typingCoroutine = null;
+        }
+
+        if (nextFadeCoroutine != null)
+        {
+            StopCoroutine(nextFadeCoroutine);
+            nextFadeCoroutine = null;
+        }
     }
 }

@@ -156,6 +156,9 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
         if (target is Cheese cheese)
         {
+            if (!CanAcceptTutorialCheese(cheese))
+                return false;
+
             if (!isOnPlate)
             {
                 Debug.Log("그릇 위에 올려진 파스타에만 치즈를 추가할 수 있어요!");
@@ -187,6 +190,13 @@ public class FinishedPasta : MonoBehaviour, IInteractable
                         cheeseSpawnPoint
                     );
                 });
+
+                if (IsFirstKitchenTutorialActive())
+                {
+                    TutorialController.Instance?.TryConsumeKitchenAction(
+                        TutorialController.KitchenPracticeTarget.DragParmesanToPlate
+                    );
+                }
             }
             else if (cheese.cheeseType == Cheese.CheeseType.Mozzarella)
             {
@@ -210,6 +220,9 @@ public class FinishedPasta : MonoBehaviour, IInteractable
 
         if (target is Topping_Parsley parsley)
         {
+            if (!CanAcceptTutorialParsley())
+                return false;
+
             if (!isOnPlate)
             {
                 Debug.Log("그릇 위에 올려진 파스타에만 파슬리를 추가할 수 있어요!");
@@ -238,6 +251,13 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             if (id != null)
             {
                 ingredientIDs.Add(id.GetID());
+            }
+
+            if (IsFirstKitchenTutorialActive())
+            {
+                TutorialController.Instance?.TryConsumeKitchenAction(
+                    TutorialController.KitchenPracticeTarget.DragParsleyToPlate
+                );
             }
 
             return true;
@@ -396,7 +416,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             return false;
         }
 
-        Debug.Log("드롭 시 맞은 오브젝트: " + hit.collider.name);        
+        Debug.Log("드롭 시 맞은 오브젝트: " + hit.collider.name);
 
         Plates_BasicPlate basicPlate = hit.collider.GetComponentInParent<Plates_BasicPlate>();
         if (basicPlate != null)
@@ -576,6 +596,13 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         RefreshDragCaches();
         ApplyPlateSorting();
 
+        if (IsFirstKitchenTutorialActive())
+        {
+            TutorialController.Instance?.TryConsumeKitchenAction(
+                TutorialController.KitchenPracticeTarget.DragPastaToPlate
+            );
+        }
+
         Debug.Log("완성된 파스타를 그릇에 담았어요 !!");
         PrintIngredients();
     }
@@ -666,7 +693,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         {
             Transform topping = toppings[i];
 
-            // 0,1,2 -> group 0 / 3,4,5 -> group 1
             int targetGroupIndex = Mathf.Clamp(i / 3, 0, plateToppingGroupParents.Length - 1);
             Transform targetPoint = FindFirstEmptyPointInGroup(targetGroupIndex);
 
@@ -828,7 +854,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
             }
         }
     }
-    #endregion    
+    #endregion
 
     #region <<Check>>
 
@@ -847,7 +873,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         if (ingredientIDs.Contains(401)) return 401;
         if (ingredientIDs.Contains(402)) return 402;
         return -1;
-    } 
+    }
 
     private int GetNoodleID()
     {
@@ -1073,7 +1099,6 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         int plateID = GetPlateID();
         bool hasPane = HasPane();
 
-        // 추가: plateID 못 찾으면 부모 플레이트에서 다시 동기화
         if (plateID == -1)
         {
             SyncPlateInfoFromParent();
@@ -1277,5 +1302,39 @@ public class FinishedPasta : MonoBehaviour, IInteractable
         transform.DOKill();
         transform.DOScale(originalScale, selectScaleDuration)
                  .SetEase(Ease.OutQuad);
+    }
+
+    private bool IsFirstKitchenTutorialActive()
+    {
+        return TutorialController.Instance != null
+            && TutorialController.Instance.IsTutorialActive
+            && TutorialController.Instance.CurrentStep == TutorialController.TutorialStep.Kitchen_FirstCookProgress;
+    }
+
+    private bool CanAcceptTutorialCheese(Cheese cheese)
+    {
+        if (!IsFirstKitchenTutorialActive())
+            return true;
+
+        if (TutorialController.Instance == null)
+            return true;
+
+        if (!TutorialController.Instance.IsKitchenActionAllowed(
+                TutorialController.KitchenPracticeTarget.DragParmesanToPlate))
+            return false;
+
+        return cheese != null && cheese.cheeseType == Cheese.CheeseType.Parmesan;
+    }
+
+    private bool CanAcceptTutorialParsley()
+    {
+        if (!IsFirstKitchenTutorialActive())
+            return true;
+
+        if (TutorialController.Instance == null)
+            return true;
+
+        return TutorialController.Instance.IsKitchenActionAllowed(
+            TutorialController.KitchenPracticeTarget.DragParsleyToPlate);
     }
 }

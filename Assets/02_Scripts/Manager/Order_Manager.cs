@@ -153,11 +153,44 @@ public class Order_Manager : MonoBehaviour
         {
             currentCustomer.transform.SetParent(customerUIParent, false);
             currentCustomer.transform.SetAsFirstSibling();
-            currentCustomer.gameObject.SetActive(true);
+
+            if (TutorialController.Instance != null && TutorialController.Instance.IsTutorialActive)
+            {
+                currentCustomer.HideBubble();
+                currentCustomer.gameObject.SetActive(false);
+            }
+            else
+            {
+                currentCustomer.gameObject.SetActive(true);
+            }
         }
 
         if (TutorialController.Instance != null && TutorialController.Instance.IsTutorialActive)
         {
+            // 튜토리얼 중 주방에서 카운터로 돌아왔을 때는
+            // pendingResult / pendingSatisfactionZero를 먼저 처리해야
+            // 파스타 박스 전달 연출이 정상적으로 재생된다.
+            if (pendingSatisfactionZero)
+            {
+                pendingSatisfactionZero = false;
+                StartCoroutine(DontSubmitDish());
+                return;
+            }
+
+            if (pendingResult.HasValue)
+            {
+                if (currentCustomer != null && currentCustomerSpriteIndex != -1)
+                {
+                    currentCustomer.SetCustomerSprite(currentCustomerSpriteIndex);
+                    currentCustomer.gameObject.SetActive(true);
+                    currentCustomer.HideBubble();
+                }
+
+                StartCoroutine(ServeDishAndGoToNextCustomer(pendingResult.Value));
+                pendingResult = null;
+                return;
+            }
+
             TutorialController.Instance.NotifyCounterSceneReady();
             return;
         }
@@ -385,6 +418,7 @@ public class Order_Manager : MonoBehaviour
 
         GoToKitchen();
     }
+
 
     public void GoToKitchen()
     {
@@ -845,46 +879,40 @@ public class Order_Manager : MonoBehaviour
     }
 
     #region <<Tutorial>>
-    public void SpawnTutorialCustomer(Order tutorialOrder, int spriteIndex, string forcedMessage)
+
+    public void PrepareTutorialCustomerUI()
     {
-        if (tutorialOrder == null)
+        if (currentCustomer == null)
             return;
 
-        currentState = ServiceState.TakingOrder;
+        currentCustomer.HideBubble();
+        currentCustomer.gameObject.SetActive(false);
+    }
 
+    public void SpawnTutorialCustomer(Order order, int spriteIndex, string forcedMessage)
+    {
         if (customerUIParent == null)
         {
             if (!BindCounterParents())
                 return;
         }
 
-        if (currentCustomer == null)
-        {
-            GameObject obj = Instantiate(customerUIPrefab, customerUIParent);
-            currentCustomer = obj.GetComponent<CustomerUI>();
-            currentCustomer.transform.SetAsFirstSibling();
-        }
-        else
-        {
-            currentCustomer.transform.SetParent(customerUIParent, false);
-            currentCustomer.transform.SetAsFirstSibling();
-            currentCustomer.gameObject.SetActive(true);
-        }
+        if (currentCustomer == null || order == null)
+            return;
 
+        currentOrder = order;
         currentCustomerSpriteIndex = spriteIndex;
         lastCustomerSpriteIndex = spriteIndex;
 
+        currentCustomer.transform.SetParent(customerUIParent, false);
+        currentCustomer.transform.SetAsFirstSibling();
+        currentCustomer.gameObject.SetActive(true);
+
         currentCustomer.Appear();
-        currentCustomer.SetCustomerSprite(currentCustomerSpriteIndex);
-
-        currentOrder = tutorialOrder;
-
-        string message = string.IsNullOrEmpty(forcedMessage)
-            ? currentOrder.GetOrderText(generator.ingredientDB)
-            : forcedMessage;
+        currentCustomer.SetCustomerSprite(spriteIndex);
 
         StopCustomerEntranceAnimation();
-        customerEntranceRoutine = StartCoroutine(CustomerEntranceRoutine(message));
+        customerEntranceRoutine = StartCoroutine(CustomerEntranceRoutine(forcedMessage));
 
         if (currentCustomer.yesButton != null)
             currentCustomer.yesButton.SetActive(false);
@@ -937,6 +965,15 @@ public class Order_Manager : MonoBehaviour
         }
 
         currentState = ServiceState.WaitingForOrder;
+
+        // 튜토리얼 종료 후에는 같은 카운터 씬에 그대로 머무르므로
+        // OnSceneLoaded가 다시 호출되지 않는다.
+        // 따라서 실제 영업용 첫 손님을 여기서 직접 다시 스폰해줘야 한다.
+        if (dayManager != null && dayManager.isTakingOrder)
+        {
+            StartService();
+        }
     }
+
     #endregion
 }

@@ -92,6 +92,12 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
         // 1) 완성 파스타를 접시에 올릴 때
         if (target is FinishedPasta finishedPasta)
         {
+            if (!CanAcceptTutorialPasta(finishedPasta))
+            {
+                Debug.Log("지금은 파스타를 접시에 담을 단계가 아니에요!");
+                return false;
+            }
+
             if (hasPasta)
             {
                 Debug.Log("이미 파스타가 담겨 있어요!");
@@ -155,6 +161,12 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
         // 2) 구워진 빠네를 접시에 올릴 때
         if (target is Plate_BakedPane bakedPane)
         {
+            if (!CanAcceptTutorialBakedPane())
+            {
+                Debug.Log("첫 번째 키친 튜토리얼에서는 빠네를 사용할 수 없어요.");
+                return false;
+            }
+
             if (hasPasta)
             {
                 Debug.Log("지금은 빠네를 추가할 수 없어요.");
@@ -489,5 +501,34 @@ public class Plates_BasicPlate : MonoBehaviour, IInteractable
         {
             Debug.Log("Plate에 포함된 ID: " + id);
         }
+    }
+
+    private bool IsFirstKitchenTutorialActive()
+    {
+        return TutorialController.Instance != null
+            && TutorialController.Instance.IsTutorialActive
+            && TutorialController.Instance.CurrentStep == TutorialController.TutorialStep.Kitchen_FirstCookProgress;
+    }
+
+    private bool CanAcceptTutorialPasta(FinishedPasta finishedPasta)
+    {
+        if (!IsFirstKitchenTutorialActive())
+            return true;
+
+        if (TutorialController.Instance == null)
+            return true;
+
+        return TutorialController.Instance.IsKitchenActionAllowed(
+            TutorialController.KitchenPracticeTarget.DragPastaToPlate
+        );
+    }
+
+    private bool CanAcceptTutorialBakedPane()
+    {
+        if (!IsFirstKitchenTutorialActive())
+            return true;
+
+        // 첫 번째 키친 튜토리얼에서는 빠네 사용 안 함
+        return false;
     }
 }

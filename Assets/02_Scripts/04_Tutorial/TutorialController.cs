@@ -468,6 +468,7 @@ public class TutorialController : MonoBehaviour
 
             case TutorialStep.Counter_FirstServeCheer:
                 FinishTutorialAndStartRealDay1();
+
                 return;
         }
 
@@ -494,8 +495,6 @@ public class TutorialController : MonoBehaviour
         waitingForYesButton = false;
         ResetCounterPracticeState();
 
-        // 주방에서 카운터로 돌아온 직후, 첫 서빙 결과 멘트가 뜨기 전까지는
-        // 튜토리얼 패널을 완전히 숨긴다.
         if (currentStep == TutorialStep.Kitchen_FirstCookDone_ReturnToCounter)
         {
             counterView.HideAll();
@@ -557,7 +556,7 @@ public class TutorialController : MonoBehaviour
                 break;
 
             case TutorialStep.Counter_FirstCustomerSpawn:
-                SpawnFirstTutorialCustomer();
+                SpawnFirstTutorialCustomer();            
                 waitingForNextButton = true;
                 counterView.ShowMessage("이제 첫 손님을 받아볼게요.", true);
                 break;
@@ -565,7 +564,6 @@ public class TutorialController : MonoBehaviour
             case TutorialStep.Counter_FirstOrderExplain:
                 waitingForNextButton = true;
                 counterView.ShowMessage("손님이 알리오 올리오에 스파게티면, 마늘 토핑 추가를 주문했어요.", true);
-                Order_ManagerBridge_ShowDecisionButtons(true, true, false, false);
                 break;
 
             case TutorialStep.Counter_FirstYesExplain:
@@ -584,11 +582,13 @@ public class TutorialController : MonoBehaviour
                 waitingForNextButton = true;
                 counterView.ShowMessage("이번 튜토리얼 첫 주문은 직접 만들어볼게요.", true);
                 Order_ManagerBridge_ShowDecisionButtons(true, true, false, false);
+                if (counterView != null)
+                    counterView.SetInputBlocker(false);
                 break;
 
             case TutorialStep.Counter_FirstWaitYesClick:
-                waitingForYesButton = true;
-                counterView.ShowMessage("네를 누르고 파스타를 만들러 가볼까요?", false);
+                waitingForYesButton = true;             
+                counterView.ShowMessage("그럼 주문을 받아볼까요? '네' 버튼을 눌러주세요.", false);
                 Order_ManagerBridge_ShowDecisionButtons(true, true, true, false);
                 break;
 
@@ -609,13 +609,8 @@ public class TutorialController : MonoBehaviour
 
             case TutorialStep.Counter_FirstServeCheer:
                 waitingForNextButton = true;
-                counterView.ShowMessage($"이제 실제로 장사를 시작해볼까요?", true);
-                break;
-
-            case TutorialStep.Counter_FirstServeCheer2:
-                waitingForNextButton = true;
-                counterView.ShowMessage($"{GetPlayerName()} 사장님 화이팅!", true);
-                break;
+                counterView.ShowMessage($"이제 실제로 장사를 시작해볼까요?\n{GetPlayerName()} 사장님 화이팅!", true);
+                break;            
         }
     }
 
@@ -1075,6 +1070,9 @@ public class TutorialController : MonoBehaviour
     {
         if (Order_Manager.Instance == null) return;
         Order_Manager.Instance.ShowTutorialDecisionButtons(showYes, showAuto, enableYes, enableAuto);
+        if (counterView != null)
+            counterView.SetInputBlocker(false);
+
     }
 
     private void Order_ManagerBridge_SpawnTutorialCustomer(Order order, int spriteIndex, string forcedMessage)

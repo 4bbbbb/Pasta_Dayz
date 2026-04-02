@@ -6,13 +6,15 @@ public class MenuDatabase : MonoBehaviour
 {
     public List<MenuData> menuList = new List<MenuData>();
 
-    void Awake()
+    private void Awake()
     {
         LoadMenuData();
     }
 
     void LoadMenuData()
     {
+        menuList.Clear();
+
         var data = CSVReader.Read("Data/MenuData");
 
         foreach (var row in data)
@@ -29,8 +31,8 @@ public class MenuDatabase : MonoBehaviour
             bool isBaked = row["isBaked"]?.ToString().Trim() == "1";
 
             menuList.Add(new MenuData(id, name, ingredientList, isBaked));
-        }                
-    }  
+        }
+    }
 
     public MenuData GetMenuByID(int id)
     {

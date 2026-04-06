@@ -766,7 +766,7 @@ public class FinishedPasta : MonoBehaviour, IInteractable
                     }
 
                     int ingredientID = idComp.GetID();
-                    GameObject prefab = Order_Manager.Instance.ingredientDB.GetPrefab(ingredientID);
+                    GameObject prefab = IngredientDatabase.Instance.GetPrefab(ingredientID);
 
                     if (prefab == null)
                     {

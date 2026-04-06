@@ -4,11 +4,22 @@ using UnityEngine;
 
 public class MenuDatabase : MonoBehaviour
 {
+    public static MenuDatabase Instance;
+
     public List<MenuData> menuList = new List<MenuData>();
 
     private void Awake()
     {
-        LoadMenuData();
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            LoadMenuData();
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     void LoadMenuData()
@@ -39,8 +50,16 @@ public class MenuDatabase : MonoBehaviour
         return menuList.Find(m => m.menuID == id);
     }
 
-    public MenuData GetRandomMenu()
+    public bool IsMenuUnlocked(int menuID, IngredientDatabase ingredientDB)
     {
-        return menuList[Random.Range(0, menuList.Count)];
+        MenuData menu = GetMenuByID(menuID);
+        if (menu == null) return false;
+        if (ingredientDB == null) return false;
+
+        return menu.IngredientsID.All(id =>
+        {
+            var ingredient = ingredientDB.GetIngredient(id);
+            return ingredient != null && ingredient.isUnlocked;
+        });
     }
 }

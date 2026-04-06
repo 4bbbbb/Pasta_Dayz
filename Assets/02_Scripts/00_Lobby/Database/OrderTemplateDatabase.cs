@@ -1,39 +1,47 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static OrderTemplateData;
 
 public class OrderTemplateDatabase : MonoBehaviour
 {
-    public List<OrderTemplate> templateList = new List<OrderTemplate>();
+    public static OrderTemplateDatabase Instance;
 
-    void Awake()
+    [System.Serializable]
+    public class TemplateData
     {
-        LoadTemplateData();
+        public string category;
+        public List<string> templates;
     }
 
-    void LoadTemplateData()
-    {
-        var data = CSVReader.Read("Data/OrderTemplateData");
+    public List<TemplateData> templateList = new List<TemplateData>();
 
-        foreach (var row in data)
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
         {
-            OrderTemplate temp = new OrderTemplate();
-            temp.type = row["OrderType"].ToString();
-            temp.template = row["Template"].ToString();
-
-            templateList.Add(temp);
+            Destroy(gameObject);
+            return;
         }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
-    public string GetRandomTemplate(string type)
+    public string GetRandomTemplate(string category)
     {
-        List<OrderTemplate> filtered = templateList.FindAll(t => t.type == type);
+        TemplateData data = templateList.Find(x => x.category == category);
 
-        if (filtered.Count == 0)
+        if (data == null)
+        {
+            Debug.LogError($"OrderTemplateDatabase: {category} 카테고리를 찾을 수 없음");
             return "";
+        }
 
-        int rand = Random.Range(0, filtered.Count);
-        return filtered[rand].template;
+        if (data.templates == null || data.templates.Count == 0)
+        {
+            Debug.LogError($"OrderTemplateDatabase: {category} 템플릿이 비어 있음");
+            return "";
+        }
+
+        return data.templates[Random.Range(0, data.templates.Count)];
     }
 }

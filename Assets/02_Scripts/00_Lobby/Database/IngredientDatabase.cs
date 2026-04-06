@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static IngredientData;
@@ -11,8 +10,8 @@ public class IngredientDatabase : MonoBehaviour
     public List<IngredientData> ingredientList = new List<IngredientData>();
     public List<IngredientIconData> iconDataList = new List<IngredientIconData>();
 
-    Dictionary<int, IngredientData> ingredientDict;
-    Dictionary<int, IngredientIconData> iconDict;
+    private Dictionary<int, IngredientData> ingredientDict = new Dictionary<int, IngredientData>();
+    private Dictionary<int, IngredientIconData> iconDict = new Dictionary<int, IngredientIconData>();
 
     [System.Serializable]
     public class IngredientIconData
@@ -22,32 +21,37 @@ public class IngredientDatabase : MonoBehaviour
         public GameObject ingredientPrefab;
     }
 
-    void Awake()
+    private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
 
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        InitializeDatabase();
+    }
+
+    private void InitializeDatabase()
+    {
         LoadIngredientData();
 
         ingredientDict = ingredientList.ToDictionary(i => i.id);
         iconDict = iconDataList.ToDictionary(i => i.id);
     }
 
-    void LoadIngredientData()
+    private void LoadIngredientData()
     {
+        ingredientList.Clear();
+
         var data = CSVReader.Read("Data/IngredientsData");
 
         foreach (var row in data)
         {
             int id = int.Parse(row["ID"].ToString());
-            //Trim() 코드로 공백오류 보완
             string category = row["Category"].ToString().Trim();
             string name = row["Name"].ToString().Trim();
             float price = float.TryParse(row["Price"]?.ToString(), out var p) ? p : 0f;
@@ -57,34 +61,56 @@ public class IngredientDatabase : MonoBehaviour
             bool isUnlocked = row["isUnlocked"]?.ToString().Trim() == "1";
 
             CategoryType categoryType;
-
             if (!System.Enum.TryParse(category, out categoryType))
             {
                 throw new System.Exception($"Invalid Category in CSV: {category}");
             }
 
-            var ingredient = new IngredientData(id,category,name,price,cost,level,unlockCost,isUnlocked);
+            IngredientData ingredient = new IngredientData(
+                id,
+                category,
+                name,
+                price,
+                cost,
+                level,
+                unlockCost,
+                isUnlocked
+            );
 
             ingredient.categoryType = categoryType;
-
             ingredientList.Add(ingredient);
-        }        
+        }
     }
 
-    public IngredientData GetIngredient(int id) => ingredientDict.TryGetValue(id, out var data) ? data : null;
-    public Sprite GetIcon(int id) => iconDict.TryGetValue(id, out var data) ? data.icon : null;
-    public GameObject GetPrefab(int id) => iconDict.TryGetValue(id, out var data) ? data.ingredientPrefab : null;
-    public IngredientIconData GetIngredientIconData(int id) => iconDict.TryGetValue(id, out var data) ? data : null;
+    public IngredientData GetIngredient(int id)
+    {
+        return ingredientDict.TryGetValue(id, out var data) ? data : null;
+    }
+
+    public Sprite GetIcon(int id)
+    {
+        return iconDict.TryGetValue(id, out var data) ? data.icon : null;
+    }
+
+    public GameObject GetPrefab(int id)
+    {
+        return iconDict.TryGetValue(id, out var data) ? data.ingredientPrefab : null;
+    }
+
+    public IngredientIconData GetIngredientIconData(int id)
+    {
+        return iconDict.TryGetValue(id, out var data) ? data : null;
+    }
 
     public int GetRandomNoodle()
     {
         var noodles = ingredientList
-           .Where(i => i.categoryType == CategoryType.Noodle && i.isUnlocked)
-           .ToList();
+            .Where(i => i.categoryType == CategoryType.Noodle && i.isUnlocked)
+            .ToList();
 
         return noodles.Count == 0 ? -1 : noodles[Random.Range(0, noodles.Count)].id;
     }
-       
+
     public List<int> GetRandomToppings()
     {
         var toppings = ingredientList
@@ -99,8 +125,7 @@ public class IngredientDatabase : MonoBehaviour
 
     public void UpdateUnlockState(int id, bool unlocked)
     {
-        var item = ingredientList.Find(x => x.id == id);
-        if (item != null)
+        if (ingredientDict.TryGetValue(id, out var item))
         {
             item.isUnlocked = unlocked;
         }
@@ -108,9 +133,6 @@ public class IngredientDatabase : MonoBehaviour
 
     public void ResetToDefaultFromCSV()
     {
-        ingredientList.Clear();
-        ingredientDict = null;
-
         LoadIngredientData();
         ingredientDict = ingredientList.ToDictionary(i => i.id);
 

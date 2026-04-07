@@ -2331,7 +2331,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 187289fac027b3b478a19cf97c9e8628, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  orderManager: {fileID: 1584618187}
   levelData: {fileID: 11400000, guid: 9698407562afcf841aae6f8d3a860c8a, type: 2}
   currentLevel: 0
   currentXP: 0

@@ -8,13 +8,10 @@ public class Shop_Manager : MonoBehaviour
 {
     public static Shop_Manager Instance;
 
-    // 상점 UI를 배치할 부모
     public Transform shopContentParent;
 
-    // 아이템 UI prefab
     public GameObject shopItemPrefab;
 
-    // 상점 아이템 UI 리스트
     private List<ShopItemUI> shopItemUIs = new List<ShopItemUI>();
 
     void Awake()
@@ -43,20 +40,15 @@ public class Shop_Manager : MonoBehaviour
         FilterByCategory(CategoryType.Noodle);
     }
 
-    // 상점 UI 생성
     void PopulateShop()
     {
         if (IngredientDatabase.Instance == null)
-        {
-            return;
-        }
+            return;        
 
         foreach (var item in IngredientDatabase.Instance.ingredientList)
         {
             if (item.id == 204)
-            {
-                continue;
-            }
+                continue;           
 
             GameObject go = Instantiate(shopItemPrefab, shopContentParent);
             ShopItemUI ui = go.GetComponent<ShopItemUI>();
@@ -65,7 +57,6 @@ public class Shop_Manager : MonoBehaviour
         }
     }
 
-    // 전체 UI 갱신
     public void UpdateShopUI()
     {
         foreach (var ui in shopItemUIs)
@@ -77,35 +68,27 @@ public class Shop_Manager : MonoBehaviour
     public void PurchaseItem(IngredientData item)
     {
         if (!CanPurchase(item))
-        {
-            return;
-        }
+            return;        
 
         Gold_Manager.Instance.SpendShop(item.unlockCost);
 
         IngredientDatabase.Instance.UpdateUnlockState(item.id, true);
 
         if (item.id == 203)
-        {
-            IngredientDatabase.Instance.UpdateUnlockState(204, true);
-        }
+            IngredientDatabase.Instance.UpdateUnlockState(204, true);        
 
         UpdateShopUI();
 
         if (Game_Manager.Instance != null)
-        {
             Game_Manager.Instance.SaveGame();
-        }
+        
 
         if (ToppingManager.Instance != null)
-        {
             ToppingManager.Instance.RefreshToppingUI();
-        }
+        
 
         if (Game_Manager.Instance != null)
-        {
-            Game_Manager.Instance.RefreshAllIngredientObjects();
-        }
+            Game_Manager.Instance.RefreshAllIngredientObjects();        
     }
 
     bool CanPurchase(IngredientData item)
@@ -135,8 +118,11 @@ public class Shop_Manager : MonoBehaviour
     {
         foreach (var ui in shopItemUIs)
         {
-            bool isMatch = ui.GetCategory() == type;
-            ui.gameObject.SetActive(isMatch);
+            if (ui.GetCategory() == type)
+                ui.gameObject.SetActive(true);     
+            
+            else
+                ui.gameObject.SetActive(false);            
         }
     }
 

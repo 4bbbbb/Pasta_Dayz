@@ -56,18 +56,14 @@ public class SoundManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 0번 씬에서는 브금 끄기
         if (scene.buildIndex == 0)
         {
             StopBGM();
             return;
         }
 
-        // 1번, 2번 씬에서는 같은 브금 유지/재생
         if (mainBgm != null)
-        {
-            PlayBGM(mainBgm);
-        }
+            PlayBGM(mainBgm);        
     }
 
     public void SetMasterVolume(float value)
@@ -105,15 +101,17 @@ public class SoundManager : MonoBehaviour
 
     public void PlaySFX(AudioClip clip)
     {
-        if (clip == null || sfxSource == null) return;
+        if (clip == null || sfxSource == null) 
+            return;
+
         sfxSource.PlayOneShot(clip);
     }
 
     public void PlayBGM(AudioClip clip, bool loop = true)
     {
-        if (clip == null || bgmSource == null) return;
+        if (clip == null || bgmSource == null)
+            return;
 
-        // 같은 곡이 이미 재생 중이면 재시작 안 함
         if (bgmSource.clip == clip && bgmSource.isPlaying)
             return;
 

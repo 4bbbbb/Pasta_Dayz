@@ -98,9 +98,7 @@ public class Gold_Manager : MonoBehaviour
     void UpdateUI()
     {
         if (goldText != null)
-        {
-            goldText.text = $"{totalGold:F2}";
-        }
+            goldText.text = $"{totalGold:F2}";        
     }
 
     public void ResetDailyStats()

@@ -4,7 +4,6 @@ public class Level_Manager : MonoBehaviour
 {
     public static Level_Manager Instance;
 
-    public Order_Manager orderManager;
     public LevelData levelData;
 
     [Header("LV, XP")]
@@ -28,8 +27,7 @@ public class Level_Manager : MonoBehaviour
     {
         currentXP += amount;
 
-        while (currentLevel < levelData.levelXPRequirements.Count &&
-               currentXP >= levelData.levelXPRequirements[currentLevel])
+        while (currentLevel < levelData.levelXPRequirements.Count && currentXP >= levelData.levelXPRequirements[currentLevel])
         {
             currentLevel++;
         }
@@ -39,10 +37,18 @@ public class Level_Manager : MonoBehaviour
     {
         level = currentLevel;
 
-        int prevLevelXP = (currentLevel > 1) ? levelData.levelXPRequirements[currentLevel - 1] : 0;
-        int nextLevelXP = (currentLevel < levelData.levelXPRequirements.Count)
-            ? levelData.levelXPRequirements[currentLevel]
-            : prevLevelXP + 1;
+        int prevLevelXP;
+        int nextLevelXP;
+
+        if (currentLevel > 1)
+            prevLevelXP = levelData.levelXPRequirements[currentLevel - 1];        
+        else
+            prevLevelXP = 0; 
+
+        if (currentLevel < levelData.levelXPRequirements.Count)
+            nextLevelXP = levelData.levelXPRequirements[currentLevel];       
+        else
+            nextLevelXP = prevLevelXP + 1;       
 
         current = currentXP - prevLevelXP;
         max = nextLevelXP - prevLevelXP;

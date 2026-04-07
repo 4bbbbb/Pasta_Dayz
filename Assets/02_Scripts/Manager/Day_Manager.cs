@@ -43,14 +43,12 @@ public class Day_Manager : MonoBehaviour
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (scene.name == "01_Counter")
-        {
             orderManager = FindFirstObjectByType<Order_Manager>();
-        }
+       
 
         if (scene.name == "01_Counter" && !isDayActive && orderManager != null)
-        {
             StartDay();
-        }
+        
     }
 
     void Update()
@@ -58,7 +56,6 @@ public class Day_Manager : MonoBehaviour
         if (!isDayActive)
             return;
 
-        // 튜토리얼 중에는 시간 정지
         if (IsTutorialTimeFrozen())
             return;
 
@@ -139,9 +136,8 @@ public class Day_Manager : MonoBehaviour
     private IEnumerator EndDayRoutine()
     {
         if (orderManager != null)
-        {
             yield return orderManager.PlayCustomerExitForDayEnd();
-        }
+        
 
         yield return new WaitForSeconds(0.5f);
 
@@ -157,9 +153,8 @@ public class Day_Manager : MonoBehaviour
         }
 
         if (Game_Manager.Instance != null)
-        {
             Game_Manager.Instance.SaveGame();
-        }
+        
     }
 
     public void ResetForNextDay()

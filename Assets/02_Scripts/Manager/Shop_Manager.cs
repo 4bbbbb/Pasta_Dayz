@@ -92,19 +92,14 @@ public class Shop_Manager : MonoBehaviour
 
         UpdateShopUI();
 
-        if (ToppingManager.Instance != null)
-        {
-            ToppingManager.Instance.RefreshToppingUI();
-        }
-
-        if (RecipeBook_UI.Instance != null)
-        {
-            RecipeBook_UI.Instance.RefreshAllMenuButtons();
-        }
-
         if (Game_Manager.Instance != null)
         {
             Game_Manager.Instance.SaveGame();
+        }
+
+        if (ToppingManager.Instance != null)
+        {
+            ToppingManager.Instance.RefreshToppingUI();
         }
     }
 

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class Tip_UI : MonoBehaviour
 {
     public Image tipImage;
-    public Sprite[] tipSprites;
+    public Sprite[] tipSprites; 
 
     void Start()
     {

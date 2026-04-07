@@ -707,7 +707,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
     private void SpawnIngredientByID(int ingredientID, Transform spawnPoint)
     {
-        GameObject prefab = IngredientDatabase.Instance.GetPrefab(ingredientID);
+        GameObject prefab = Order_Manager.Instance.ingredientDB.GetPrefab(ingredientID);
         if (prefab == null) return;
 
         GameObject obj = Instantiate(prefab, spawnPoint.position, Quaternion.identity, spawnPoint);
@@ -733,7 +733,7 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
     private void SpawnIngredientByIDWithDrop(int ingredientID, Transform spawnPoint, float dropDuration)
     {
-        GameObject prefab = IngredientDatabase.Instance.GetPrefab(ingredientID);
+        GameObject prefab = Order_Manager.Instance.ingredientDB.GetPrefab(ingredientID);
         if (prefab == null) return;
 
         GameObject obj = Instantiate(prefab, spawnPoint.position, Quaternion.identity, spawnPoint);

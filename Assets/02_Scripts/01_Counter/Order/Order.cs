@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -22,38 +23,9 @@ public class Order : IHasIngredients
 
     public string GenerateOrderMessage(string noodleName, List<string> toppingNames)
     {
-        if (ordertemplateDB == null)
-        {
-            Debug.LogError("Order.GenerateOrderMessage : ordertemplateDB가 null");
-            return "";
-        }
-
-        if (menuData == null)
-        {
-            Debug.LogError("Order.GenerateOrderMessage : menuData가 null");
-            return "";
-        }
-
         string menuTemp = ordertemplateDB.GetRandomTemplate("Menu");
-        if (menuTemp == null)
-        {
-            Debug.LogError("Order.GenerateOrderMessage : Menu 템플릿이 null");
-            return "";
-        }
-
         string noodleTemp = ordertemplateDB.GetRandomTemplate("Noodle");
-        if (noodleTemp == null)
-        {
-            Debug.LogError("Order.GenerateOrderMessage : Noodle 템플릿이 null");
-            return "";
-        }
-
         string toppingTemp = ordertemplateDB.GetRandomTemplate("Topping");
-        if (toppingTemp == null)
-        {
-            Debug.LogError("Order.GenerateOrderMessage : Topping 템플릿이 null");
-            return "";
-        }
 
         string toppingText = string.Join(", ", toppingNames);
 
@@ -64,24 +36,12 @@ public class Order : IHasIngredients
         return menuTemp + "\n" + noodleTemp + " " + toppingTemp;
     }
 
-    public string GetOrderText()
+    public string GetOrderText(IngredientDatabase ingredientDB)
     {
-        if (IngredientDatabase.Instance == null)
-        {
-            Debug.LogError("IngredientDatabase.Instance가 null입니다.");
-            return "";
-        }
-
-        var noodle = IngredientDatabase.Instance.GetIngredient(noodleID);
-        if (noodle == null)
-            return "";
-
-        string noodleName = noodle.name;
+        string noodleName = ingredientDB.GetIngredient(noodleID).name;
 
         List<string> toppingNames = toppingIDs
-            .Select(id => IngredientDatabase.Instance.GetIngredient(id))
-            .Where(x => x != null)
-            .Select(x => x.name)
+            .Select(id => ingredientDB.GetIngredient(id).name)
             .ToList();
 
         return GenerateOrderMessage(noodleName, toppingNames);
@@ -102,64 +62,32 @@ public class Order : IHasIngredients
         return result;
     }
 
-    public float Price()
+    public float Price(IngredientDatabase ingredientDB)
     {
-        if (IngredientDatabase.Instance == null)
-        {
-            Debug.LogError("IngredientDatabase.Instance가 null입니다.");
-            return 0f;
-        }
-
         float total = 0f;
 
         foreach (int id in menuData.IngredientsID)
-        {
-            var ingredient = IngredientDatabase.Instance.GetIngredient(id);
-            if (ingredient != null)
-                total += ingredient.price;
-        }
+            total += ingredientDB.GetIngredient(id).price;
 
-        var noodle = IngredientDatabase.Instance.GetIngredient(noodleID);
-        if (noodle != null)
-            total += noodle.price;
+        total += ingredientDB.GetIngredient(noodleID).price;
 
         foreach (int id in toppingIDs)
-        {
-            var ingredient = IngredientDatabase.Instance.GetIngredient(id);
-            if (ingredient != null)
-                total += ingredient.price;
-        }
+            total += ingredientDB.GetIngredient(id).price;
 
         return total;
     }
 
-    public float Ingredient_Cost()
+    public float Ingredient_Cost(IngredientDatabase ingredientDB)
     {
-        if (IngredientDatabase.Instance == null)
-        {
-            Debug.LogError("IngredientDatabase.Instance가 null입니다.");
-            return 0f;
-        }
-
         float total = 0f;
 
         foreach (int id in menuData.IngredientsID)
-        {
-            var ingredient = IngredientDatabase.Instance.GetIngredient(id);
-            if (ingredient != null)
-                total += ingredient.ingredientCost;
-        }
+            total += ingredientDB.GetIngredient(id).ingredientCost;
 
-        var noodle = IngredientDatabase.Instance.GetIngredient(noodleID);
-        if (noodle != null)
-            total += noodle.ingredientCost;
+        total += ingredientDB.GetIngredient(noodleID).ingredientCost;
 
         foreach (int id in toppingIDs)
-        {
-            var ingredient = IngredientDatabase.Instance.GetIngredient(id);
-            if (ingredient != null)
-                total += ingredient.ingredientCost;
-        }
+            total += ingredientDB.GetIngredient(id).ingredientCost;
 
         return total;
     }

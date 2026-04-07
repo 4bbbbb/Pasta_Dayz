@@ -9,10 +9,6 @@ public class RecipeBook_UI : MonoBehaviour
 
     [Header("DB")]
     [SerializeField] private MenuDatabase menuDatabase;
-    [SerializeField] private IngredientDatabase ingredientDatabase;
-
-    [Header("메뉴 버튼")]
-    [SerializeField] private RecipeMenuButton[] menuButtons;
 
     [Header("오른쪽 패널")]
     [SerializeField] private Image dishImage;
@@ -75,60 +71,21 @@ public class RecipeBook_UI : MonoBehaviour
             if (!menuSpriteDict.ContainsKey(data.menuID))
                 menuSpriteDict.Add(data.menuID, data.sprite);
         }
-
-        if (menuButtons == null || menuButtons.Length == 0)
-            menuButtons = GetComponentsInChildren<RecipeMenuButton>(true);
     }
 
     private void Start()
     {
-        RefreshAllMenuButtons();
-
-        if (IsMenuUnlocked(1))
-            ShowRecipeByID(1);
-        else
-            ShowFirstUnlockedRecipe();
-    }
-
-    public bool IsMenuUnlocked(int menuID)
-    {
-        if (MenuDatabase.Instance == null || IngredientDatabase.Instance == null)
-            return false;
-
-        return MenuDatabase.Instance.IsMenuUnlocked(menuID, IngredientDatabase.Instance);
-    }
-
-    public void RefreshAllMenuButtons()
-    {
-        if (menuButtons == null) return;
-
-        foreach (var btn in menuButtons)
-        {
-            if (btn != null)
-                btn.RefreshState();
-        }
-    }
-
-    private void ShowFirstUnlockedRecipe()
-    {
-        foreach (var menu in menuDatabase.menuList)
-        {
-            if (IsMenuUnlocked(menu.menuID))
-            {
-                ShowRecipeByID(menu.menuID);
-                return;
-            }
-        }
+        ShowRecipeByID(1);
     }
 
     public void ShowRecipeByID(int menuID)
     {
-        if (!IsMenuUnlocked(menuID))
-            return;
-
-        MenuData menu = MenuDatabase.Instance.GetMenuByID(menuID);
+        MenuData menu = menuDatabase.GetMenuByID(menuID);
         if (menu == null)
+        {
+            Debug.LogWarning($"Menu ID {menuID} 못 찾음");
             return;
+        }
 
         UpdateDish(menu);
         UpdateIngredients(menu);
@@ -155,20 +112,44 @@ public class RecipeBook_UI : MonoBehaviour
         {
             switch (id)
             {
-                case 201: oilImage.sprite = oilSprite; break;
-                case 202: sauceImage.sprite = tomatoSauceSprite; break;
-                case 203: sauceImage.sprite = creamSauceSprite; break;
-                case 204: sauceImage.sprite = roseSauceSprite; break;
-                case 205: sauceImage.sprite = vongoleSauceSprite; break;
+                case 201:
+                    oilImage.sprite = oilSprite;
+                    break;
 
-                case 401: cheeseImage.sprite = parmesanSprite; break;
-                case 402: cheeseImage.sprite = mozzarellaSprite; break;
+                case 202:
+                    sauceImage.sprite = tomatoSauceSprite;
+                    break;
+                case 203:
+                    sauceImage.sprite = creamSauceSprite;
+                    break;
+                case 204:
+                    sauceImage.sprite = roseSauceSprite;
+                    break;
+                case 205:
+                    sauceImage.sprite = vongoleSauceSprite;
+                    break;
 
-                case 501: plateImage.sprite = normalPlateSprite; break;
-                case 502: plateImage.sprite = ovenPlateSprite; break;
+                case 401:
+                    cheeseImage.sprite = parmesanSprite;
+                    break;
+                case 402:
+                    cheeseImage.sprite = mozzarellaSprite;
+                    break;
 
-                case 601: paneImage.sprite = paneSprite; break;
-                case 701: parsleyImage.sprite = parsleySprite; break;
+                case 501:
+                    plateImage.sprite = normalPlateSprite;
+                    break;
+                case 502:
+                    plateImage.sprite = ovenPlateSprite;
+                    break;
+
+                case 601:
+                    paneImage.sprite = paneSprite;
+                    break;
+
+                case 701:
+                    parsleyImage.sprite = parsleySprite;
+                    break;
             }
         }
     }

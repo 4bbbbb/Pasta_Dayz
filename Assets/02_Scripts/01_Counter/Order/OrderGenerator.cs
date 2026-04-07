@@ -1,31 +1,30 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 public class OrderGenerator : MonoBehaviour
 {
+    public MenuDatabase menuDB;
+    public IngredientDatabase ingredientDB;
+    public OrderTemplateDatabase ordertemplateDB;
+
     public Order GenerateOrder()
     {
-        if (OrderTemplateDatabase.Instance == null)
-        {
-            Debug.LogError("OrderTemplateDatabase.Instance가 null입니다.");
-            return null;
-        }
+        // 1️. 만들 수 있는 메뉴만 필터링
+        var availableMenus = menuDB.menuList
+            .Where(menu => menu.IngredientsID.All(id =>
+             {
+                var ingredient = ingredientDB.GetIngredient(id);
 
-        if (MenuDatabase.Instance == null)
-        {
-            Debug.LogError("MenuDatabase.Instance가 null입니다.");
-            return null;
-        }
+                 if (ingredient == null)
+                 {
+                    Debug.LogWarning($"ID {id} 재료를 찾을 수 없습니다.");
+                    return false;
+                    }
 
-        if (IngredientDatabase.Instance == null)
-        {
-            Debug.LogError("IngredientDatabase.Instance가 null입니다.");
-            return null;
-        }
-
-        var availableMenus = MenuDatabase.Instance.menuList
-            .Where(menu => MenuDatabase.Instance.IsMenuUnlocked(menu.menuID, IngredientDatabase.Instance))
+                return ingredient.isUnlocked;
+            }))
             .ToList();
 
         if (availableMenus.Count == 0)
@@ -34,22 +33,27 @@ public class OrderGenerator : MonoBehaviour
             return null;
         }
 
+        // 2️. 랜덤 메뉴 선택
         MenuData randomMenu = availableMenus[Random.Range(0, availableMenus.Count)];
 
-        int randomNoodle = IngredientDatabase.Instance.GetRandomNoodle();
+        // 3️. 랜덤 면 선택 (해금된 면만)
+        int randomNoodle = ingredientDB.GetRandomNoodle();
         if (randomNoodle == -1)
         {
             Debug.LogError("해금된 면이 없습니다!");
             return null;
         }
 
-        List<int> randomToppings = IngredientDatabase.Instance.GetRandomToppings();
+        // 4️. 랜덤 토핑 선택 (해금된 것 중 메뉴에 포함된 것만, 0~2개)
+        List<int> randomToppings = ingredientDB.GetRandomToppings();        
 
+        // 5. Order 생성
         return new Order(
             randomMenu,
             randomNoodle,
             randomToppings,
-            OrderTemplateDatabase.Instance
+            ordertemplateDB
         );
     }
+
 }

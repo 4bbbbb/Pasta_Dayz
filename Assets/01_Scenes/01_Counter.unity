@@ -23813,7 +23813,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uAC8C\uC784"
+  m_text: "\uB370\uC774\uD130"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e08c1126851d9914d801806827ffe482, type: 2}
   m_sharedMaterial: {fileID: -1535018142873760189, guid: e08c1126851d9914d801806827ffe482, type: 2}
@@ -25741,7 +25741,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uAC8C\uC784"
+  m_text: "\uB370\uC774\uD130"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e08c1126851d9914d801806827ffe482, type: 2}
   m_sharedMaterial: {fileID: -1535018142873760189, guid: e08c1126851d9914d801806827ffe482, type: 2}
@@ -25987,7 +25987,7 @@ MonoBehaviour:
   satisfactionRoot: {fileID: 2095398684}
   pausePanelPreview: {fileID: 606582096}
   settingPanelPreview: {fileID: 999050049}
-  bookPanelPreview: {fileID: 0}
+  bookPanelPreview: {fileID: 94763235}
   homePanelPreview: {fileID: 1408814685}
   pointDay: {fileID: 1468965883}
   pointSatisfaction: {fileID: 893132829}
@@ -30437,7 +30437,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uAC8C\uC784"
+  m_text: "\uB370\uC774\uD130"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e08c1126851d9914d801806827ffe482, type: 2}
   m_sharedMaterial: {fileID: -1535018142873760189, guid: e08c1126851d9914d801806827ffe482, type: 2}
@@ -31232,7 +31232,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uAC8C\uC784"
+  m_text: "\uB370\uC774\uD130"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e08c1126851d9914d801806827ffe482, type: 2}
   m_sharedMaterial: {fileID: -1535018142873760189, guid: e08c1126851d9914d801806827ffe482, type: 2}

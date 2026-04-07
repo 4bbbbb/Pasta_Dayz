@@ -281,7 +281,7 @@ public class CounterTutorialView : MonoBehaviour
     {
         StopAllRunningEffects();
         HideNextButtonImmediate();
-        SetInputBlocker(true);
+        SetInputBlocker(false);  
 
         if (TutorialPanel != null)
             TutorialPanel.SetActive(true);
@@ -303,7 +303,7 @@ public class CounterTutorialView : MonoBehaviour
             previewObject.SetActive(true);
             previewCanvasGroup = EnsureCanvasGroup(previewObject);
             previewCanvasGroup.alpha = 1f;
-            previewCanvasGroup.interactable = false;
+            previewCanvasGroup.interactable = true;
             previewCanvasGroup.blocksRaycasts = false;
         }
 

@@ -1,11 +1,25 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Plate_Manager : MonoBehaviour
-{    
-    void Start()
+{
+    private void OnEnable()
     {
+        RefreshPlates();
+    }
+
+    private void Start()
+    {
+        RefreshPlates();
+    }
+
+    public void RefreshPlates()
+    {
+        if (IngredientDatabase.Instance == null)
+        {
+            Debug.LogError("IngredientDatabase.Instance가 없습니다.");
+            return;
+        }
+
         foreach (Transform child in transform)
         {
             child.gameObject.SetActive(false);
@@ -21,5 +35,5 @@ public class Plate_Manager : MonoBehaviour
                     plateObj.SetActive(true);
             }
         }
-    }   
+    }
 }

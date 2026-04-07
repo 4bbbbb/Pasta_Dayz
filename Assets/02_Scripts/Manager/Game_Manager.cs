@@ -182,6 +182,29 @@ public class Game_Manager : MonoBehaviour
 
     }
 
+    public void RefreshAllIngredientObjects()
+    {
+        Noodle_Manager noodleManager = FindObjectOfType<Noodle_Manager>();
+        if (noodleManager != null)
+            noodleManager.RefreshNoodles();
+
+        Sauce_Manager sauceManager = FindObjectOfType<Sauce_Manager>();
+        if (sauceManager != null)
+            sauceManager.RefreshSauces();
+
+        Plate_Manager plateManager = FindObjectOfType<Plate_Manager>();
+        if (plateManager != null)
+            plateManager.RefreshPlates();
+
+        Pane_Manager paneManager = FindObjectOfType<Pane_Manager>();
+        if (paneManager != null)
+            paneManager.RefreshPane();        
+
+        ToppingManager toppingManager = FindObjectOfType<ToppingManager>();
+        if (toppingManager != null)
+            toppingManager.RefreshToppingUI();
+    }
+
     public void ResetAllProgress()
     {
         currentNickname = "Player";

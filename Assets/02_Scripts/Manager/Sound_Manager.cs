@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -21,9 +22,9 @@ public class SoundManager : MonoBehaviour
     public float BgmVolume => bgmVolume;
     public float SfxVolume => sfxVolume;
 
-    public System.Action<float> OnMasterVolumeChanged;
-    public System.Action<float> OnBgmVolumeChanged;
-    public System.Action<float> OnSfxVolumeChanged;
+    public Action<float> OnMasterVolumeChanged;
+    public Action<float> OnBgmVolumeChanged;
+    public Action<float> OnSfxVolumeChanged;
 
     private const string MASTER_KEY = "MASTER_VOLUME";
     private const string BGM_KEY = "BGM_VOLUME";

@@ -1,11 +1,25 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Pane_Manager : MonoBehaviour
-{   
-    void Start()
+{
+    private void OnEnable()
     {
+        RefreshPane();
+    }
+
+    private void Start()
+    {
+        RefreshPane();
+    }
+
+    public void RefreshPane()
+    {
+        if (IngredientDatabase.Instance == null)
+        {
+            Debug.LogError("IngredientDatabase.Instance가 없습니다.");
+            return;
+        }
+
         foreach (Transform child in transform)
         {
             child.gameObject.SetActive(false);

@@ -10,8 +10,8 @@ public class Day_Manager : MonoBehaviour
     public float dayDuration = 180f;
     private float timer;
 
-    public int day;                 // 현재 진행 중이거나 방금 시작한 day
-    private int completedDay = 0;   // 마지막으로 완료한 day
+    public int day;                
+    private int completedDay = 0;  
 
     public bool isDayActive = false;
     public bool isTakingOrder = true;
@@ -98,7 +98,7 @@ public class Day_Manager : MonoBehaviour
 
     void StartDay()
     {
-        day = completedDay + 1;   // 다음 시작 day는 마지막 완료 day + 1
+        day = completedDay + 1;   
         timer = dayDuration;
         isDayActive = true;
         isTakingOrder = true;

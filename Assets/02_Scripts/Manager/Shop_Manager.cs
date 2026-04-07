@@ -101,6 +101,11 @@ public class Shop_Manager : MonoBehaviour
         {
             ToppingManager.Instance.RefreshToppingUI();
         }
+
+        if (Game_Manager.Instance != null)
+        {
+            Game_Manager.Instance.RefreshAllIngredientObjects();
+        }
     }
 
     bool CanPurchase(IngredientData item)

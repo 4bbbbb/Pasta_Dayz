@@ -1,11 +1,25 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Sauce_Manager : MonoBehaviour
-{    
-    void Start()
+{
+    private void OnEnable()
     {
+        RefreshSauces();
+    }
+
+    private void Start()
+    {
+        RefreshSauces();
+    }
+
+    public void RefreshSauces()
+    {
+        if (IngredientDatabase.Instance == null)
+        {
+            Debug.LogError("IngredientDatabase.Instance가 없습니다.");
+            return;
+        }
+
         foreach (Transform child in transform)
         {
             child.gameObject.SetActive(false);

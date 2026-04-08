@@ -17,8 +17,8 @@ public class Order_Manager : MonoBehaviour
     [Header("UI")]
     public GameObject customerUIPrefab;
 
-    private Transform customerUIParent;   // Panel_Customer
-    private Transform serveBoxParent;     // Image_Table
+    private Transform customerUIParent;   
+    private Transform serveBoxParent;     
 
     [Header("손님 프리팹")]
     private CustomerUI currentCustomer;
@@ -166,10 +166,7 @@ public class Order_Manager : MonoBehaviour
         }
 
         if (TutorialController.Instance != null && TutorialController.Instance.IsTutorialActive)
-        {
-            // 튜토리얼 중 주방에서 카운터로 돌아왔을 때는
-            // pendingResult / pendingSatisfactionZero를 먼저 처리해야
-            // 파스타 박스 전달 연출이 정상적으로 재생된다.
+        {           
             if (pendingSatisfactionZero)
             {
                 pendingSatisfactionZero = false;
@@ -217,9 +214,7 @@ public class Order_Manager : MonoBehaviour
         else
         {
             if (currentOrder == null)
-            {
-                StartService();
-            }
+                StartService();            
         }
     }
 
@@ -300,10 +295,8 @@ public class Order_Manager : MonoBehaviour
             yield break;
         }
 
-        if (SoundManager.Instance != null)
-        {
-            SoundManager.Instance.PlaySFX(customerEnterSFX);
-        }
+        if (SoundManager.Instance != null)        
+            SoundManager.Instance.PlaySFX(customerEnterSFX);        
 
         currentCustomer.gameObject.SetActive(true);
 
@@ -419,6 +412,21 @@ public class Order_Manager : MonoBehaviour
         GoToKitchen();
     }
 
+    void DebugIngredientSet(IHasIngredients target, string label)
+    {
+        HashSet<int> set = target.GetIngredientSet();
+        string result = string.Join(", ", set);
+
+        Debug.Log($"{label} 재료 HashSet: [{result}]");
+
+        if (target is Order order)
+        {
+            float menuPrice = order.Price(ingredientDB);
+            float ingredientCost = order.Ingredient_Cost(ingredientDB);
+
+            Debug.Log($"{label} - 메뉴 총 가격: {menuPrice} / 재료 비용: {ingredientCost}");
+        }
+    }
 
     public void GoToKitchen()
     {
@@ -439,6 +447,7 @@ public class Order_Manager : MonoBehaviour
         SceneManager.LoadScene(2);
     }
 
+    #region <Submit / DontSubmit>
     public void SubmitDish(PastaBox pastaBox)
     {
         if (currentOrder == null)
@@ -565,7 +574,6 @@ public class Order_Manager : MonoBehaviour
         CheckDayEndCondition();
     }
 
-
     private IEnumerator PlayServeBoxEntrance(GameObject box)
     {
         if (box == null)
@@ -619,9 +627,7 @@ public class Order_Manager : MonoBehaviour
     public void SatisfactionZero()
     {
         if (currentCustomer != null)
-        {
-            currentCustomer.SetEmotion(false);
-        }
+            currentCustomer.SetEmotion(false);        
 
         pendingSatisfactionZero = true;
         GoToCounterScene();
@@ -654,9 +660,7 @@ public class Order_Manager : MonoBehaviour
         }
 
         if (currentCustomerSpriteIndex == -1)
-        {
-            currentCustomerSpriteIndex = Random.Range(0, currentCustomer.customerSprites.Count);
-        }
+            currentCustomerSpriteIndex = Random.Range(0, currentCustomer.customerSprites.Count);       
 
         currentCustomer.SetCustomerSprite(currentCustomerSpriteIndex);
 
@@ -689,7 +693,6 @@ public class Order_Manager : MonoBehaviour
         }
 
         SpawnCustomer();
-
     }
 
     public IEnumerator PlayCustomerExitForDayEnd()
@@ -740,7 +743,6 @@ public class Order_Manager : MonoBehaviour
         Destroy(box);
     }
 
-
     public bool IsCorrect(PastaBox pastaBox, Order order)
     {
         if (pastaBox == null || order == null)
@@ -753,6 +755,9 @@ public class Order_Manager : MonoBehaviour
 
         return sameIngredients && sameBaked;
     }
+    #endregion
+
+    #region <Auto>
 
     public void OnClickAutoButton()
     {
@@ -810,13 +815,14 @@ public class Order_Manager : MonoBehaviour
 
         isAutoCooking = false;
     }
+    #endregion
+
+    #region <EndDay>
 
     public void OnOrderTimeEnded()
     {
-        if (currentState == ServiceState.TakingOrder)
-        {
-            StartCoroutine(HandleCustomerExitAndEndDay());
-        }
+        if (currentState == ServiceState.TakingOrder)        
+            StartCoroutine(HandleCustomerExitAndEndDay());        
     }
 
     private IEnumerator HandleCustomerExitAndEndDay()
@@ -832,30 +838,13 @@ public class Order_Manager : MonoBehaviour
         CheckDayEndCondition();
     }
 
-
     void CheckDayEndCondition()
     {
         if (!dayManager.isTakingOrder && currentOrder == null && currentCustomer == null)
         {
             dayManager.EndDay();
         }
-    }
-
-    void DebugIngredientSet(IHasIngredients target, string label)
-    {
-        HashSet<int> set = target.GetIngredientSet();
-        string result = string.Join(", ", set);
-
-        Debug.Log($"{label} 재료 HashSet: [{result}]");
-
-        if (target is Order order)
-        {
-            float menuPrice = order.Price(ingredientDB);
-            float ingredientCost = order.Ingredient_Cost(ingredientDB);
-
-            Debug.Log($"{label} - 메뉴 총 가격: {menuPrice} / 재료 비용: {ingredientCost}");
-        }
-    }
+    }   
 
     public void ResetForAbandonDay()
     {
@@ -877,6 +866,7 @@ public class Order_Manager : MonoBehaviour
 
         currentState = ServiceState.WaitingForOrder;
     }
+    #endregion
 
     #region <<Tutorial>>
 

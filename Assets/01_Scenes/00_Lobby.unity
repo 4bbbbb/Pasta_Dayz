@@ -5650,7 +5650,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   orderManager: {fileID: 1584618187}
-  dayDuration: 180
+  dayDuration: 60
   day: 0
   isDayActive: 0
   isTakingOrder: 1

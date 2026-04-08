@@ -17,8 +17,8 @@ public class Order_Manager : MonoBehaviour
     [Header("UI")]
     public GameObject customerUIPrefab;
 
-    private Transform customerUIParent;   
-    private Transform serveBoxParent;     
+    private Transform customerUIParent;
+    private Transform serveBoxParent;
 
     [Header("손님 프리팹")]
     private CustomerUI currentCustomer;
@@ -215,7 +215,7 @@ public class Order_Manager : MonoBehaviour
         {
             if (currentOrder == null)
                 StartService();
-            
+
         }
     }
 
@@ -298,7 +298,7 @@ public class Order_Manager : MonoBehaviour
 
         if (SoundManager.Instance != null)
             SoundManager.Instance.PlaySFX(customerEnterSFX);
-        
+
 
         currentCustomer.gameObject.SetActive(true);
 
@@ -424,10 +424,10 @@ public class Order_Manager : MonoBehaviour
 
         if (currentCustomer != null)
             currentCustomer.gameObject.SetActive(false);
-        
+
 
         if (CustomerSatisfaction_Manager.Instance != null)
-            CustomerSatisfaction_Manager.Instance.ResetSatisfaction();        
+            CustomerSatisfaction_Manager.Instance.ResetSatisfaction();
 
         SceneManager.LoadScene(2);
     }
@@ -443,7 +443,7 @@ public class Order_Manager : MonoBehaviour
         {
             float satisfactionRatio = 0f;
             if (CustomerSatisfaction_Manager.Instance != null)
-                satisfactionRatio = CustomerSatisfaction_Manager.Instance.GetSatisfactionRatio();            
+                satisfactionRatio = CustomerSatisfaction_Manager.Instance.GetSatisfactionRatio();
 
             float tip = 0f;
 
@@ -480,7 +480,7 @@ public class Order_Manager : MonoBehaviour
         foreach (int id in usedIngredients)
         {
             var ingredient = ingredientDB.GetIngredient(id);
-            if (ingredient == null) 
+            if (ingredient == null)
                 continue;
 
             totalingredientCost += ingredient.ingredientCost;
@@ -789,7 +789,7 @@ public class Order_Manager : MonoBehaviour
         Gold_Manager.Instance.Earn(menuPrice);
         Gold_Manager.Instance.SpendBusinessCost(ingredientCost + autoExtraCost);
 
-        Level_Manager.Instance.EarnXP(5);      
+        Level_Manager.Instance.EarnXP(5);
 
         currentOrder = null;
 
@@ -801,7 +801,7 @@ public class Order_Manager : MonoBehaviour
     public void OnOrderTimeEnded()
     {
         if (currentState == ServiceState.TakingOrder)
-            StartCoroutine(HandleCustomerExitAndEndDay());        
+            StartCoroutine(HandleCustomerExitAndEndDay());
     }
 
     private IEnumerator HandleCustomerExitAndEndDay()
@@ -821,7 +821,7 @@ public class Order_Manager : MonoBehaviour
     void CheckDayEndCondition()
     {
         if (!dayManager.isTakingOrder && currentOrder == null && currentCustomer == null)
-            dayManager.EndDay();        
+            dayManager.EndDay();
     }
 
     void DebugIngredientSet(IHasIngredients target, string label)
@@ -950,9 +950,9 @@ public class Order_Manager : MonoBehaviour
         }
 
         currentState = ServiceState.WaitingForOrder;
-        
+
         if (dayManager != null && dayManager.isTakingOrder)
-            StartService();        
+            StartService();
     }
 
     #endregion

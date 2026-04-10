@@ -4,6 +4,7 @@ using UnityEngine;
 public class CustomerSatisfaction_Manager : MonoBehaviour
 {
     public static CustomerSatisfaction_Manager Instance;
+    public Order_Manager orderManager;
 
     [Header("만족도 설정")]
     public float maxSatisfaction = 100f;
@@ -27,8 +28,9 @@ public class CustomerSatisfaction_Manager : MonoBehaviour
         currentSatisfaction = maxSatisfaction;
 
         if (!isRunning)
+        {
             StartCoroutine(SatisfactionTimer());
-        
+        }
     }
 
     IEnumerator SatisfactionTimer()
@@ -37,6 +39,7 @@ public class CustomerSatisfaction_Manager : MonoBehaviour
 
         while (currentSatisfaction > 0)
         {
+            // 튜토리얼 중에는 만족도 감소 멈춤
             while (IsTutorialFrozen())
             {
                 yield return null;
@@ -44,19 +47,23 @@ public class CustomerSatisfaction_Manager : MonoBehaviour
 
             yield return new WaitForSeconds(1f);
 
+            // 기다리는 도중 튜토리얼이 시작됐으면 이번 감소도 스킵
             if (IsTutorialFrozen())
                 continue;
 
             currentSatisfaction -= decreasePerSecond;
 
             if (currentSatisfaction < 0)
+            {
                 currentSatisfaction = 0;
-            
+            }
 
             if (currentSatisfaction == 0)
             {
                 if (Order_Manager.Instance != null)
-                    Order_Manager.Instance.SatisfactionZero();                
+                {
+                    Order_Manager.Instance.SatisfactionZero();
+                }
             }
         }
 

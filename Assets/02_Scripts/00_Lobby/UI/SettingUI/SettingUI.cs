@@ -6,9 +6,9 @@ public class Setting_UI : MonoBehaviour
     [SerializeField] private CanvasGroup soundCanvasGroup;
     [SerializeField] private RectTransform soundPanel;
 
-    //[Header("Language")]
-    //[SerializeField] private CanvasGroup languageCanvasGroup;
-    //[SerializeField] private RectTransform languagePanel;
+    [Header("Language")]
+    [SerializeField] private CanvasGroup languageCanvasGroup;
+    [SerializeField] private RectTransform languagePanel;
 
     [Header("Game")]
     [SerializeField] private CanvasGroup gameCanvasGroup;
@@ -33,25 +33,25 @@ public class Setting_UI : MonoBehaviour
             PlayButtonSFX();
 
         ShowPanel(soundCanvasGroup, soundPanel);
-        //HidePanel(languageCanvasGroup, languagePanel);
+        HidePanel(languageCanvasGroup, languagePanel);
         HidePanel(gameCanvasGroup, gamePanel);
     }
 
-    //public void OpenLanguagePanel()
-    //{
-    //    PlayButtonSFX();
+    public void OpenLanguagePanel()
+    {
+        PlayButtonSFX();
 
-    //    HidePanel(soundCanvasGroup, soundPanel);
-    //    ShowPanel(languageCanvasGroup, languagePanel);
-    //    HidePanel(gameCanvasGroup, gamePanel);
-    //}
+        HidePanel(soundCanvasGroup, soundPanel);
+        ShowPanel(languageCanvasGroup, languagePanel);
+        HidePanel(gameCanvasGroup, gamePanel);
+    }
 
     public void OpenGamePanel()
     {
         PlayButtonSFX();
 
         HidePanel(soundCanvasGroup, soundPanel);
-        //HidePanel(languageCanvasGroup, languagePanel);
+        HidePanel(languageCanvasGroup, languagePanel);
         ShowPanel(gameCanvasGroup, gamePanel);
     }
 

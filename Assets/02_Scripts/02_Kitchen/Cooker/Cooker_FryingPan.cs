@@ -605,7 +605,6 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
             oilOffSprite.SetActive(false);
             oilOnSprite.SetActive(false);
-
             return;
         }
 
@@ -619,7 +618,6 @@ public class Cooker_FryingPan : MonoBehaviour, IInteractable
 
             oilOffSprite.SetActive(false);
             oilOnSprite.SetActive(false);
-
             return;
         }
 

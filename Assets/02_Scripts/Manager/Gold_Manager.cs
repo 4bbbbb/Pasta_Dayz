@@ -15,10 +15,10 @@ public class Gold_Manager : MonoBehaviour
     public float totalGold = 0f;
 
     [Header("하루 단위 통계")]
-    public float dailyRevenue = 0f;  
-    public float dailyCost = 0f;     
-    public float dailyRefund = 0f;    
-    public float dailyTip = 0f;       
+    public float dailyRevenue = 0f;   // 손님에게 받은 금액 합
+    public float dailyCost = 0f;      // 장사에 사용한 재료비 합
+    public float dailyRefund = 0f;    // 환불 합
+    public float dailyTip = 0f;       // 팁 합
     public int dailyTipCount = 0;
 
     public System.Action OnTipChanged;
@@ -59,6 +59,7 @@ public class Gold_Manager : MonoBehaviour
         UpdateUI();
     }
 
+    // 장사용 재료비
     public void SpendBusinessCost(float amount)
     {
         totalGold -= amount;
@@ -66,6 +67,7 @@ public class Gold_Manager : MonoBehaviour
         UpdateUI();
     }
 
+    // 상점 구매
     public void SpendShop(float amount)
     {
         totalGold -= amount;
@@ -98,7 +100,9 @@ public class Gold_Manager : MonoBehaviour
     void UpdateUI()
     {
         if (goldText != null)
-            goldText.text = $"{totalGold:F2}";        
+        {
+            goldText.text = $"{totalGold:F2}";
+        }
     }
 
     public void ResetDailyStats()

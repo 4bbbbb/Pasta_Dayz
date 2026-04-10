@@ -90,7 +90,9 @@ public class Lobby_UI_Manager : MonoBehaviour
     void Start()
     {
         if (Game_Manager.Instance != null && nicknameText != null)
-            nicknameText.text = Game_Manager.Instance.currentNickname;       
+        {
+            nicknameText.text = Game_Manager.Instance.currentNickname;
+        }
 
         SyncNicknameUI();
     }
@@ -102,11 +104,8 @@ public class Lobby_UI_Manager : MonoBehaviour
 
     public void SyncNicknameUI()
     {
-        if (nicknameText == null) 
-            return;
-
-        if (Game_Manager.Instance == null) 
-            return;
+        if (nicknameText == null) return;
+        if (Game_Manager.Instance == null) return;
 
         nicknameText.text = Game_Manager.Instance.currentNickname;
     }
@@ -114,7 +113,9 @@ public class Lobby_UI_Manager : MonoBehaviour
     void InitNickname()
     {
         if (nicknameText != null && string.IsNullOrWhiteSpace(nicknameText.text))
-            nicknameText.text = defaultNickname;        
+        {
+            nicknameText.text = defaultNickname;
+        }
 
         if (nicknameInputField != null)
         {
@@ -125,8 +126,7 @@ public class Lobby_UI_Manager : MonoBehaviour
 
     void CacheButtonScale(RectTransform button)
     {
-        if (button == null) 
-            return;
+        if (button == null) return;
 
         if (!originalScales.ContainsKey(button))
             originalScales.Add(button, button.localScale);
@@ -152,8 +152,9 @@ public class Lobby_UI_Manager : MonoBehaviour
     void PlayButtonClickSFXOnly()
     {
         if (SoundManager.Instance != null)
+        {
             SoundManager.Instance.PlaySFX(buttonClickSFX);
-        
+        }
     }
 
     void PlayButtonJelly(RectTransform target)
@@ -162,7 +163,9 @@ public class Lobby_UI_Manager : MonoBehaviour
             return;
 
         if (SoundManager.Instance != null)
-            SoundManager.Instance.PlaySFX(buttonClickSFX);        
+        {
+            SoundManager.Instance.PlaySFX(buttonClickSFX);
+        }
 
         if (!originalScales.TryGetValue(target, out Vector3 originalScale))
             originalScale = target.localScale;
@@ -213,7 +216,18 @@ public class Lobby_UI_Manager : MonoBehaviour
 
         StartCoroutine(LoadSceneAfterDelay());
     }
-   
+
+    private IEnumerator HandleFirstStartFlow()
+    {
+        isStartingGame = true;
+
+        PlayButtonJelly(startButton);
+        yield return new WaitForSeconds(0.3f);
+
+        OpenNicknameChangePanelForced();
+
+        isStartingGame = false;
+    }
 
     private IEnumerator LoadSceneAfterDelay()
     {
@@ -284,14 +298,14 @@ public class Lobby_UI_Manager : MonoBehaviour
         isForcedNicknameFlow = forced;
 
         if (nicknameCancelButtonObject != null)
+        {
             nicknameCancelButtonObject.SetActive(!forced);
-        
+        }
 
         if (nicknameInputField != null)
         {
             if (Game_Manager.Instance != null)
                 nicknameInputField.text = Game_Manager.Instance.currentNickname;
-
             else if (nicknameText != null)
                 nicknameInputField.text = nicknameText.text;
 
@@ -339,7 +353,6 @@ public class Lobby_UI_Manager : MonoBehaviour
         else
         {
             isForcedNicknameFlow = false;
-
             if (nicknameCancelButtonObject != null)
                 nicknameCancelButtonObject.SetActive(true);
         }
@@ -359,11 +372,14 @@ public class Lobby_UI_Manager : MonoBehaviour
     {
         PlayButtonClickSFXOnly();
 
+        // 처음 강제 닉네임 입력 흐름에서는 취소 막기
         if (isForcedNicknameFlow)
             return;
 
         if (nicknameInputField != null && nicknameText != null)
-            nicknameInputField.text = nicknameText.text;        
+        {
+            nicknameInputField.text = nicknameText.text;
+        }
 
         StartClose(nicknameChangeCanvasGroup, nicknameChangePanel);
     }
@@ -387,20 +403,29 @@ public class Lobby_UI_Manager : MonoBehaviour
         PlayerPrefs.Save();
 
         SceneManager.LoadScene(1);
-    }   
+    }
+
+    private void CompleteFirstStartAndLoad(bool shouldPlayTutorial)
+    {
+        SetFirstStartFlowDone(shouldPlayTutorial);
+
+        if (Game_Manager.Instance != null)
+        {
+            Game_Manager.Instance.SaveGame();
+        }
+
+        StartClose(tutorialChoiceCanvasGroup, tutorialChoicePanel);
+        StartCoroutine(LoadSceneAfterChoiceDelay());
+    }
 
     void StartOpen(CanvasGroup cg, RectTransform panel)
     {
-        if (cg == null || panel == null) 
-            return;
+        if (cg == null || panel == null) return;
 
         DOVirtual.DelayedCall(buttonAnimDelay, () =>
         {
-            if (cg == null || panel == null) 
-                return;
-
-            if (cg.gameObject == null || panel.gameObject == null) 
-                return;
+            if (cg == null || panel == null) return;
+            if (cg.gameObject == null || panel.gameObject == null) return;
 
             cg.DOKill();
             panel.DOKill();
@@ -417,9 +442,7 @@ public class Lobby_UI_Manager : MonoBehaviour
                 .SetEase(Ease.OutCubic)
                 .OnComplete(() =>
                 {
-                    if (cg == null || panel == null) 
-                        return;
-
+                    if (cg == null || panel == null) return;
                     cg.interactable = true;
                     cg.blocksRaycasts = true;
                 });
@@ -428,16 +451,12 @@ public class Lobby_UI_Manager : MonoBehaviour
 
     void StartClose(CanvasGroup cg, RectTransform panel)
     {
-        if (cg == null || panel == null) 
-            return;
+        if (cg == null || panel == null) return;
 
         DOVirtual.DelayedCall(buttonAnimDelay, () =>
         {
-            if (cg == null || panel == null) 
-                return;
-
-            if (cg.gameObject == null || panel.gameObject == null) 
-                return;
+            if (cg == null || panel == null) return;
+            if (cg.gameObject == null || panel.gameObject == null) return;
 
             cg.DOKill();
             panel.DOKill();
@@ -451,9 +470,7 @@ public class Lobby_UI_Manager : MonoBehaviour
                 .SetEase(Ease.InCubic)
                 .OnComplete(() =>
                 {
-                    if (cg == null) 
-                        return;
-
+                    if (cg == null) return;
                     cg.gameObject.SetActive(false);
                 });
         }).SetLink(gameObject, LinkBehaviour.KillOnDestroy);

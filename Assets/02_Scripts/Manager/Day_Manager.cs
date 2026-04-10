@@ -10,8 +10,8 @@ public class Day_Manager : MonoBehaviour
     public float dayDuration = 180f;
     private float timer;
 
-    public int day;                
-    private int completedDay = 0;  
+    public int day;                 // 현재 진행 중이거나 방금 시작한 day
+    private int completedDay = 0;   // 마지막으로 완료한 day
 
     public bool isDayActive = false;
     public bool isTakingOrder = true;
@@ -43,12 +43,14 @@ public class Day_Manager : MonoBehaviour
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (scene.name == "01_Counter")
+        {
             orderManager = FindFirstObjectByType<Order_Manager>();
-       
+        }
 
         if (scene.name == "01_Counter" && !isDayActive && orderManager != null)
+        {
             StartDay();
-        
+        }
     }
 
     void Update()
@@ -56,6 +58,7 @@ public class Day_Manager : MonoBehaviour
         if (!isDayActive)
             return;
 
+        // 튜토리얼 중에는 시간 정지
         if (IsTutorialTimeFrozen())
             return;
 
@@ -95,7 +98,7 @@ public class Day_Manager : MonoBehaviour
 
     void StartDay()
     {
-        day = completedDay + 1;   
+        day = completedDay + 1;   // 다음 시작 day는 마지막 완료 day + 1
         timer = dayDuration;
         isDayActive = true;
         isTakingOrder = true;
@@ -136,8 +139,9 @@ public class Day_Manager : MonoBehaviour
     private IEnumerator EndDayRoutine()
     {
         if (orderManager != null)
+        {
             yield return orderManager.PlayCustomerExitForDayEnd();
-        
+        }
 
         yield return new WaitForSeconds(0.5f);
 
@@ -153,8 +157,9 @@ public class Day_Manager : MonoBehaviour
         }
 
         if (Game_Manager.Instance != null)
+        {
             Game_Manager.Instance.SaveGame();
-        
+        }
     }
 
     public void ResetForNextDay()

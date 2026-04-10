@@ -1,24 +1,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Noodle_Manager : MonoBehaviour
+public class NoodleManager : MonoBehaviour
 {
     [System.Serializable]
     public class NoodleSlot
     {
-        public int id;
-        public GameObject noodleObj;
-        public GameObject emptyObj;
+        public int id;                  // 예: 102
+        public GameObject noodleObj;    // 구매 후 보일 오브젝트
+        public GameObject emptyObj;     // 구매 전 보일 빈 오브젝트
     }
 
     [SerializeField] private List<NoodleSlot> noodleSlots = new List<NoodleSlot>();
 
-    private void OnEnable()
-    {
-        RefreshNoodles();
-    }
-
-    private void Start()
+    void Start()
     {
         RefreshNoodles();
     }
@@ -49,6 +44,8 @@ public class Noodle_Manager : MonoBehaviour
 
             if (slot.emptyObj != null)
                 slot.emptyObj.SetActive(!unlocked);
+
+            Debug.Log($"Noodle ID {slot.id} / unlocked = {unlocked}");
         }
     }
 }

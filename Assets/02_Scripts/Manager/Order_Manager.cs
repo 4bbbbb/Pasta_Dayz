@@ -17,8 +17,8 @@ public class Order_Manager : MonoBehaviour
     [Header("UI")]
     public GameObject customerUIPrefab;
 
-    private Transform customerUIParent;
-    private Transform serveBoxParent;
+    private Transform customerUIParent;   // Panel_Customer
+    private Transform serveBoxParent;     // Image_Table
 
     [Header("손님 프리팹")]
     private CustomerUI currentCustomer;
@@ -167,6 +167,9 @@ public class Order_Manager : MonoBehaviour
 
         if (TutorialController.Instance != null && TutorialController.Instance.IsTutorialActive)
         {
+            // 튜토리얼 중 주방에서 카운터로 돌아왔을 때는
+            // pendingResult / pendingSatisfactionZero를 먼저 처리해야
+            // 파스타 박스 전달 연출이 정상적으로 재생된다.
             if (pendingSatisfactionZero)
             {
                 pendingSatisfactionZero = false;
@@ -214,8 +217,9 @@ public class Order_Manager : MonoBehaviour
         else
         {
             if (currentOrder == null)
+            {
                 StartService();
-
+            }
         }
     }
 
@@ -297,13 +301,13 @@ public class Order_Manager : MonoBehaviour
         }
 
         if (SoundManager.Instance != null)
+        {
             SoundManager.Instance.PlaySFX(customerEnterSFX);
-
+        }
 
         currentCustomer.gameObject.SetActive(true);
 
         RectTransform rect = currentCustomer.GetComponent<RectTransform>();
-
         if (rect == null)
         {
             customerEntranceRoutine = null;
@@ -423,11 +427,14 @@ public class Order_Manager : MonoBehaviour
         StopCustomerEntranceAnimation();
 
         if (currentCustomer != null)
+        {
             currentCustomer.gameObject.SetActive(false);
-
+        }
 
         if (CustomerSatisfaction_Manager.Instance != null)
+        {
             CustomerSatisfaction_Manager.Instance.ResetSatisfaction();
+        }
 
         SceneManager.LoadScene(2);
     }
@@ -443,7 +450,9 @@ public class Order_Manager : MonoBehaviour
         {
             float satisfactionRatio = 0f;
             if (CustomerSatisfaction_Manager.Instance != null)
+            {
                 satisfactionRatio = CustomerSatisfaction_Manager.Instance.GetSatisfactionRatio();
+            }
 
             float tip = 0f;
 
@@ -480,8 +489,7 @@ public class Order_Manager : MonoBehaviour
         foreach (int id in usedIngredients)
         {
             var ingredient = ingredientDB.GetIngredient(id);
-            if (ingredient == null)
-                continue;
+            if (ingredient == null) continue;
 
             totalingredientCost += ingredient.ingredientCost;
         }
@@ -491,8 +499,7 @@ public class Order_Manager : MonoBehaviour
             if (!usedIngredients.Contains(id))
             {
                 var ingredient = ingredientDB.GetIngredient(id);
-                if (ingredient == null)
-                    continue;
+                if (ingredient == null) continue;
 
                 refund += ingredient.price;
             }
@@ -725,7 +732,6 @@ public class Order_Manager : MonoBehaviour
             yield break;
 
         CanvasGroup cg = box.GetComponent<CanvasGroup>();
-
         if (cg == null)
             cg = box.AddComponent<CanvasGroup>();
 
@@ -742,6 +748,8 @@ public class Order_Manager : MonoBehaviour
 
         bool sameIngredients = pastaBox.GetIngredientSet().SetEquals(order.GetIngredientSet());
         bool sameBaked = pastaBox.IsBaked == order.IsBaked;
+
+        Debug.Log($"재료 일치: {sameIngredients}, box baked: {pastaBox.IsBaked}, order baked: {order.IsBaked}");
 
         return sameIngredients && sameBaked;
     }
@@ -791,6 +799,11 @@ public class Order_Manager : MonoBehaviour
 
         Level_Manager.Instance.EarnXP(5);
 
+        Debug.Log(
+            $"[AUTO COOK] 자동 조리 완료 | " +
+            $"주문금액 +{menuPrice}, 재료비 -{ingredientCost}, 자동조리비 -{autoExtraCost}, 현재 골드: {Gold_Manager.Instance.totalGold}"
+        );
+
         currentOrder = null;
 
         yield return StartCoroutine(ServeDishAndGoToNextCustomer(true));
@@ -801,7 +814,9 @@ public class Order_Manager : MonoBehaviour
     public void OnOrderTimeEnded()
     {
         if (currentState == ServiceState.TakingOrder)
+        {
             StartCoroutine(HandleCustomerExitAndEndDay());
+        }
     }
 
     private IEnumerator HandleCustomerExitAndEndDay()
@@ -821,7 +836,9 @@ public class Order_Manager : MonoBehaviour
     void CheckDayEndCondition()
     {
         if (!dayManager.isTakingOrder && currentOrder == null && currentCustomer == null)
+        {
             dayManager.EndDay();
+        }
     }
 
     void DebugIngredientSet(IHasIngredients target, string label)
@@ -914,7 +931,6 @@ public class Order_Manager : MonoBehaviour
             currentCustomer.yesButton.SetActive(showYes);
 
             Button yesBtn = currentCustomer.yesButton.GetComponent<Button>();
-
             if (yesBtn != null)
                 yesBtn.interactable = enableYes;
         }
@@ -924,7 +940,6 @@ public class Order_Manager : MonoBehaviour
             currentCustomer.autoButton.SetActive(showAuto);
 
             Button autoBtn = currentCustomer.autoButton.GetComponent<Button>();
-
             if (autoBtn != null)
                 autoBtn.interactable = enableAuto;
         }
@@ -951,8 +966,13 @@ public class Order_Manager : MonoBehaviour
 
         currentState = ServiceState.WaitingForOrder;
 
+        // 튜토리얼 종료 후에는 같은 카운터 씬에 그대로 머무르므로
+        // OnSceneLoaded가 다시 호출되지 않는다.
+        // 따라서 실제 영업용 첫 손님을 여기서 직접 다시 스폰해줘야 한다.
         if (dayManager != null && dayManager.isTakingOrder)
+        {
             StartService();
+        }
     }
 
     #endregion

@@ -83,7 +83,7 @@ public class CounterTutorialView : MonoBehaviour
         }
 
         HideNextButtonImmediate();
-        SetInputBlocker(true);  
+        SetInputBlocker(false);
     }
 
     public void HideAll()
@@ -160,8 +160,6 @@ public class CounterTutorialView : MonoBehaviour
 
         if (pointPause != null)
             pointPause.SetActive(true);
-
-        SetInputBlocker(false);
 
         PlayTyping(msg, showNextAfterTyping);
     }
@@ -447,7 +445,7 @@ public class CounterTutorialView : MonoBehaviour
         }
     }
 
-    public void SetInputBlocker(bool isActive)
+    private void SetInputBlocker(bool isActive)
     {
         if (inputBlocker != null)
             inputBlocker.SetActive(isActive);
